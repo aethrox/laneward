@@ -1,7 +1,7 @@
 # Verification bake-off: four candidates on one real change
 
 Evidence for wayfinder ticket #4 on map #2. This note records what each candidate
-found. It does not pick a winner — that is ticket #7's job.
+found. It does not pick a winner: that is ticket #7's job.
 
 ## Subject
 
@@ -32,8 +32,8 @@ All four ran against a detached worktree at `26efe1c`, never against `master`.
 | Independent clean run | fresh database, `bun install`, `bun run db:migrate`, seed, `bun run start` **from git-bash**, all five notification classes enabled, 8 s observation window |
 
 The review prompt given to the Codex lane named the categories a standing review
-step would name — correctness, security, runtime behaviour, cross-file contract
-disagreement, tests that pass without proving what they claim — and named no
+step would name: correctness, security, runtime behaviour, cross-file contract
+disagreement, tests that pass without proving what they claim; and named no
 defect, no file, and no area of the change.
 
 ## Results
@@ -53,9 +53,9 @@ defect, no file, and no area of the change.
 Common to both runs: **D2**, and the poll loop clearing a disabled class's
 deduplication record. Run 1 additionally reported that a notification row is
 inserted before delivery is known to have succeeded, so a failed toast is never
-retried — true, and the clean run below demonstrates it. Run 2 additionally
+retried: true, and the clean run below demonstrates it. Run 2 additionally
 reported that the `plan_ready_for_review` query does not exclude superseded plan
-revisions while `checkGate` refuses them (`src/gate.ts:33-40`) — a real
+revisions while `checkGate` refuses them (`src/gate.ts:33-40`), a real
 cross-file contract disagreement that is **not** in the ground-truth list.
 
 Run 1's false positive: the toast's `CreateToastNotifier('Laneward')`
@@ -89,7 +89,7 @@ None of them is a judgement about what ACOS would find if it ran.
 **It does not start.** `acos.py` invokes its agents as `subprocess.run(["claude",
 …])` with no shell. On Windows the extensionless npm shim is not executable that
 way, so every run dies at the reviewer stage with `FileNotFoundError: [WinError
-2]` — after preflight has already reported `preflight ok`, because preflight uses
+2]`, after preflight has already reported `preflight ok`, because preflight uses
 a `which`-style lookup that resolves the shim preflight cannot execute. The two
 runs above were made against a scratch copy patched to `claude.cmd` /
 `codex.cmd`; the unpatched tool is a hard failure on this machine.
@@ -102,7 +102,7 @@ Turkish prose; ACOS could not parse it and discarded everything, reporting
 `Findings: 0 valid, 0 invalid`.
 
 **It cannot review a change.** ACOS reviews a *disposable export of the committed
-revision* — a `git archive` extraction with no `.git`. Run 2 says so in its own
+revision*: a `git archive` extraction with no `.git`. Run 2 says so in its own
 words: it could not perform a diff-based review and read the whole codebase
 instead. `--scope src/notify.ts --scope tests/notify.test.ts` was also ignored in
 both runs; the discarded prose discusses `scripts/new-lane.ts`, `src/gate.ts` and
@@ -125,13 +125,13 @@ thrown away by ACOS's own pipeline.
 | wall clock | 42 s | 39 s |
 | cost | none | none |
 
-`bun test` at `26efe1c` returns **185 pass / 1 skip / 0 fail** — it confirms the
+`bun test` at `26efe1c` returns **185 pass / 1 skip / 0 fail**: it confirms the
 ticket's premise that the suite was green while all three defects were live.
 
 `tsc --noEmit` does not run in this repo as it stands: `tsconfig.json` names the
 `bun-types` type library and no package provides it, so the first invocation
 fails with `TS2688` before checking anything. With `bun-types` installed the
-typecheck reports 5 errors, all in `scripts/` and `tests/git-guard.test.ts` —
+typecheck reports 5 errors, all in `scripts/` and `tests/git-guard.test.ts`:
 files the change does not touch. Zero errors in `src/notify.ts` or
 `tests/notify.test.ts`.
 
@@ -178,7 +178,7 @@ With all five classes enabled, three emitted and two never did:
 
 That is **D1**, from the outside, without reading a line of the diff. It is
 reached by exercising the whole documented configuration surface rather than the
-default one — a clean run that only enables the defaults would have missed it.
+default one: a clean run that only enables the defaults would have missed it.
 
 The run also demonstrated the defect Codex run 1 reasoned to: all three
 notification rows were written with `sent_at` set even though **every** spawn

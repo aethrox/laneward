@@ -59,8 +59,8 @@ function inLinkedWorktree(cwd: string): boolean {
 }
 
 // The gate exists to stop a lane from *changing* things it has no approval for.
-// A `Bash` matcher cannot express that on its own — it matches the tool, not the
-// command — so the command is read here. Denying `git status` buys nothing and
+// A `Bash` matcher cannot express that on its own, since it matches the tool
+// rather than the command, so the command is read here. Denying `git status` buys nothing and
 // costs the worker the one thing that tells it why it is stuck.
 //
 // This is an allowlist: an unrecognized command is gated. Shell metacharacters

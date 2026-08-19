@@ -5,8 +5,8 @@ deliberate. It replaces a private predecessor whose history is not carried over.
 
 ## Why the history is not here
 
-The predecessor had 260 commits. It contained **no credential material** — no
-tokens, no keys, no committed `.env` — and that was checked rather than assumed.
+The predecessor had 260 commits. It contained **no credential material**: no
+tokens, no keys, no committed `.env`, and that was checked rather than assumed.
 What it did contain, across both file contents and commit messages, was a
 detailed picture of one developer's machine:
 
@@ -24,7 +24,7 @@ commit messages is worse work than starting once, cleanly.
 
 So the tree came across and the history did not. `docs/notes/` is kept in full,
 because the record of what was tried and what it cost is the most useful thing
-this project has — it simply no longer names the machine.
+this project has; it simply no longer names the machine.
 
 ## The name
 
@@ -37,8 +37,8 @@ It is total because this is `v0.1.0` with no installed users. A half rename
 would have left the old name in every operator's configuration forever, and
 there is exactly one moment when that costs nothing.
 
-The vocabulary the code is built on — *lane*, `lane_id`, `owned_paths`,
-`new-lane` — is untouched, which is most of why this name was chosen over the
+The vocabulary the code is built on (*lane*, `lane_id`, `owned_paths`,
+`new-lane`) is untouched, which is most of why this name was chosen over the
 alternatives: it keeps the word the whole design already turns on.
 
 ## Links that did not survive
@@ -46,10 +46,10 @@ alternatives: it keeps the word the whole design already turns on.
 The predecessor's GitHub issues and Actions runs are referenced throughout
 `docs/`. Those threads did not move, and pointing a link at this repository
 would fabricate a destination that never existed here. Every such link is now
-plain text — `issue #12`, `CI run 31891261576` — so the reference survives and
+plain text: `issue #12`, `CI run 31891261576`, so the reference survives and
 the dead link does not.
 
-Older notes also cite commit SHAs — `measured at 3088e79` and the like. Those
+Older notes also cite commit SHAs: `measured at 3088e79` and the like. Those
 belong to the predecessor and do not resolve here either. They are left in place
 because they say *when* something was measured relative to the work around it,
 which is the part that still reads; rewriting 38 of them would damage the notes
@@ -64,8 +64,8 @@ shipped (two of them for a different project entirely), three phase designs from
 header declared it superseded, and an archived gaps list that its successor
 already absorbed.
 
-Three overlapping planning documents — a remaining-work list, a shipping plan
-and a stage plan, 7,500 words between them describing mostly finished work —
+Three overlapping planning documents (a remaining-work list, a shipping plan
+and a stage plan, 7,500 words between them describing mostly finished work)
 became one: [what is left](2026-08-19-what-is-left.md). Anyone who wanted the
 open items previously had to reconcile all three.
 

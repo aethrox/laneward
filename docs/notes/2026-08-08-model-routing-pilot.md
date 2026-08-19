@@ -8,7 +8,7 @@ Host: Windows 11 Pro 26200, codex-cli 0.147.0
 
 Laneward currently has no per-lane model field. `scripts/codex-round.ts` only
 sets `model_reasoning_effort=high` and every lane inherits whatever model is
-set in `~/.codex/config.toml` — on the verified Fedora conductor host that is
+set in `~/.codex/config.toml`, on the verified Fedora conductor host that is
 `gpt-5.6-sol`, the most expensive tier, regardless of how simple the lane is.
 
 `sol-advisor`'s own role table already draws this distinction (implementer
@@ -35,16 +35,16 @@ from the same commit (`deff9a2`), each in its own disposable git worktree, so
 no run could interfere with another or with the real tree. All worktrees and
 branches were deleted after comparison; nothing was merged.
 
-- **Task A — routine formatting.** Pure `formatDuration(ms): string` helper
+- **Task A: routine formatting.** Pure `formatDuration(ms): string` helper
   (ms/s/m/s/h/m rendering, throw on invalid input) plus 8 named test cases.
   Bounded, single file, no ambiguity.
-- **Task B — scoped logic with a real bug trap.** Pure `pathsConflict(a, b):
+- **Task B: scoped logic with a real bug trap.** Pure `pathsConflict(a, b):
   boolean` helper for lane file-scope overlap detection (mirrors what
   `src/gate.ts` actually does), requiring path-*segment* comparison rather
-  than naive string-prefix matching — `"src/auth"` must not conflict with
+  than naive string-prefix matching: `"src/auth"` must not conflict with
   `"src/authorization"`. Single file, but the correct solution needs one real
   reasoning step; the naive/wrong solution is shorter to write.
-- **Task C — trivial one-liner.** `clampInt(n, min, max): number`. As
+- **Task C: trivial one-liner.** `clampInt(n, min, max): number`. As
   mechanical as a coding task gets.
 
 ```
@@ -66,8 +66,8 @@ codex exec -m gpt-5.6-<sol|terra|luna> -s workspace-write \
 | C (clampInt) | Terra | **39s** | **9,728** | 1 test / 5 assertions, pass | yes |
 | C (clampInt) | Luna | 38s | 20,278 | 1 test / 5 assertions, pass | yes |
 
-All 9 implementations were correct, including Task B's segment-vs-prefix trap
-— every model (Sol, Terra, and Luna alike) correctly rejected
+All 9 implementations were correct, including Task B's segment-vs-prefix trap;
+every model (Sol, Terra, and Luna alike) correctly rejected
 `"src/auth"`/`"src/authorization"` as non-conflicting rather than falling for
 a naive `.startsWith()` bug. No quality difference was observed anywhere in
 this sample.
@@ -75,13 +75,13 @@ this sample.
 ### The unexpected part: Terra, not Luna, was the token/speed leader
 
 Terra used the fewest tokens **and** ran fastest or tied-fastest on all three
-task shapes — including beating Luna, the nominally "cheapest and fastest"
+task shapes, including beating Luna, the nominally "cheapest and fastest"
 tier, on every single run. Luna was never the token leader in this sample.
 
 This means Luna's lower sticker price does not automatically translate into
 the lowest total cost: Luna spent 1.4x–2.1x as many tokens as Terra to reach
 an equally-correct answer on every task tested here. Using an illustrative
-85%-output/15%-input token split (not measured directly — `codex exec`'s
+85%-output/15%-input token split (not measured directly: `codex exec`'s
 plain-text output does not expose the split, so this is a rough estimate, not
 a fact) the approximate per-run dollar cost is:
 
@@ -93,14 +93,14 @@ a fact) the approximate per-run dollar cost is:
 
 Under this estimate Luna is still the cheapest in dollars on all three (its
 5x cheaper sticker price outweighs its token inefficiency), but by a much
-smaller margin than the raw per-token prices suggest — and it bought no speed
+smaller margin than the raw per-token prices suggest, and it bought no speed
 or quality advantage over Terra anywhere in this sample. Terra was
 consistently and by a wide margin cheaper and faster than Sol, with no
 observed quality cost, on all three shapes.
 
 ## What this does and doesn't show
 
-- 9 samples, 3 task shapes, all single-file and fully specified — none needed
+- 9 samples, 3 task shapes, all single-file and fully specified: none needed
   cross-file reasoning or long-horizon persistence across a working tree.
   Sol's published benchmark advantage specifically targets that kind of work
   (security, concurrency, wide refactors, migrations), which nothing here
@@ -117,9 +117,9 @@ observed quality cost, on all three shapes.
 |---|---|---|
 | Routine or scoped-logic implementer (single file, fully specified, even with a real reasoning step) | **Terra** | fastest and most token-efficient in all 3 shapes tested, zero quality loss |
 | High-complexity implementer (security, concurrency, wide refactor, migration, cross-file persistence) | **Sol** | untested here; matches Sol's published benchmark strength, not yet contradicted or confirmed locally |
-| Advisor / review — first pass | Terra | matches OpenAI's own positioning ("first-pass review") |
-| Advisor / review — final verdict | Sol | unchanged from `sol-advisor`'s own convention |
-| Luna | no lane type recommended by this pilot | never won on speed or tokens against Terra in 3/3 tests; its dollar-cost edge is real but small and unproven beyond this sample — do not default to it without a separate pilot showing where it actually wins |
+| Advisor / review, first pass | Terra | matches OpenAI's own positioning ("first-pass review") |
+| Advisor / review, final verdict | Sol | unchanged from `sol-advisor`'s own convention |
+| Luna | no lane type recommended by this pilot | never won on speed or tokens against Terra in 3/3 tests; its dollar-cost edge is real but small and unproven beyond this sample; do not default to it without a separate pilot showing where it actually wins |
 
 This reverses the prior version of this note, which proposed Luna as the
 default for routine lanes based on a single Sol-vs-Luna sample. The 3x3 pass

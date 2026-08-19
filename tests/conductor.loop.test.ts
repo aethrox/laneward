@@ -16,7 +16,7 @@ beforeEach(async () => {
 });
 
 // The loop is driven through the real entry point rather than by calling
-// runLoop with a stop condition. runLoop returns never on purpose — a seam that
+// runLoop with a stop condition. runLoop returns never on purpose, a seam that
 // let a test end it would be a seam the service could end on too, and the whole
 // point of D-014 is that nothing ends it but a signal.
 function spawnLoop(env: Record<string, string>) {

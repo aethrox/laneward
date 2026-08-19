@@ -89,19 +89,19 @@ ACOS must not automatically modify code or create correction lanes.
 
 ## Adoption stages
 
-### Stage 0 — Disabled
+### Stage 0: Disabled
 
 Laneward v1 operates without ACOS.
 
-### Stage 1 — Shadow mode
+### Stage 1: Shadow mode
 
 ACOS runs but does not block release. Its findings are compared with known defects and human review.
 
-### Stage 2 — Advisory gate
+### Stage 2: Advisory gate
 
 ACOS findings require acknowledgment, but the user decides whether they block.
 
-### Stage 3 — Blocking gate
+### Stage 3: Blocking gate
 
 Only evidence-backed high-severity classes block release automatically. This stage requires a measured false-positive and false-negative history.
 

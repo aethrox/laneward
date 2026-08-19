@@ -70,13 +70,13 @@ the two. What is wrong is that both are written down as the rule.
 
 ## Plan
 
-### Stage 0 — make the issue describe the repository, no code
+### Stage 0: make the issue describe the repository, no code
 
 Post the verification above as a comment. Retire the second report's macOS
 scoring against D-022. Correct CP-6's numbers to the current measurement. The
 issue stops being an audit report and becomes a tracking list.
 
-### Stage 1 — documentation truth, one lane
+### Stage 1: documentation truth, one lane
 
 The three confirmed documentation findings, together because they share a root
 cause: current-state prose edited additively until new truth sits beside old.
@@ -90,26 +90,26 @@ cause: current-state prose edited additively until new truth sits beside old.
 Carry a convention out of it: a current-state line states its date, so the next
 reader can tell a measurement from a memory.
 
-### Stage 2 — settle the two open decisions, no code
+### Stage 2: settle the two open decisions, no code
 
 - Ownership serialization: the policy follows the code, or the code follows the
   policy. One of them, written as a decision.
 - macOS scope: D-022 already answers it; the audit's contradiction is closed
   where decisions live.
 
-### Stage 3 — CP-5, the one real code defect
+### Stage 3: CP-5, the one real code defect
 
 A single shared resolver for the state directory. It is the only platform
 finding with a symptom a user meets: a running lane whose log the dashboard
 cannot show.
 
-### Stage 4 — CP-6, a Windows and Linux matrix in CI
+### Stage 4: CP-6, a Windows and Linux matrix in CI
 
 `.github/workflows` with a Postgres service, both platforms. This turns
 2026-08-15's single Linux run into continuous verification and protects stages 1
 through 3 from regressing. Everything after this stage is cheaper for having it.
 
-### Stage 5 and beyond — the expensive half, in the audit's own order
+### Stage 5 and beyond: the expensive half, in the audit's own order
 
 CP-2 conductor supervision, which is what "approved lanes continue after Claude
 exits" would require; then CP-1, CP-4 and CP-9, the Windows installation story;
@@ -145,7 +145,7 @@ route tables, `LANEWARD_CHECK_TIMEOUT_MS`, `LANE_WORKTREE_ROOT` and
 plainly that a new `codex exec` receives the original brief plus the decision.
 
 **Stage 2, done.** Ownership serialization is settled as D-036: the code's
-stricter rule wins and `05`'s permission is withdrawn. macOS needed nothing —
+stricter rule wins and `05`'s permission is withdrawn. macOS needed nothing:
 D-022 already says it, and the correction belongs in the issue, not in a new
 decision.
 
@@ -167,7 +167,7 @@ by service-name prefix because its major version moves with the image. Both poin
 What is verified: the YAML parses, `bun run typecheck` passes locally, and the
 lockfile `--frozen-lockfile` needs exists. What is not: the workflow has never
 executed. A GitHub Actions workflow cannot be run from this machine, so its first
-real evidence is the first push. The Windows leg is the one to watch — the
+real evidence is the first push. The Windows leg is the one to watch: the
 PostgreSQL service name and the superuser password are properties of the runner
 image, not of this repository.
 
@@ -179,7 +179,7 @@ changes, so nothing here regressed.
 
 Their cause is worth recording before Stage 4. `tests/fixtures/fake-candidate.ts`
 declares `shell: { win32: ["bash", "-lc"] }`, and on this machine bare `bash` is
-`C:\WINDOWS\System32\bash.exe` — WSL. The clean-run layer refuses it, correctly
+`C:\WINDOWS\System32\bash.exe`: WSL. The clean-run layer refuses it, correctly
 and by design, because a candidate observed under Linux while the host is Windows
 has measured nothing. On GitHub `windows-latest` bare `bash` is Git Bash, so the
 fixture is right in CI and wrong only here.
@@ -194,7 +194,7 @@ Fixed. `tests/lane-checks.test.ts` clears the variable in `beforeAll` and
 restores it in `afterAll`; the two tests that want it set it themselves. With the
 override set the suite is **279 pass, 1 skip, 0 fail**, the first green run on
 this host. Without it, the only failures are the seven the host's WSL `bash`
-causes — the shape CI will run in, where bare `bash` is Git Bash and they do not
+causes, the shape CI will run in, where bare `bash` is Git Bash and they do not
 occur.
 
 The general lesson, since it will recur: an operator escape hatch that a resolver

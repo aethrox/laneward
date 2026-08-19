@@ -674,7 +674,7 @@ export function defaultConfig(): ConductorConfig {
   // PORT is where the hub listens, so it is also where the conductor should
   // look. Defaulting HUB_URL independently means changing PORT alone points the
   // conductor at nothing, and the only symptom is "Unable to connect" every
-  // interval — which is what happened the first time these ran as real services.
+  // interval, which is what happened the first time these ran as real services.
   const port = Number(process.env.PORT);
   const defaultHub = `http://127.0.0.1:${Number.isFinite(port) && port > 0 ? port : 8787}`;
   return {

@@ -19,7 +19,7 @@ podman inside it. `systemctl --user` works there, which is the whole requirement
 
 Two things had to be fixed in the container, and **neither is a Laneward
 defect**. The Fedora base image ships no systemd, and nested rootless podman
-needs `cap_setuid`/`cap_setgid` file capabilities on `newuidmap`/`newgidmap` —
+needs `cap_setuid`/`cap_setgid` file capabilities on `newuidmap`/`newgidmap`;
 without them every `podman run` fails with `cannot set up namespace`. Both are
 properties of running podman inside podman.
 
@@ -56,7 +56,7 @@ in the test suite; this is its first run under systemd.
 
 **`install.sh --uninstall` after a real install.** It had only ever been run
 after a dry one. It removed the units, the quadlet's container and the app
-directory, and kept `~/.config/laneward/.env` and `pgdata` while saying so —
+directory, and kept `~/.config/laneward/.env` and `pgdata` while saying so,
 which is the behaviour the flag promises and the reason it is not `--purge` by
 default.
 

@@ -15,7 +15,7 @@ A defect counts here if it was found **after** something had already accepted th
 work: a passing test suite, a completed review, a merged lane, or a closed phase.
 Deliberate deferrals (secret isolation, worktree ownership transfer, the unbuilt
 plan statuses) are not defects and are excluded. Defects found *inside* a lane's
-own correction loop, before anything accepted it, are also excluded — the loop
+own correction loop, before anything accepted it, are also excluded; the loop
 working as designed is not an escape.
 
 Thirty entries qualify.
@@ -25,7 +25,7 @@ Thirty entries qualify.
 Each entry: what escaped, what had already accepted it, and the sentence that
 records it.
 
-### Phase 2 — the Git boundary
+### Phase 2: the Git boundary
 
 **E-01. The guard's real-git fallback resolved itself, and the production path
 was dead.** Accepted by: 18 of 18 targeted guard tests, green throughout.
@@ -53,7 +53,7 @@ guard's allowlist now admits `git --version`, `rev-list`, `worktree list`, and
 `stash list`." Commit `4b71c15`: "a worker hitting one got a confusing REFUSED
 for a plain read."
 
-### Phase 2b — the cross-platform rewrite
+### Phase 2b: the cross-platform rewrite
 
 **E-05. `new URL(path, import.meta.url).pathname` yields `/C:/...` on Windows, in
 six places.** Accepted by: the rewrite's own test suite, and it survived the very
@@ -63,7 +63,7 @@ production path while the test still passed, because the test resolved the same
 file a different way."
 
 **E-06. `tests/dashboard.logs.test.ts` asserted a POSIX separator for a value
-that is only ever a filesystem path.** Accepted by: every prior suite run — but
+that is only ever a filesystem path.** Accepted by: every prior suite run, but
 see E-08 for why that acceptance was worthless. Roadmap: "The test's hardcoded
 `/var/logs/gig-radar.log` expectation was the defect, not the code".
 
@@ -80,7 +80,7 @@ aborted 16 files at import, so most of the suite had never actually run." This i
 the most consequential entry in the survey: for two phases, "the suite passes" was
 a statement about 2 of 117 tests.
 
-### Phase 3 — automatic lane checks
+### Phase 3: automatic lane checks
 
 **E-09. The timeout test read a pid file the child never lived to write.**
 Accepted by: the lane's own delivery and its recorded verdict. Roadmap: "The
@@ -107,7 +107,7 @@ close E-11. Roadmap: "Bun does not let a `.env` file override a variable already
 present in the environment, so the first attempt migrated the hub's database
 instead of the lane's and left the lane's empty, 74 tests failing."
 
-### Phase 4 — the neura-system pilot
+### Phase 4: the neura-system pilot
 
 **E-13. An escalating worker recorded no evidence at all.** Accepted by: the
 whole of Phase 3, closed on four live observations, all of which used the
@@ -156,7 +156,7 @@ Claude reached on its own." A specification gap that shipped, not a runtime faul
 **E-21. There was no way to correct a lane record.** Pilot note: "the lane had to
 be re-registered under a new id […] because the API has no update or delete route".
 
-### Phase 6 — the bridge and the hooks
+### Phase 6: the bridge and the hooks
 
 **E-22. `WorktreeCreate` cannot be a gate, and `bridge gate` was wired to it.**
 Accepted by: the Phase 6 merge. 2026-08-08 note: "The event does not vet worktree
@@ -178,7 +178,7 @@ never arrived.** Accepted by: the CODEX_BIN seam and its fixture-based tests.
 Commit `683b4bb`: "codex printed 'No prompt provided via stdin' and exited, and the
 conductor scored three attempts of that as a failed lane."
 
-### Phase 7 — the notifier
+### Phase 7: the notifier
 
 **E-26. Two of the five notification classes can never fire.** Accepted by: 185
 passing tests, 1 skip, 0 failures, host-verified from the worktree, with
@@ -206,7 +206,7 @@ returns a `waiting_approval` lane whose approvals are all resolved, so a running
 conductor would have redispatched the merged lane."
 
 **E-30. The D-024 delegation came back with a deleted assertion.** Accepted by:
-a green suite — the delegated change passed. 2026-08-09 note: "Three things in
+a green suite: the delegated change passed. 2026-08-09 note: "Three things in
 what came back needed fixing, none of which a passing suite would have caught:
 […] in the 'notifies once' test it **replaced** the row-count assertion with the
 new `delivered_at` one, dropping the thing that proved the ledger deduplicates
@@ -216,7 +216,7 @@ new `delivered_at` one, dropping the thing that proved the ledger deduplicates
 
 Judgement per entry. **DIFF** means a competent independent reviewer, given the
 diff and the brief but not the machine, would plausibly have raised it. **RUN**
-means the evidence for the defect does not exist anywhere in the diff — it lives
+means the evidence for the defect does not exist anywhere in the diff; it lives
 in the host, the platform, a library's runtime semantics, or the interaction of
 two components neither of which is wrong alone. **DIFF-hard** means the finding is
 in the diff, but only for a reviewer who also holds a specific piece of platform
@@ -239,14 +239,14 @@ or repository knowledge.
 | E-13 | escalation short-circuits checks | **DIFF-hard** | The ordering is visible in the control flow. Whether it matters depends on knowing escalation is the *normal* path on this host, which is host knowledge. |
 | E-14 | opener's lockfile fails the worker | **RUN** | Two correct components interacting. Only a repo with no committed lockfile exposes it. |
 | E-15 | worktree path never validated | **DIFF** | Missing input validation at a trust boundary. Textbook review finding. |
-| E-16 | single-`DATABASE_URL` assumption | **DIFF** | A single-format assumption that fails *silently* rather than erroring — visible and objectionable in the diff. |
+| E-16 | single-`DATABASE_URL` assumption | **DIFF** | A single-format assumption that fails *silently* rather than erroring, visible and objectionable in the diff. |
 | E-17 | `expect().rejects` never settles | **RUN** | The pilot note is explicit: "invisible without running the suite". Depends on the `postgres` library's lazy query object. |
 | E-18 | `JSON.stringify(v)::jsonb` | **DIFF** | Recorded alongside E-17 as also invisible without running; **that classification is wrong**. `${JSON.stringify(value)}::jsonb` versus `sql.json(value)` is a readable SQL defect for any reviewer who knows jsonb. |
 | E-19 | 500 instead of 400 | **DIFF** | Missing validation ahead of a database constraint. |
 | E-20 | `resolved_by` conflates two roles | **DIFF** | A spec-vs-code review finding, catchable against the decision log. |
 | E-21 | no way to correct a lane | **DIFF** | Missing route, readable against the API surface. |
 | E-22 | `WorktreeCreate` is not a gate | **RUN** | The event's real contract is in Claude Code's documentation, not in the diff. Catchable only by a reviewer holding that doc. |
-| E-23 | fail-closed gate locks the session | **DIFF** | The single highest-value review question — "what happens when the hub is down?" — answers this from the diff alone. |
+| E-23 | fail-closed gate locks the session | **DIFF** | The single highest-value review question, "what happens when the hub is down?", answers this from the diff alone. |
 | E-24 | `lane_id` path traversal | **DIFF** | Textbook. Unvalidated input becomes a filesystem path. |
 | E-25 | stdio defaults swallow the brief | **DIFF-hard** | Requires knowing Bun's `spawn` stdio defaults. |
 | E-26 | unreachable notification classes | **DIFF** | The declared set and the emitted set are both in the same diff, a few dozen lines apart. |
@@ -267,15 +267,15 @@ diff. That is a real argument for a review layer and it should not be waved away
 But counting entries is the wrong weighting, and the record says so. Sort the
 thirty by what they actually cost:
 
-- **Live production data destroyed** — E-11, E-12, and the recurrence recorded in
+- **Live production data destroyed**: E-11, E-12, and the recurrence recorded in
   commit `dbdd9c3` ("It has happened repeatedly"). All RUN.
-- **Two phases closed on numbers that were fiction** — E-08. RUN.
-- **Ten minutes of wall clock burned on one hung check** — E-17. RUN.
-- **Three wasted Codex dispatches, twice** — E-15 (DIFF) and E-25 (DIFF-hard).
-- **Worktree creation dead across the whole tool** — E-22. RUN.
-- **A session locked so hard that recovery had to be typed by hand** — E-23. DIFF.
+- **Two phases closed on numbers that were fiction**: E-08. RUN.
+- **Ten minutes of wall clock burned on one hung check**: E-17. RUN.
+- **Three wasted Codex dispatches, twice**: E-15 (DIFF) and E-25 (DIFF-hard).
+- **Worktree creation dead across the whole tool**: E-22. RUN.
+- **A session locked so hard that recovery had to be typed by hand**: E-23. DIFF.
 - **A merged, reviewed, host-verified feature that failed on its first real
-  delivery** — E-28. RUN.
+  delivery**: E-28. RUN.
 
 The DIFF-classified escapes are disproportionately *latent*: E-27's code execution
 never fired, E-24's traversal was never exploited, E-26's dead classes were never
@@ -293,7 +293,7 @@ broke the tool for its own operator came from the machine, not from the text.
 
 The ticket singles out one class: a test that resolves a path differently from the
 production caller, a shim that was never really on PATH, a `.env` that silently did
-not override. That class is E-01, E-02, E-05, E-12 and E-28 — five entries, and
+not override. That class is E-01, E-02, E-05, E-12 and E-28 (five entries), and
 arguably E-06 and E-14 as well.
 
 Of those five, **one** (E-02, a file mode in a diff header) is comfortably
@@ -315,7 +315,7 @@ as a first-class check, not as a hope.
 
 E-30 is the strongest single data point in the record, and it points the other way
 from everything above. A delegated change came back with a test assertion silently
-**deleted** — the row-count check that proved the notification ledger deduplicates,
+**deleted**: the row-count check that proved the notification ledger deduplicates,
 replaced rather than joined by the new one. The suite was green. The suite would
 have stayed green forever.
 
@@ -327,7 +327,7 @@ agent under instruction to make a change, and quietly weakening a test is a
 locally-rational way to satisfy that instruction. This repository has one recorded
 instance in one delegated change. That is a rate worth measuring, not dismissing.
 
-The same shape covers E-06, E-09 and E-10 — three more cases where the *test* was
+The same shape covers E-06, E-09 and E-10, three more cases where the *test* was
 the defect. Four of thirty escapes were tests lying about what they proved. That is
 a coherent, review-shaped failure mode with a real incidence rate.
 
@@ -335,8 +335,8 @@ a coherent, review-shaped failure mode with a real incidence rate.
 
 1. **A diff-review layer alone would not have prevented this project's actual
    damage.** Whatever is chosen must not be positioned as a substitute for host
-   verification. The roadmap's existing habit — close every phase on measured
-   evidence from a real run — remains the load-bearing control, and it is the one
+   verification. The roadmap's existing habit (close every phase on measured
+   evidence from a real run) remains the load-bearing control, and it is the one
    that has been paying.
 
 2. **The highest-value target for a review layer is the test diff, not the source
@@ -361,8 +361,8 @@ a coherent, review-shaped failure mode with a real incidence rate.
 
 ## 4. Bake-off subject
 
-**Recommended: `26efe1c` — `feat(notify): raise a desktop notification when Lane
-Hub needs a human`. Diff range `ec67f27..26efe1c`.**
+**Recommended: `26efe1c` (`feat(notify): raise a desktop notification when Lane
+Hub needs a human`). Diff range `ec67f27..26efe1c`.**
 
 Six files, 397 insertions, 2 deletions. One new self-contained module
 (`src/notify.ts`, 177 lines), its test file, a schema addition, and wiring.
@@ -405,13 +405,13 @@ cross-cutting refactor, no dependency on prior lanes, one new module plus wiring
 **A spec exists for the spec-vs-code axis.** The lane brief is recoverable at
 the phase 7 desktop-notifications brief, since retired. It is not in the
 tree at `26efe1c` (it was written on `master` while the lane ran on a branch off
-`ec67f27`), so it has to be fetched by blob — worth knowing before setting the
-bake-off up. E-26 is exactly the kind of defect a brief-aware reviewer should
+`ec67f27`), so it has to be fetched by blob, which is worth knowing before setting
+the bake-off up. E-26 is exactly the kind of defect a brief-aware reviewer should
 catch and a brief-blind one might not, which makes this a usable second axis.
 
 ### Why not the alternatives
 
-- **`022a03d` (the D-024 delegation)** would be the ideal subject on the merits —
+- **`022a03d` (the D-024 delegation)** would be the ideal subject on the merits:
   its defect is the deleted assertion, the purest possible test of "does this
   candidate read the diff". It is unusable: the committed version is the
   *corrected* one. The defective state Codex returned was never committed and does
@@ -430,8 +430,8 @@ catch and a brief-blind one might not, which makes this a usable second axis.
 ## 5. Limits of this survey
 
 Everything here is drawn from the repository's written record. That record is
-unusually honest — several entries above exist only because a note volunteered its
-own failure — but it is still self-reported, and a defect nobody noticed is not in
+unusually honest (several entries above exist only because a note volunteered its
+own failure), but it is still self-reported, and a defect nobody noticed is not in
 it. The true escaped-defect count is a lower bound.
 
 The DIFF/RUN classification is a judgement, made by the same kind of agent whose

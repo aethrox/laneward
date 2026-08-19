@@ -39,7 +39,7 @@ const STYLE = `
  * It lives out here, and is serialised into the page below, so a test can
  * assert what a reader actually sees. The page is a script string with no DOM
  * in the test process, so an assertion on the served source would only restate
- * the implementation — which is the defect the reader layer raised against this
+ * the implementation, which is the defect the reader layer raised against this
  * very change on 2026-08-15.
  */
 export function formatLocations(

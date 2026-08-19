@@ -8,7 +8,7 @@ Order revised on 2026-08-05. The previous order built plan and bridge infrastruc
 
 Revised again on 2026-08-07. Phase 2 no longer opens with a probe, because D-023 makes its control mandatory either way, and Phase 2b was added for the cross-platform script rewrite that D-022 requires.
 
-## Phase 1 — Reconcile the skills
+## Phase 1: Reconcile the skills
 
 Update the current skills so they describe one architecture.
 
@@ -27,7 +27,7 @@ Acceptance evidence:
 - example workflows produce the same authority boundaries;
 - skill routing cannot select disabled systems.
 
-## Phase 2 — Enforce the Codex Git boundary
+## Phase 2: Enforce the Codex Git boundary
 
 Implement technical controls, not just prompts.
 
@@ -40,7 +40,7 @@ That is a good result, and it does not shorten this phase. The confinement belon
 Step order:
 
 1. add a restricted `git` on the worker's `PATH` that permits read-only subcommands and rejects mutating ones, implemented identically for Windows and Linux;
-2. keep repository credentials out of the worker environment — this is the gap the probe actually exposed, since the remote URL and credential helper were both readable from inside the lane;
+2. keep repository credentials out of the worker environment: this is the gap the probe actually exposed, since the remote URL and credential helper were both readable from inside the lane;
 3. make Laneward validate the resulting Git state after a worker exits, so a violation is caught even if both the wrapper and the sandbox are bypassed;
 4. add a regression check that a prohibited command is rejected on both platforms.
 
@@ -74,7 +74,7 @@ One part of this phase remains Windows-only: the credential isolation was measur
 
 Not yet true: the repository-local git config, including the remote URL, remains readable from inside a lane worktree; that exposure is unchanged and is not what this phase addressed. The shim is defense in depth, not the sole control: the Codex sandbox independently denies these mutations (measured 2026-08-07, see [../../notes/2026-08-07-codex-sandbox-and-git-boundary-probe.md](../../notes/2026-08-07-codex-sandbox-and-git-boundary-probe.md)), and Laneward's post-exit state validation is the third layer; the shim matters because the sandbox was observed absent on this host for hours. At the time of this Phase 2 status, 2026-08-07, `scripts/new-lane.ts` had never run end to end; the Phase 2b status below records it doing so on Windows later the same day.
 
-## Phase 2b — Make the scripts cross-platform
+## Phase 2b: Make the scripts cross-platform
 
 D-022 makes Windows a first-class target, and the Bash scripts are what currently prevent Laneward from running there at all. This lands before Phase 3 because Phase 3 moves lane-check execution into the conductor, and it should not be built on top of scripts that are about to be replaced.
 
@@ -128,7 +128,7 @@ What that run does not cover: `scripts/new-lane.ts` has not been exercised end t
 
 Running the suite at all requires a database. On this host that is a Postgres container reached on the podman machine's WSL address rather than on `localhost`, because published ports do not reach the Windows host. The address changes when the machine restarts, so `.env` needs re-checking after one.
 
-## Phase 3 — Implement test, commit, and integration flow
+## Phase 3: Implement test, commit, and integration flow
 
 This is the phase that closes the gap between a verified file scope and a delivered change.
 
@@ -182,7 +182,7 @@ One operational trap was found the hard way while running this lane, and it is n
 
 This is now fixed by construction. `scripts/new-lane.ts` rewrites the `DATABASE_URL` in the lane's copied `.env` to a database named `<database>_lane_<lane_id>`, creates it, and runs the driven repository's `db:migrate` script against it when the repository declares one. Observed live on Windows against the running hub: a lane opened on Laneward itself reported `Database: laneward_lane_dbtest`, its worktree suite ran 131 passing and 0 failing against that database, and the hub's own `lanes` table still held the lane's row afterwards. One defect was found doing this: Bun does not let a `.env` file override a variable already present in the environment, so the first attempt migrated the hub's database instead of the lane's and left the lane's empty, 74 tests failing. The migration now receives `DATABASE_URL` explicitly. Lane databases are not dropped when a lane finishes; only a failed `new-lane.ts` run cleans up after itself.
 
-## Phase 4 — Pilot on a real small project
+## Phase 4: Pilot on a real small project
 
 Choose a bounded but real project with installation and runtime verification.
 
@@ -229,7 +229,7 @@ never tested because the conductor ran in the foreground each time, pushing,
 which the user deliberately withheld, and lane-level concurrency, since the two
 lanes ran sequentially.
 
-## Phase 5 — Add first-class plans to Laneward
+## Phase 5: Add first-class plans to Laneward
 
 Design and implement, informed by the pilot:
 
@@ -279,7 +279,7 @@ answers 400 instead of 500 for a `resolved_by` outside the check constraint, and
 distinguishable from one Claude reached on its own. Still open: nothing drops a
 finished lane's database.
 
-## Phase 6 — Build the Claude Code ↔ Laneward bridge
+## Phase 6: Build the Claude Code ↔ Laneward bridge
 
 Implement structured commands or MCP tools plus the required hooks.
 
@@ -293,7 +293,7 @@ Acceptance evidence:
 - session restart restores actionable context;
 - hard gates fail safely when Laneward is unavailable.
 
-## Phase 7 — Dashboard and Linux notifications
+## Phase 7: Dashboard and Linux notifications
 
 Extend the dashboard and add desktop attention events.
 
@@ -304,7 +304,7 @@ Acceptance evidence:
 - dismissed notifications do not lose state;
 - secrets do not appear in notifications.
 
-## Phase 8 — Refactor ACOS through Laneward
+## Phase 8: Refactor ACOS through Laneward
 
 This phase no longer supplies Laneward's verification layer. D-028 settled that
 question by measurement: the layer is the independent clean run followed by an

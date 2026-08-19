@@ -209,7 +209,7 @@ HOST VERIFICATION REQUIRED
 Record the decision through the Laneward API, then run the conductor again. This
 starts a **new** `codex exec` process; there is no session to restore. The new
 process receives the lane's original brief with the decision appended, so it has
-the same written context the first attempt had, plus the answer — but not the
+the same written context the first attempt had, plus the answer, but not the
 first attempt's reasoning or its uncommitted in-memory state.
 
 ## API routes
@@ -286,18 +286,18 @@ plans and dispatch lanes. Do not expose it to a network.
 ### Requirements
 
 - Windows or Linux
-- Bun — verified on 1.3.14
+- Bun: verified on 1.3.14
 - An agent CLI. Codex is the default and the verified one (0.147.0); any agent
   that reads its instruction from stdin works, see
   [Using an agent other than Codex](#using-an-agent-other-than-codex)
-- Git — verified on 2.54.0
+- Git: verified on 2.54.0
 
 Both installers warn when they find an older Bun or Codex. Those are the
 versions Laneward was verified against rather than measured floors: no lower
 version has been shown to fail, so the installers warn instead of refusing.
 
 Linux needs systemd user services; Windows uses a Scheduled Task instead, per
-D-038. Podman is needed only for the database this package ships — point
+D-038. Podman is needed only for the database this package ships: point
 `DATABASE_URL` at a Postgres you already run and `install.sh` installs no
 quadlet and does not ask for podman.
 
@@ -356,7 +356,7 @@ machine with its port published on `127.0.0.1` (D-037). The conductor is a
 Scheduled Task at logon rather than a service (D-038).
 
 Start the Podman machine first. The installer refuses without it, because a
-stopped machine does not fail fast — every query times out after 5000 ms and
+stopped machine does not fail fast: every query times out after 5000 ms and
 reads as an application bug:
 
 ```powershell
@@ -560,9 +560,9 @@ the payload arrives on stdin, the answer goes to stdout, and a denial is exit 2.
 | Command | Hook | Behavior |
 |---|---|---|
 | `bridge state` | `SessionStart` | Prints `additionalContext` naming blocked, waiting and failed lanes. Never blocks, not even when the hub is down. |
-| `bridge gate` | none — not wired, see below | Resolves the payload's `cwd` to a lane by `worktree_path`, asks the hub's gate, denies when it is closed. |
-| `bridge plan submit --title <t> --content <f.json> [--id <plan_id>]` | — | Creates a plan. Approval stays a human action through `POST /plans/:id/revisions/:revision/approve`. |
-| `bridge lane create <lane_id> <brief> <owned_path>...` | — | Wraps `scripts/new-lane.ts`, which stays the only owner of worktree creation. |
+| `bridge gate` | none: not wired, see below | Resolves the payload's `cwd` to a lane by `worktree_path`, asks the hub's gate, denies when it is closed. |
+| `bridge plan submit --title <t> --content <f.json> [--id <plan_id>]` | none | Creates a plan. Approval stays a human action through `POST /plans/:id/revisions/:revision/approve`. |
+| `bridge lane create <lane_id> <brief> <owned_path>...` | none | Wraps `scripts/new-lane.ts`, which stays the only owner of worktree creation. |
 
 A `lane_id` becomes a worktree directory (`<repo>-worktrees/<lane_id>`), a
 branch (`lane/<lane_id>`) and a log file (`<log-dir>/<lane_id>.log`), so every
@@ -603,7 +603,7 @@ Two events were tried and are documented here so they are not tried again:
 - **`PreToolUse` is technically correct and still not wired.** It is the one
   event whose contract `gate` fits, but wiring it puts a fail-closed HTTP call
   in front of the tools that edit this repository. With the hub down, that
-  locked the main checkout against every `Edit`, `Write` and `Bash` — including
+  locked the main checkout against every `Edit`, `Write` and `Bash`, including
   the ones needed to unwire the hook. Lane authorization is enforced by
   `checkGate` on the hub, where a failure denies a dispatch instead of a
   developer.
@@ -611,8 +611,8 @@ Two events were tried and are documented here so they are not tried again:
 `bridge gate` itself remains, correct and tested, for an operator who chooses to
 wire it in a personal settings file. Two properties are what make that choice
 survivable, and both are covered by tests: it decides from the filesystem
-whether `cwd` sits in a linked git worktree — the `.git` a worktree carries is a
-file, the main checkout's is a directory — and returns 0 outside one without
+whether `cwd` sits in a linked git worktree (the `.git` a worktree carries is a
+file, the main checkout's is a directory) and returns 0 outside one without
 contacting the hub at all; and for `Bash` it reads `tool_input.command` and lets
 a recognized read-only command (`git status`, `git log`, `ls`, `rg`, …) through,
 as an allowlist where any shell metacharacter disqualifies the line, so
@@ -684,7 +684,7 @@ layer is disabled**, and records `skipped` with that reason. The read-only
 command is what stops the reader from editing the candidate it is reviewing;
 with no way to express that, Laneward declines to run it rather than running it
 unconfined. The reader is advisory (D-027), so this costs findings rather than
-correctness — which is the opposite of the trade the alternative would make.
+correctness, which is the opposite of the trade the alternative would make.
 | `LANE_WORKTREE_ROOT` | `<repo-parent>/<repo-name>-worktrees` | Directory `scripts/new-lane.ts` creates lane worktrees in |
 | `LANE_PLAN_REVISION_ID` | unset | Set for one `scripts/new-lane.ts` invocation to bind the new lane to that plan revision |
 
@@ -710,7 +710,7 @@ Laneward today:
 - is designed for a single trusted single-user machine;
 - provides no authentication for remote connections;
 - is not hardened for a shared or internet-facing server.
-- ships a service installer for both platforms — `install.sh` for Fedora with
+- ships a service installer for both platforms: `install.sh` for Fedora with
   rootless Podman and systemd user units, `install.ps1` for Windows with a
   Podman machine and a Scheduled Task. **Linux is verified by operation**: on
   2026-08-15 the conductor ran as a systemd user service, picked up a lane
@@ -751,7 +751,7 @@ Do not expose the service directly to the internet.
 - [Workflow v1 target architecture](docs/architecture/workflow-v1/README.md)
 - [Task brief template](docs/brief-template.md)
 - [What is left](docs/notes/2026-08-19-what-is-left.md)
-- [Evidence notes](docs/notes/) — what was run, what it found, and what it did not establish
+- [Evidence notes](docs/notes/): what was run, what it found, and what it did not establish
 
 ## License
 

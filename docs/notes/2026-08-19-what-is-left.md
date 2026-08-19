@@ -1,7 +1,7 @@
 # What is left
 
-Written 2026-08-19. This replaces three overlapping planning documents — a
-remaining-work list, a shipping plan and a stage plan — that between them had
+Written 2026-08-19. This replaces three overlapping planning documents (a
+remaining-work list, a shipping plan and a stage plan) that between them had
 grown to 7,500 words describing mostly finished work. Anyone who wanted to know
 what was still open had to reconcile all three. This is the one list.
 

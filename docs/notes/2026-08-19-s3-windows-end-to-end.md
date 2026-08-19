@@ -4,7 +4,7 @@ S3 from the shipping plan, run on 2026-08-19
 against `839f64b` plus the three fixes it forced. `install.ps1` had registered a
 Scheduled Task correctly since 2026-08-15 and the task had never run. It has now,
 and what it ran was **a real Codex worker**, which also closes the seam S4.1 was
-written about — on Windows rather than on Linux.
+written about, on Windows rather than on Linux.
 
 ## What was run
 
@@ -31,7 +31,7 @@ s3-notes  registered through the API, dispatchable
 ```
 
 Between the start and the completion nothing was touched. The worker was the
-real `codex` on this machine — 15,101 tokens, its own diff in the lane log — and
+real `codex` on this machine (15,101 tokens, its own diff in the lane log), and
 it ran under the Scheduled Task's environment: no terminal, no login shell, and
 `buildWorkerEnv`'s stripped variables. **Codex's own credential lookup survived
 that**, because `auth.json` lives under the profile directory and the strip
@@ -39,7 +39,7 @@ removes credential-bearing *variables*, not the profile.
 
 The lane's evidence recorded `overall: not_configured` (the throwaway repository
 declares no checks), `notes.txt` carried the requested line, and `git status` in
-the worktree showed one modified file — the one the lane owned. The git-guard log
+the worktree showed one modified file: the one the lane owned. The git-guard log
 is empty: the worker ran no Git command.
 
 That is the first time this project has run a real agent under a supervisor of
@@ -57,19 +57,19 @@ and `--no-env-file` suppresses auto-loading, so the conductor started on pure
 defaults: `PORT` reverting to 8787 while the hub listened on 8788, no
 `DATABASE_URL`, no `MAX_ACTIVE_LANES`, no notification setting, no model
 overrides and no declared agent. The only symptom would have been a connection
-failure logged every interval, forever — D-014's defect 3 again, with no
+failure logged every interval, forever, D-014's defect 3 again, with no
 `journalctl` to see it in.
 
 The Linux units do not have this problem: both carry
 `EnvironmentFile=@CONFIG_DIR@/.env`. A Scheduled Task has no equivalent, so the
 config has to travel in the command line. `--env-file` before the subcommand
-loads while `--no-env-file` after it still suppresses the working directory —
-verified, both at once — so the task now runs
+loads while `--no-env-file` after it still suppresses the working directory
+(verified, both at once), so the task now runs
 `--env-file="<config>\.env" run --no-env-file conductor.ts --loop`.
 
 **2. The installer's own printed step 2 could not work.** It said
 `cd $AppDir; bun run start`, and that exits immediately with `DATABASE_URL is not
-set: copy .env.example to .env` — advice that is wrong here, because the config
+set: copy .env.example to .env`, advice that is wrong here, because the config
 deliberately lives in the config directory rather than the app directory. Step 3,
 the migration, passed `--env-file` on the same page. Step 2 now does too.
 
@@ -81,7 +81,7 @@ Two and three are one-line documentation faults; the first is a functional one
 that would have made the Windows install non-working for anyone but its author,
 who would have set the environment by hand without noticing.
 
-## Stopping mid-lane, and recovering — B2's missing half
+## Stopping mid-lane, and recovering: B2's missing half
 
 This is the path Linux structurally cannot test, because on Linux the lane is
 handed back rather than stranded.
@@ -98,7 +98,7 @@ Start-ScheduledTask      s3-slow: running        <- picked up again
 ```
 
 Both halves observed. Windows terminates the whole process tree, so nothing is
-orphaned, and nothing is handed back either — exactly what D-038 conceded rather
+orphaned, and nothing is handed back either, exactly what D-038 conceded rather
 than solved. `reset-stranded` recovers it, and the recovery is effective rather
 than cosmetic: the reset lane was re-dispatched on the next start.
 
@@ -131,7 +131,7 @@ the first time it has run outside one.
 
 ## Cleaned up
 
-`install.ps1 -Uninstall -Purge` against the throwaway roots — which is the first
+`install.ps1 -Uninstall -Purge` against the throwaway roots, which is the first
 time the uninstall path has run after a real install rather than a dry one. The
 task was removed, both directories purged, the two worktrees removed, the
 throwaway repository deleted, `laneward_s3` dropped, the stray lane logs deleted

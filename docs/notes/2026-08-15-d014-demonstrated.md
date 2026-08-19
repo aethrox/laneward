@@ -1,7 +1,7 @@
 # D-014, demonstrated
 
-The claim this project is built around — *approved lanes continue after Claude
-exits* — had never been observed on any platform. It has now. This is A2 from
+The claim this project is built around, *approved lanes continue after Claude
+exits*, had never been observed on any platform. It has now. This is A2 from
 the remaining-work plan, run on 2026-08-15
 against `65b8b9d` plus the three fixes it forced.
 
@@ -14,7 +14,7 @@ WSL at `<podman-machine-ip>:5433`, with a throwaway `laneward_a2` database.
 **No packages were installed.** The plan assumed A2 needed `podman` and
 `notify-send` in WSL. It needed neither: the database already existed and
 `LANEWARD_NOTIFY=` switches the notifier off deliberately. What actually blocked
-it was `install.sh` demanding `podman` unconditionally — see below.
+it was `install.sh` demanding `podman` unconditionally; see below.
 
 `CODEX_BIN` pointed at `tests/fixtures/fake-codex.ts`. **The worker was a
 fixture, and that is a real limit on this result.** What D-014 claims is that the
@@ -25,7 +25,7 @@ To be exact about what that leaves open: a real Codex worker *has* driven a lane
 to a recorded verdict on this project, on 2026-08-08
 ([the neura-system pilot](2026-08-08-phase4-pilot-neura-system.md)). What has
 never happened is a real Codex worker under a **supervised service**, which is a
-genuinely different environment — constructed `PATH`, no terminal, no login
+genuinely different environment: constructed `PATH`, no terminal, no login
 shell, and a deliberately stripped environment from `buildWorkerEnv`. Codex's own
 credential lookup has never been exercised there.
 
@@ -38,7 +38,7 @@ credential lookup has never been exercised there.
 ```
 
 Between those lines nothing was touched. The conductor had been running as
-`laneward-conductor.service` since 18:33 — **86 minutes idle** — picked the lane
+`laneward-conductor.service` since 18:33 (**86 minutes idle**), picked the lane
 up on its own, dispatched the worker, ran the evidence check, and recorded the
 lane `completed` with its lane-check evidence attached
 (`overall: not_configured`, since the throwaway repository declares no checks).
@@ -70,7 +70,7 @@ A third lane was left running and the unit stopped mid-lane:
 `Result: success` rather than `failed` is the `SIGTERM` exit-0 change from Stage
 5a doing what it was written for. The lane returned to `pending` with no manual
 cleanup, which is what makes a reboot safe. This also closes the half of B2 that
-asked for a strand-and-recover round trip — on Linux the lane is handed back
+asked for a strand-and-recover round trip: on Linux the lane is handed back
 rather than stranded, so `reset-stranded` was not needed at all.
 
 ## Three defects it found, none of which tests could
@@ -82,7 +82,7 @@ Postgres locally; a `DATABASE_URL` pointing elsewhere means the operator already
 has one. The check refused an install that would have worked. It is now decided
 from the config: a local URL requires podman and installs the quadlet, a remote
 one installs neither and says so. `laneward.service`'s
-`Requires=laneward-db.service` is a substituted placeholder for the same reason —
+`Requires=laneward-db.service` is a substituted placeholder for the same reason:
 a unit that requires a container nobody installed never starts.
 
 **2. Both units exited 127.** A systemd user service does not inherit the login
@@ -90,7 +90,7 @@ shell's `PATH`, and `bun` lives under `$HOME`. Addressing bun absolutely in
 `ExecStart` was not enough: `run start` executes a package script that invokes
 bare `bun`. The fix is `Environment=PATH=` including bun's directory rather than
 a rewritten `ExecStart`, because the lane checks spawn whatever a project
-declares — `bun test` among them — and need it on `PATH` too.
+declares (`bun test` among them) and need it on `PATH` too.
 
 **3. `PORT` and `HUB_URL` could disagree silently.** Setting `PORT=8799` moved
 the API and left the conductor defaulting to `8787`. The only symptom was

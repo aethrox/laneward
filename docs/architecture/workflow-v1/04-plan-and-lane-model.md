@@ -138,9 +138,9 @@ Conceptual example:
 ```
 
 Current state (2026-08-15): only `version` and `checks.lane` are read. Each entry
-under `checks.lane` needs a unique `name` and a `command` argument array —
-argument arrays rather than strings, because paths on the Windows host contain
-spaces. The rest of the tree above is a sketch and is not yet parsed.
+under `checks.lane` needs a unique `name` and a `command` argument array
+(arrays rather than strings, because paths on the Windows host contain
+spaces). The rest of the tree above is a sketch and is not yet parsed.
 
 ## Concurrency selection
 

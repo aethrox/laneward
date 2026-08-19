@@ -124,7 +124,7 @@ if (-not (Test-Path $EnvFile)) {
 }
 
 # Validate the config that will actually be loaded. Under -DryRun the .env was
-# not written, so the file that would have been written is the one to check —
+# not written, so the file that would have been written is the one to check,
 # otherwise a dry run reports a failure the real run would never have. Same
 # checks as install.sh, and the same reason: a numeric field that arrived as text
 # is cheapest to catch here and most confusing later.

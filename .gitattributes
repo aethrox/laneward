@@ -6,7 +6,7 @@ scripts/git-shim/git text eol=lf
 # Same reason, for everything else that only ever runs on Linux. install.sh with
 # CRLF fails as `env: 'bash\r': No such file or directory`, which is how this was
 # found: the installer could not be exercised from WSL against this checkout. A
-# systemd unit is worse, because it does not fail loudly — the \r ends up inside
+# systemd unit is worse, because it does not fail loudly: the \r ends up inside
 # the value of every directive.
 *.sh text eol=lf
 systemd/*.service text eol=lf

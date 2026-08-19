@@ -250,7 +250,7 @@ async function main() {
     try {
       await access(join(repoRoot, ".env.example"), constants.F_OK);
       console.error(`Repository .env is missing: ${join(repoRoot, ".env")}`);
-      console.error("Write one with development values before opening a lane. Copying .env.example is not safe by default — it carries the installed deployment's database target, and a lane pointed at that can destroy real data.");
+      console.error("Write one with development values before opening a lane. Copying .env.example is not safe by default: it carries the installed deployment's database target, and a lane pointed at that can destroy real data.");
       process.exit(1);
     } catch {
       // Repositories without an example configure themselves another way.

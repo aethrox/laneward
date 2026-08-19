@@ -50,7 +50,7 @@ await writeFile(join(worktreePath, ".laneward", "project.json"), JSON.stringify(
     start: "exec bun fake-clean-run.ts",
     // Same reason as tests/lane-checks.test.ts, doubled: this one starts inside
     // a conductor pass with the rest of the suite running, and 5 s was observed
-    // closing before the process printed on a loaded host — the drain test
+    // closing before the process printed on a loaded host. The drain test
     // failed once at 5.5 s and passed alone. Its budget is 20 s, so this fits.
     observation_window_ms: 10_000,
     expectations: [{

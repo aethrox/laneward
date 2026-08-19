@@ -123,8 +123,8 @@ test("gate emits the event-specific denial shape", async () => {
   expect(preTool.exitCode).toBe(2);
   expect(JSON.parse(preTool.stdout).hookSpecificOutput.permissionDecision).toBe("deny");
 
-  // Any other caller — a manual run, a future event — gets the bare exit 2 and
-  // no stdout, because a permissionDecision is meaningless outside PreToolUse.
+  // Any other caller (a manual run, a future event) gets the bare exit 2 and no
+  // stdout, because a permissionDecision is meaningless outside PreToolUse.
   const other = await run(["gate"], JSON.stringify({ cwd: lane }), serve(true, lane));
   expect(other.exitCode).toBe(2);
   expect(other.stdout).toBe("");

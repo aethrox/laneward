@@ -15,7 +15,7 @@ different thing: they track approved work in flight, not open questions. See
 ### Triage labels
 
 The five canonical triage roles, each label string equal to its name. Nothing
-uses them yet — this repo has no external reporters. See
+uses them yet: this repo has no external reporters. See
 `docs/agents/triage-labels.md`.
 
 ### Domain docs

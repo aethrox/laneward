@@ -4,15 +4,15 @@ This file is the durable record of the decisions approved during workflow design
 
 ## Authority and entry point
 
-### D-001 — Every new task starts in Claude Code
+### D-001: Every new task starts in Claude Code
 
 Claude Code is the only normal user entry point. It collects context, researches, asks clarifying questions, and prepares the plan.
 
-### D-002 — The plan is shown before execution
+### D-002: The plan is shown before execution
 
 Claude must not create write lanes before the user approves the plan. The user may be asked additional questions during planning.
 
-### D-003 — Laneward owns all write worktrees
+### D-003: Laneward owns all write worktrees
 
 Laneward is the only authority allowed to create and register worktrees used for write execution.
 
@@ -20,23 +20,23 @@ Claude's native worktree-isolated subagents must not create a second write-workt
 
 Current state (2026-08-15): only the registration half holds. `scripts/new-lane.ts` still creates the worktree and Laneward records the path. Moving creation into Laneward is deferred; the rule that no second write-worktree system may exist applies now.
 
-### D-004 — Read-only Claude subagents may run natively
+### D-004: Read-only Claude subagents may run natively
 
 Claude may use native subagents for research, exploration, and review. Their lifecycle is mirrored into Laneward, but Laneward does not need to dispatch them in v1.
 
 ## Plans and lanes
 
-### D-005 — Plan is a first-class Laneward entity
+### D-005: Plan is a first-class Laneward entity
 
 A plan has an identity, revision, approval record, risk level, target branch, lanes, checks, runtime verification, and final status.
 
-### D-006 — Material changes require reapproval
+### D-006: Material changes require reapproval
 
 A new approval is required when a plan changes its goal, write scope, owned paths, dependencies, external effects, security policy, deployment behavior, or risk.
 
 Mechanical implementation details that remain inside the approved scope do not require reapproval.
 
-### D-007 — Concurrency is selected by project scale
+### D-007: Concurrency is selected by project scale
 
 Claude proposes concurrency based on lane independence and machine capacity.
 
@@ -50,13 +50,13 @@ Initial guidance:
 
 ## Git and integration
 
-### D-008 — Codex never performs Git mutations
+### D-008: Codex never performs Git mutations
 
 Codex may inspect Git state when needed, but it must not create branches, commits, merges, rebases, tags, pushes, resets, or worktrees.
 
 Current state (2026-08-15): enforced on Windows. `scripts/git-shim/` puts a deny-by-default `git` on the worker's PATH, `scripts/check-evidence.ts` validates Git state after the worker exits, and `buildWorkerEnv` keeps credentials out of the worker environment. See D-023. The guard's own tests also pass under Linux, measured 2026-08-15 ([notes](../../notes/2026-08-15-linux-suite-run.md)); no lane has been driven end to end there.
 
-### D-009 — Claude may commit only after gates pass
+### D-009: Claude may commit only after gates pass
 
 A Claude-created commit requires:
 
@@ -64,7 +64,7 @@ A Claude-created commit requires:
 2. the owned-path and diff checks to pass;
 3. Claude to review the result against the approved brief.
 
-### D-009a — The conductor runs the deterministic checks
+### D-009a: The conductor runs the deterministic checks
 
 Lane checks defined by the project run automatically when a worker exits, and their results are stored as lane evidence.
 
@@ -72,7 +72,7 @@ Claude does not execute them. Claude reads the recorded results, reviews the dif
 
 Without this, D-014 is only half true: work would continue while Claude is closed but nothing would be verified, and a returning session would face a queue of unverified lanes instead of evidence.
 
-### D-010 — Each plan uses an integration branch
+### D-010: Each plan uses an integration branch
 
 The branch format is:
 
@@ -82,7 +82,7 @@ integration/<plan-id>-<short-name>
 
 Claude brings verified lane commits into this branch. Full integration checks run there.
 
-### D-036 — Owned paths never overlap, and a serialized plan is not an exception
+### D-036: Owned paths never overlap, and a serialized plan is not an exception
 
 `POST /lanes` rejects a registration whose `owned_paths` overlap any lane that is not `completed` or `failed`, with a `409` naming the conflicting lane. That includes lanes that could never run at once because of their dependencies.
 
@@ -92,19 +92,19 @@ The cost is real and accepted: a plan that genuinely needs two lanes over the sa
 
 Decided 2026-08-15, resolving a conflict raised by issue #12.
 
-### D-011 — Merge and push require user approval
+### D-011: Merge and push require user approval
 
 Merge and push remain explicitly user-approved. Automation may be reconsidered only after the system has accumulated trustworthy evidence.
 
-### D-026 — The independent reader's declared subject is the test diff
+### D-026: The independent reader's declared subject is the test diff
 
 The review layer's reader reports first on one question: does this change weaken what the suite proves? A deleted assertion, a loosened matcher, a narrowed input, a test rewritten to agree with the code it just broke. The source diff stays in scope as context and is not dropped.
 
-The subject is the test diff because 4 of the 30 escapes surveyed in issue #3 — recorded locally in [the escaped-defects survey](../../notes/2026-08-09-escaped-defects-survey.md) — were tests lying about what they proved, a class no run, linter, or coverage tool can see. D-024's own delegation came back with an assertion silently deleted while the suite stayed green. The source diff is kept because the one candidate that read it found three true defects outside the ground truth, including a cross-file contract disagreement between `plan_ready_for_review` and `checkGate`.
+The subject is the test diff because 4 of the 30 escapes surveyed in issue #3, recorded locally in [the escaped-defects survey](../../notes/2026-08-09-escaped-defects-survey.md), were tests lying about what they proved, a class no run, linter, or coverage tool can see. D-024's own delegation came back with an assertion silently deleted while the suite stayed green. The source diff is kept because the one candidate that read it found three true defects outside the ground truth, including a cross-file contract disagreement between `plan_ready_for_review` and `checkGate`.
 
 A deterministic counter for removed assertions was considered and deliberately not adopted: the class is real but such a counter's false-positive rate has never been measured here, and it would not see a loosened matcher at all.
 
-### D-027 — The model layer advises permanently and never gates
+### D-027: The model layer advises permanently and never gates
 
 A reviewer that answers the same question differently on the same input cannot hold blocking authority in this system. Blocking authority belongs only to checks measured to repeat identically: the deterministic tools and the independent clean run.
 
@@ -112,7 +112,7 @@ The measurement is the bake-off's, not an assumption: the reader returned 5 find
 
 An empty reader report is recorded as `no_findings` and never as `pass`. The reader cannot produce a clean verdict at all, so a sampling that happened to surface nothing cannot be read as a passed check.
 
-### D-028 — Verification runs the clean run first, then the reader, in shadow mode
+### D-028: Verification runs the clean run first, then the reader, in shadow mode
 
 Two layers run on the integration candidate D-014 builds:
 
@@ -129,7 +129,7 @@ The first use is shadow mode: it runs, it records, it stops nothing. Its finding
 
 Evidence: issue #4.
 
-### D-029 — The clean run's environment is declared in the repository
+### D-029: The clean run's environment is declared in the repository
 
 One committed file declares what the independent clean run of D-028 needs: the database address and how a fresh one is provisioned, the install path, and the shell the run starts from. Reproducibility on a host that is not this one is a property of the project, so it does not live in a plan revision or a lane brief, which are per-piece-of-work and would carry the same text repeatedly.
 
@@ -137,7 +137,7 @@ The bake-off is the evidence that nothing declares this today. Standing up one c
 
 The run exercises **the whole documented configuration surface**, not the defaults. D1 was caught only because all five documented notification classes were enabled and two of them emitted nothing; a run on defaults would have missed it. The cost is that the run grows with the surface, which is accepted: the surface is documented, so it is bounded and visible.
 
-### D-030 — A candidate that cannot be built raises an approval request
+### D-030: A candidate that cannot be built raises an approval request
 
 Construction failing is not the check failing and not `unrunnable`. The artifact the check exists to examine never came into being, so there is nothing to be unrunnable about.
 
@@ -145,7 +145,7 @@ It does not fail the plan. Completed lanes did their work and a failed build usu
 
 The half-built candidate is left in place, its branch and its fresh database both, and recorded. This is D-025's reasoning applied to new debris: nothing is deleted at a moment nobody is watching, and the half-built candidate is exactly what the person resolving a lane-to-lane conflict needs to look at. Removing it is an explicit command.
 
-### D-031 — The check's record is a run per layer plus findings as rows
+### D-031: The check's record is a run per layer plus findings as rows
 
 Two shapes, because the layers emit different things and the lane precedent's single verdict does not survive contact with a reader.
 
@@ -159,7 +159,7 @@ Findings about code the change did not touch stay in the record, marked out of c
 
 Delivery follows the `notifications` table's `subject_kind` precedent from D-024: one new class scoped to the plan revision, saying verification finished and findings are waiting to be adjudicated. Today's classes are per lane and per plan, and neither is the subject here.
 
-### D-032 — The integration candidate is one command before it is automatic
+### D-032: The integration candidate is one command before it is automatic
 
 `scripts/build-candidate.ts`, reachable as `bun run build-candidate <plan_id>`, builds the artifact every layer of D-028 examines: the newest revision of the plan, all of its lanes `completed`, merged onto `integration/<plan_id>-r<revision>` in a worktree named `candidate-<plan_id>-r<revision>`, installed, with a fresh database of its own. The base commit is the checkout's `HEAD` at build time, and it is the commit the diff D-026 reads is taken against.
 
@@ -171,7 +171,7 @@ A refusal that changed nothing exits 1; a build that started and failed exits 2 
 
 `plan_id` is now validated as a slug where a lane id already was. It names the candidate's branch and worktree directory, so a plan the hub accepts but no candidate can be built for is a plan that dead-ends at integration.
 
-### D-033 — The conductor builds the candidate at the end of a drain pass
+### D-033: The conductor builds the candidate at the end of a drain pass
 
 D-032 said the command comes first and the conductor second. This is the second half, settled in four grilling rounds once the command existed and its failure modes could be reasoned about concretely.
 
@@ -193,7 +193,7 @@ That record, not the presence of the branch on disk, is what stops a candidate b
 
 **An interrupted attempt is recovered by `reset-stranded`.** A `running` construction row left by a Ctrl-C, a Windows restart or a stopped podman machine is stranded in exactly the sense that command already exists for. Having the conductor reclaim it on the next pass was rejected because a second conductor would then declare a live build dead; a liveness stamp was rejected because its threshold would be invented rather than measured.
 
-### D-034 — The clean run declares what must be observed, not what must not appear
+### D-034: The clean run declares what must be observed, not what must not appear
 
 D-029 said one committed file declares the clean run's environment. That file is `.laneward/project.json`, which already declares this project's lane checks, under a `clean_run` key. A second file was rejected for the reason D-029 gave against a plan revision: the declaration is a property of the project, and the project already has exactly one place that says how it is checked.
 
@@ -207,7 +207,7 @@ The cost is accepted and named: the declaration grows with the configuration sur
 
 Shadow mode per D-028: it records and blocks nothing. Making it a gate is a later decision that costs nothing structural.
 
-### D-035 — The reader reads the test diff, and says where it is looking
+### D-035: The reader reads the test diff, and says where it is looking
 
 The advisory layer D-026 declared and D-027 kept advisory is built. Written in four lanes over 2026-08-15 and then run end to end on a real candidate on the Windows host, which is what this decision is written from.
 
@@ -235,11 +235,11 @@ Evidence: the reader layer shipped in four steps; the plan that drove them was r
 
 ## Runtime and completion
 
-### D-012 — Runtime effects receive a separate approval
+### D-012: Runtime effects receive a separate approval
 
 Installations, service restarts, database migrations, writes to real data, and other external effects require a final explicit approval even when the implementation plan was already approved.
 
-### D-013 — Done means installed and verified
+### D-013: Done means installed and verified
 
 A task is complete only when it is installed in the intended environment and its real behavior is verified.
 
@@ -252,13 +252,13 @@ Typical verification:
 
 ## Operation
 
-### D-013a — A closed plan leaves no orphaned worktree
+### D-013a: A closed plan leaves no orphaned worktree
 
 Lane worktrees, branches, and lane databases are removed once the plan reaches `done` and the lane commits are integrated. This states the end condition, not the trigger: D-025 supersedes the original wording here, which said removal happens when the plan reaches `done`. Nothing removes them automatically. Teardown is one explicit operator command, because an automatic removal would delete a worktree at a moment nobody is watching.
 
 Evidence and logs outlive the worktree. Cleanup must never remove the record of what happened inside it.
 
-### D-025 — Teardown is one explicit command that refuses a dirty worktree
+### D-025: Teardown is one explicit command that refuses a dirty worktree
 
 D-013a says what is removed. This says what removes it, and when.
 
@@ -270,11 +270,11 @@ The command refuses a worktree with uncommitted changes or commits that are not 
 
 Evidence and logs outlive teardown, per D-013a. The lane database name is not stored on the lane row; it is derived as `<base>_lane_<lane_id>` and can be re-derived from the lane's own `.env`.
 
-### D-014 — Approved lanes continue after Claude exits
+### D-014: Approved lanes continue after Claude exits
 
 Laneward and its workers continue approved work independently. Completed Codex work stops at `ready_for_review`; no commit is created until Claude returns, reviews, and validates it.
 
-### D-015 — Laneward starts automatically
+### D-015: Laneward starts automatically
 
 The API, dashboard, worker supervision, and notification integration start without an interactive session and survive a reboot.
 
@@ -282,13 +282,13 @@ On Linux this is systemd user services. On Windows it is the platform's own equi
 
 After a crash or reboot, stranded work is inspected before it is resumed.
 
-### D-016 — Dashboard and desktop notifications are complementary
+### D-016: Dashboard and desktop notifications are complementary
 
 The dashboard is the detailed pull-based view. Linux desktop notifications are used only for attention-worthy events.
 
 ## Security
 
-### D-017 — Network access is denied by default for Codex
+### D-017: Network access is denied by default for Codex
 
 A plan must explicitly justify network access. Approval applies only to the lane and purpose described in the plan.
 
@@ -298,7 +298,7 @@ Current state (2026-08-15): this is a convention, not a control. `scripts/new-la
 
 ## Project records
 
-### D-018 — Project records live inside the project directory
+### D-018: Project records live inside the project directory
 
 Obsidian is not used for operational or decision state.
 
@@ -306,7 +306,7 @@ Stable configuration and decisions may be committed. Volatile runtime state rema
 
 ## Platform
 
-### D-022 — Windows and Linux are both first-class
+### D-022: Windows and Linux are both first-class
 
 Laneward targets Windows and Linux. A change is not complete until it works on both.
 
@@ -314,7 +314,7 @@ macOS is out of scope. No macOS path is designed, documented, or verified, and a
 
 Every layer needs an answer on both platforms, including the persistence layer, because D-014 and D-015 are not conditional on the operating system. Details are in [10-platform-support.md](10-platform-support.md).
 
-### D-037 — On Windows the database is the same container, published on 127.0.0.1
+### D-037: On Windows the database is the same container, published on 127.0.0.1
 
 The Podman machine runs the same `postgres:16-alpine` the Quadlet defines on Linux, and the port is published on `127.0.0.1`. One container definition holds for both platforms.
 
@@ -326,7 +326,7 @@ CP-4's symptom is the reason this needed writing down at all: the development ho
 
 Decided 2026-08-15.
 
-### D-038 — On Windows the conductor is a Scheduled Task at logon
+### D-038: On Windows the conductor is a Scheduled Task at logon
 
 Supervision is a Scheduled Task that starts `conductor.ts --loop` at user logon, not a Windows service and not the systemd units under WSL.
 
@@ -334,13 +334,13 @@ The choice is narrower than it looks, because one fact removes the usual reason 
 
 What is left is dependencies. A Scheduled Task is built into the platform. NSSM and WinSW are third-party binaries that must be obtained, installed and kept current to run a developer tool on one machine.
 
-Running without a logged-in user is not a requirement here: the conductor spawns `codex`, which reads its credentials from the operator's profile, so a session-less service would need those provisioned separately — which is more work for a capability nobody asked for.
+Running without a logged-in user is not a requirement here: the conductor spawns `codex`, which reads its credentials from the operator's profile, so a session-less service would need those provisioned separately, which is more work for a capability nobody asked for.
 
 This is revisited if Laneward is ever deployed to a Windows host that is not a developer's desktop.
 
 Decided 2026-08-15.
 
-### D-023 — The Codex Git boundary is enforced by Laneward, not by the sandbox
+### D-023: The Codex Git boundary is enforced by Laneward, not by the sandbox
 
 The control that prevents a worker from mutating Git state belongs to Laneward and the worker's environment: a restricted `git` on the worker's `PATH` that permits read-only subcommands and rejects mutating ones, plus repository credentials kept out of the worker environment.
 
@@ -356,21 +356,21 @@ Evidence: [../../notes/2026-08-07-codex-sandbox-and-git-boundary-probe.md](../..
 
 ## Optional systems
 
-### D-019 — GPT Pro handoff is disabled
+### D-019: GPT Pro handoff is disabled
 
 The user does not have an active GPT Pro subscription. The skill may remain stored, but it is not part of routing, planning, validation, or fallback behavior.
 
-### D-020 — OMP is removed
+### D-020: OMP is removed
 
 OMP is not part of the architecture or implementation roadmap. It may only return through a future, separately approved measurement exercise.
 
-### D-021 — ACOS is deferred and incomplete
+### D-021: ACOS is deferred and incomplete
 
 ACOS is not production-ready and must not block Laneward v1.
 
 After Laneward proves stable, ACOS will itself be refactored through Laneward and specialized as a release-candidate audit system.
 
-### D-024 — Notification delivery is recorded separately
+### D-024: Notification delivery is recorded separately
 
 A notification row is written when the condition is detected, not when the notification is delivered. `sent_at` therefore means the condition was seen. `delivered_at` records that the platform command exited 0.
 

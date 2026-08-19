@@ -7,7 +7,7 @@ Host: Windows 11 Pro 26200, Codex CLI 0.146.0, Git 2.54.0.windows.1
 This is the Phase 2 measurement that had been blocked since 2026-08-05. It ran
 only after a Codex sandbox failure on this host was diagnosed and repaired.
 
-## Part 1 — The Windows sandbox was broken, and why
+## Part 1: The Windows sandbox was broken, and why
 
 The first attempt produced a null result. Every command under
 `codex exec -s workspace-write` failed before the process started:
@@ -55,7 +55,7 @@ this host went from being unable to do anything to, briefly, running with
 `danger-full-access` and no sandbox at all. Neither is the posture the
 architecture assumes, and `unelevated` is what restores it.
 
-## Part 2 — The Git boundary probe
+## Part 2: The Git boundary probe
 
 Run in a real linked worktree of this repository, with
 `-s workspace-write` and `sandbox_workspace_write.network_access=false`.
@@ -111,7 +111,7 @@ repository afterwards:
 
 The probe worktree and its branch were removed afterwards.
 
-## Part 3 — What this changes
+## Part 3: What this changes
 
 Confirms D-023's control is worth building, and narrows what it must cover.
 Filesystem confinement already blocks the mutations, so the restricted `git`
