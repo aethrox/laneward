@@ -1,10 +1,12 @@
 # Domain Docs
 
-How the engineering skills should consume this repo's domain documentation when exploring the codebase.
+How the `doctrine` skills should consume this repo's domain documentation when exploring the codebase.
 
 ## Before exploring, read these
 
-- **`CONTEXT.md`** at the repo root, if it exists;
+- **`docs/GLOSSARY.md`**: this repo's vocabulary. It lives there rather than at
+  `CONTEXT.md` in the repo root, which is the layout the skills assume by
+  default.
 - **`docs/architecture/workflow-v1/01-decisions.md`**: this repo's decision
   log, one `### D-0NN: <title>` entry per decision. Read the entries that touch
   the area you are about to work in.
@@ -12,7 +14,7 @@ How the engineering skills should consume this repo's domain documentation when 
   describe the intended architecture; `09-implementation-roadmap.md` says which
   phase each part belongs to.
 
-If `CONTEXT.md` doesn't exist, **proceed silently**. Don't flag its absence; don't suggest creating it upfront. The `/domain-modeling` skill (reached via `/grill-with-docs` and `/improve-codebase-architecture`) creates it lazily when terms actually get resolved.
+There is no `CONTEXT.md` at the repo root and none is wanted; `docs/GLOSSARY.md` is the one glossary. `doctrine:domain-modeling`, reached on its own or through `doctrine:grilling` and `doctrine:improve-codebase-architecture`, extends that file rather than creating a second one.
 
 ## Where decisions go
 
@@ -29,9 +31,9 @@ reused or renumbered.
 
 ## Use the glossary's vocabulary
 
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to synonyms the glossary explicitly avoids.
+When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `docs/GLOSSARY.md`. Don't drift to synonyms the glossary explicitly avoids.
 
-If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
+If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `doctrine:domain-modeling`).
 
 ## Flag decision conflicts
 

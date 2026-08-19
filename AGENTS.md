@@ -5,6 +5,11 @@ commit messages. Conversation with the user is Turkish; artifacts are not.
 
 ## Agent skills
 
+The skill set in use is **`doctrine`**. The three files under `docs/agents/`
+are what those skills read to learn this repo's conventions rather than assume
+a default layout, so a skill that asks for "the glossary" or "the issue
+tracker" is answered there.
+
 ### Issue tracker
 
 Decision tickets and specs live as GitHub issues in `aethrox/laneward`, driven
