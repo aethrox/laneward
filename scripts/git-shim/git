@@ -1,0 +1,3 @@
+#!/bin/sh
+shim_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec "${BUN:-bun}" "$shim_dir/../git-guard.ts" "$@"

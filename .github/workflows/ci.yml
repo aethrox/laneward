@@ -1,0 +1,83 @@
+name: CI
+
+# D-022 makes Windows and Linux both first-class, so a change is not verified
+# until the suite has run on both. Until this workflow existed the only evidence
+# was a manual run on one machine at a time.
+#
+# Linux and Windows are separate jobs rather than one matrix because service
+# containers only run on Linux runners; the Windows runner uses the PostgreSQL
+# that ships with the image instead.
+#
+# DATABASE_URL must name a database ending in `_test`. src/db.ts refuses anything
+# else under NODE_ENV=test, because the suite truncates the tables it finds.
+#
+# LANEWARD_CLEAN_RUN_SHELL is deliberately left unset: the clean-run tests assert
+# interpreter resolution, and on a GitHub Windows runner bare `bash` is Git Bash
+# rather than WSL, which is what the fixture expects.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: laneward
+          POSTGRES_PASSWORD: laneward
+          POSTGRES_DB: laneward_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U laneward"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://laneward:laneward@127.0.0.1:5432/laneward_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+      - run: bun run db:migrate
+      - run: bun test
+
+  windows:
+    runs-on: windows-latest
+    env:
+      DATABASE_URL: postgres://laneward:laneward@127.0.0.1:5432/laneward_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # The image ships PostgreSQL stopped, and its major version moves with the
+      # image, so match the service by prefix rather than pinning a name.
+      - name: Start the bundled PostgreSQL
+        shell: pwsh
+        run: |
+          $service = Get-Service -Name "postgresql*" | Select-Object -First 1
+          if (-not $service) { throw "no PostgreSQL service on this image" }
+          Set-Service -Name $service.Name -StartupType Manual
+          Start-Service -Name $service.Name
+          $bin = Split-Path -Parent (Get-ChildItem "C:\Program Files\PostgreSQL\*\bin\psql.exe" | Select-Object -First 1).FullName
+          "$bin" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Create the test role and database
+        shell: pwsh
+        env:
+          PGPASSWORD: root
+        run: |
+          psql -U postgres -h 127.0.0.1 -c "CREATE ROLE laneward LOGIN PASSWORD 'laneward' SUPERUSER;"
+          psql -U postgres -h 127.0.0.1 -c "CREATE DATABASE laneward_test OWNER laneward;"
+
+      - run: bun install --frozen-lockfile
+      - run: bun run db:migrate
+      - run: bun test

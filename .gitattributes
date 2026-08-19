@@ -1,0 +1,18 @@
+# The POSIX shim is executed by /bin/sh. A CRLF line ending makes the shebang
+# unresolvable, and this repository is developed on Windows with
+# core.autocrlf=true, so the working copy would otherwise get CRLF.
+scripts/git-shim/git text eol=lf
+
+# Same reason, for everything else that only ever runs on Linux. install.sh with
+# CRLF fails as `env: 'bash\r': No such file or directory`, which is how this was
+# found: the installer could not be exercised from WSL against this checkout. A
+# systemd unit is worse, because it does not fail loudly — the \r ends up inside
+# the value of every directive.
+*.sh text eol=lf
+systemd/*.service text eol=lf
+quadlet/*.container text eol=lf
+# install.sh copies this to the config directory and systemd loads it with
+# EnvironmentFile, which does not strip \r: PORT=8787 becomes the string
+# "8787\r". install.sh's own numeric check caught it, which is the only reason
+# it is here rather than in production.
+.env.example text eol=lf

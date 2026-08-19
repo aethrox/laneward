@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "checks": {
+    "lane": [
+      { "name": "test", "command": ["bun", "test"] }
+    ]
+  },
+  "reader": {
+    "test_paths": ["tests"]
+  },
+  "clean_run": {
+    "shell": {
+      "win32": ["bash", "-lc"],
+      "linux": ["bash", "-lc"]
+    },
+    "environment": {
+      "PORT": "8799",
+      "LANEWARD_NOTIFY": "approval_required,lane_failed,plan_ready_for_review"
+    },
+    "seed": "bun run scripts/seed-clean-run.ts",
+    "seed_timeout_ms": 30000,
+    "start": "exec bun run start",
+    "observation_window_ms": 8000,
+    "expectations": [
+      {
+        "name": "approval_required notification is delivered",
+        "must_appear": "desktop notification sent: approval_required"
+      },
+      {
+        "name": "lane_failed notification is delivered",
+        "must_appear": "desktop notification sent: lane_failed"
+      },
+      {
+        "name": "plan_ready_for_review notification is delivered",
+        "must_appear": "desktop notification sent: plan_ready_for_review"
+      },
+      {
+        "name": "notification delivery does not fail",
+        "must_not_appear": "desktop notification failed:"
+      }
+    ]
+  }
+}

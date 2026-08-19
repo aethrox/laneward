@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run ${CLAUDE_PROJECT_DIR}/scripts/bridge.ts state",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

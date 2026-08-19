@@ -1,0 +1,33 @@
+[Unit]
+Description=Laneward conductor
+# D-014 says approved lanes continue after Claude exits. The API alone does not
+# do that: it records lanes, it does not dispatch them. This unit is what runs
+# them, and it is separate from laneward.service because a drain pass spawns
+# Codex workers and clean runs for minutes at a time, while the API has to stay
+# responsive for the dashboard.
+After=laneward.service
+Requires=laneward.service
+
+[Service]
+# The bracketed placeholders below are substituted by install.sh; see laneward.service.
+WorkingDirectory=@APP_DIR@
+EnvironmentFile=@CONFIG_DIR@/.env
+# See laneward.service. This one matters more, not less: the conductor spawns
+# codex, git and every command a project declares as a lane check, and none of
+# them are on a systemd user service's default PATH.
+Environment=PATH=@BUN_DIR@:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+ExecStart=@BUN@ run --no-env-file conductor.ts --loop
+# --no-env-file matters: the deployed app directory has no .env of its own, and
+# the unit already supplies one. A stray .env next to conductor.ts would
+# otherwise point the lanes at whatever database it happened to name.
+#
+# The loop never exits on its own, so any exit is a fault worth restarting. On
+# SIGTERM the handler hands running lanes back to the hub and exits 0, which
+# systemd reads as a clean stop rather than a failure.
+Restart=on-failure
+RestartSec=5
+# Give the running lanes time to be handed back before SIGKILL.
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

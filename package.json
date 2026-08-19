@@ -1,0 +1,24 @@
+{
+  "name": "laneward",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --hot index.ts",
+    "start": "bun run index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "bun run db/migrate.ts",
+    "conductor": "bun run --no-env-file conductor.ts",
+    "build-candidate": "bun run scripts/build-candidate.ts",
+    "reset-stranded": "bun run scripts/reset-stranded.ts",
+    "teardown": "bun run scripts/teardown.ts"
+  },
+  "dependencies": {
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,29 @@
+[Unit]
+Description=Laneward HUB API
+# install.sh replaces this with the laneward-db.service dependency when
+# DATABASE_URL points at this host, and with nothing when it does not. A unit
+# that Requires= a database container nobody installed never starts.
+@DB_DEPENDENCY@
+
+[Service]
+# The bracketed placeholders below are substituted by install.sh. systemd's own
+# %h expands to the home directory, which is not the same thing: install.sh honours
+# XDG_CONFIG_HOME and XDG_DATA_HOME, and a unit written with %h silently
+# disagrees with it the moment either is set to a non-default value.
+WorkingDirectory=@APP_DIR@
+EnvironmentFile=@CONFIG_DIR@/.env
+# A systemd user service does not inherit the login shell's PATH, and bun lives
+# under $HOME. Addressing bun absolutely in ExecStart is not enough: `run start`
+# executes a package script that invokes bare `bun`, which exits 127. The lane
+# checks have the same need — they spawn whatever the project declares, `bun
+# test` among them — so this is PATH rather than a rewritten ExecStart.
+Environment=PATH=@BUN_DIR@:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+ExecStart=@BUN@ run start
+# ponytail: no readiness wait for Postgres; the app just dies and is restarted
+# until the database accepts connections. Add a pg_isready pre-start if the
+# restart noise in the journal ever becomes a problem.
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target
