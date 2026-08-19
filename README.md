@@ -48,32 +48,32 @@ The hub owns all state and answers HTTP. The conductor is a loop that asks the h
 ```mermaid
 flowchart TB
     OP["Operator"] -->|"registers lanes,<br/>resolves approvals"| HUB
-    CC["Claude Code<br/><i>optional, via bridge hooks</i>"] -.->|"session state,<br/>gate on PreToolUse"| HUB
+    CC["Claude Code<br/>optional, via bridge hooks"] -.->|"session state,<br/>gate on PreToolUse"| HUB
 
-    HUB["<b>Hub</b><br/>Hono HTTP API + live dashboard<br/>127.0.0.1:8787"] <--> DB[("<b>PostgreSQL</b><br/>lanes, plans, revisions,<br/>approvals, evidence")]
+    HUB["Hub<br/>Hono HTTP API + live dashboard<br/>127.0.0.1:8787"] <--> DB[("PostgreSQL<br/>lanes, plans, revisions,<br/>approvals, evidence")]
 
-    HUB -->|"GET /lanes/dispatchable"| COND["<b>Conductor</b><br/>drain pass every 5s"]
+    HUB -->|"GET /lanes/dispatchable"| COND["Conductor<br/>drain pass every 5s"]
     COND ==>|"POST /lanes/:id/start,<br/>then spawn with the brief on stdin"| AG
 
-    AG["<b>Agent</b><br/>runs in the lane's worktree<br/>own branch, own .env, own database"]
-    AG -.->|"every git call"| SHIM["<b>git shim</b><br/>first on PATH,<br/>read-only allowlist,<br/>refusals logged"]
+    AG["Agent<br/>runs in the lane's worktree<br/>own branch, own .env, own database"]
+    AG -.->|"every git call"| SHIM["git shim<br/>first on PATH,<br/>read-only allowlist,<br/>refusals logged"]
     AG ==>|"exit 0 / 10 / other"| EV
 
-    EV["<b>check-evidence</b><br/>every dirty path scored<br/>against owned_paths"]
+    EV["check-evidence<br/>every dirty path scored<br/>against owned_paths"]
     EV -->|"violation"| FAIL["lane failed"]
-    EV -->|"clean"| LC["<b>Lane checks</b><br/>commands the driven repo<br/>declares in .laneward/project.json"]
+    EV -->|"clean"| LC["Lane checks<br/>commands the driven repo<br/>declares in .laneward/project.json"]
 
-    LC -->|"result recorded as evidence"| BACK["<b>Conductor reports back</b><br/>POST /lanes/:id/result"]
+    LC -->|"result recorded as evidence"| BACK["Conductor reports back<br/>POST /lanes/:id/result"]
     FAIL --> BACK
     BACK --> HUB
 
-    COND -.->|"on a completed<br/>plan revision"| RD["<b>Reader</b><br/>read-only review of the candidate<br/><i>advisory, D-027</i>"]
+    COND -.->|"on a completed<br/>plan revision"| RD["Reader<br/>read-only review of the candidate<br/>advisory, D-027"]
     RD -.->|"findings to adjudicate"| BACK
     HUB -->|"desktop notification"| OP
 
-    classDef core fill:#1f6feb22,stroke:#1f6feb,color:#0b1b33
-    classDef guard fill:#d2992222,stroke:#d29922,color:#3d2c05
-    classDef bad fill:#da363322,stroke:#da3633,color:#3d0a09
+    classDef core fill:#1f6feb22,stroke:#1f6feb,stroke-width:2px
+    classDef guard fill:#d2992222,stroke:#d29922,stroke-width:2px
+    classDef bad fill:#da363322,stroke:#da3633,stroke-width:2px
     class HUB,COND,DB,BACK core
     class EV,LC,SHIM guard
     class FAIL bad
@@ -97,7 +97,7 @@ stateDiagram-v2
     running --> waiting_approval: exit 10
     running --> failed: exit non-zero, owned-path<br/>violation, or a failed lane check
     running --> pending: attempt 1 or 2 of 3
-    running --> pending: SIGTERM, handed back<br/><i>(Linux only)</i>
+    running --> pending: SIGTERM, handed back<br/>(Linux only)
     running --> pending: bun run reset-stranded
 
     waiting_approval --> pending: POST /approvals/:id
@@ -128,8 +128,8 @@ Nothing here trusts the agent. The gates before dispatch are ordered so the chea
 
 ```mermaid
 flowchart TD
-    START(["Lane is pending"]) --> G1{"<b>Plan authority</b><br/>bound revision approved,<br/>still the newest,<br/>no approval already open?"}
-    G1 -->|no| HOLD["Stay pending.<br/><i>GET /lanes/:id/gate says which one refused</i>"]
+    START(["Lane is pending"]) --> G1{"Plan authority:<br/>bound revision approved,<br/>still the newest,<br/>no approval already open?"}
+    G1 -->|no| HOLD["Stay pending.<br/>GET /lanes/:id/gate says which one refused"]
     G1 -->|"yes, or not bound to a plan"| G2{"Every lane in<br/>depends_on completed?"}
     G2 -->|no| HOLD
     G2 -->|yes| G3{"Under MAX_ACTIVE_LANES?"}
@@ -138,21 +138,21 @@ flowchart TD
     G4 -->|yes| HOLD
     G4 -->|no| DISPATCH(["Dispatch"])
 
-    DISPATCH --> S1["<b>Agent runs in its worktree, boxed in</b><br/>git shim ahead of real git on PATH, read-only allowlist, refusals logged<br/>tokens, askpass, ssh-agent and DATABASE_URL stripped from the environment<br/>global git config pointed at null"]
+    DISPATCH --> S1["Agent runs in its worktree, boxed in:<br/>git shim ahead of real git on PATH, read-only allowlist, refusals logged<br/>tokens, askpass, ssh-agent and DATABASE_URL stripped from the environment<br/>global git config pointed at null"]
     S1 --> EXIT{"Exit code"}
 
     EXIT -->|10| APPR(["waiting_approval"])
     EXIT -->|"non-zero"| RETRY(["retried, or failed on attempt 3"])
-    EXIT -->|0| C1{"<b>check-evidence</b><br/>is every dirty path inside owned_paths?"}
+    EXIT -->|0| C1{"check-evidence:<br/>is every dirty path inside owned_paths?"}
 
     C1 -->|no| VIOL(["failed: violation, naming the path"])
-    C1 -->|yes| C2{"<b>Lane checks</b> the driven repo<br/>declares in .laneward/project.json"}
+    C1 -->|yes| C2{"Lane checks the driven repo<br/>declares in .laneward/project.json"}
     C2 -->|failed| RETRY
     C2 -->|"passed, or none declared"| DONE(["completed, evidence recorded"])
 
-    classDef refuse fill:#da363322,stroke:#da3633,color:#3d0a09
-    classDef pass fill:#2ea04322,stroke:#2ea043,color:#06301a
-    classDef guard fill:#d2992222,stroke:#d29922,color:#3d2c05
+    classDef refuse fill:#da363322,stroke:#da3633,stroke-width:2px
+    classDef pass fill:#2ea04322,stroke:#2ea043,stroke-width:2px
+    classDef guard fill:#d2992222,stroke:#d29922,stroke-width:2px
     class HOLD,VIOL,RETRY refuse
     class DONE,DISPATCH pass
     class S1,C1,C2 guard
