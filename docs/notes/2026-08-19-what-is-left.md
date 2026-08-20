@@ -50,19 +50,23 @@ recorded and the journal showing the dispatch.
 
 ## 2. Needs one action from the operator
 
-**The Windows logon trigger.** `install.ps1` registers a Scheduled Task at
-logon. The task has been started by hand and drives lanes correctly, but it has
-never fired from an actual logoff and logon. One logout closes it.
+~~**The Windows logon trigger.**~~ **Done 2026-08-20**
+([evidence](2026-08-20-windows-logon-trigger.md)). Both tasks fired at logon,
+tolerated a database that was not there yet, and completed a lane with a real
+agent once it arrived. It also found that `install.ps1` had been registering
+only the conductor and never the hub, which would have left a first-time
+Windows user with a task reporting `Running` and a dashboard that never loads.
 
-**Reboot and logout survival.** Neither platform has survived either. On Linux
-`WantedBy=default.target` stops at logout unless `loginctl enable-linger` is
-set, which the installer says and nobody has tested. Linger is a persistent host
-change and needs its own approval, which is why the installer will not do it on
-your behalf. On Windows the logon trigger above is the same question wearing
-different clothes.
+**Reboot survival, and logout on Linux.** A logoff and logon is not a cold boot,
+so Windows still has a reboot to survive. On Linux `WantedBy=default.target`
+stops at logout unless `loginctl enable-linger` is set, which the installer says
+and nobody has tested. Linger is a persistent host change and needs its own
+approval, which is why the installer will not do it on your behalf.
 
-Take these together: one logoff and logon cycle, and one reboot, answer all
-three.
+Note that nothing starts the Podman machine at logon, and nothing here should:
+it is a machine-wide service rather than Laneward's to register. Both platforms
+therefore come up before their database does, which this run showed they
+survive.
 
 ## 3. Deferred until Codex is available again
 

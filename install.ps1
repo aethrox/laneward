@@ -21,8 +21,11 @@ param(
   # before someone runs it for real.
   [string]$ConfigDir = (Join-Path $env:APPDATA 'laneward'),
   [string]$DataDir = (Join-Path $env:LOCALAPPDATA 'laneward'),
-  [string]$TaskName = 'laneward-conductor'
+  [string]$TaskName = 'laneward-conductor',
+  # Derived from $TaskName so a throwaway -TaskName still isolates both tasks.
+  [string]$HubTaskName = ''
 )
+if (-not $HubTaskName) { $HubTaskName = "$TaskName-hub" }
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -34,13 +37,15 @@ $AppDir = Join-Path $DataDir 'app'
 $StateDir = Join-Path $DataDir 'logs'
 
 if ($Uninstall) {
-  $task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-  if ($task) {
-    if ($task.State -eq 'Running') { Stop-ScheduledTask -TaskName $TaskName }
-    Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
-    Write-Output "Removed scheduled task $TaskName."
-  } else {
-    Write-Output "No scheduled task named $TaskName."
+  foreach ($name in @($TaskName, $HubTaskName)) {
+    $task = Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue
+    if ($task) {
+      if ($task.State -eq 'Running') { Stop-ScheduledTask -TaskName $name }
+      Unregister-ScheduledTask -TaskName $name -Confirm:$false
+      Write-Output "Removed scheduled task $name."
+    } else {
+      Write-Output "No scheduled task named $name."
+    }
   }
   foreach ($dir in @($AppDir, $StateDir)) {
     if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
@@ -262,12 +267,33 @@ $taskSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries `
   -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) `
   -ExecutionTimeLimit ([TimeSpan]::Zero)
 
+# The hub needs a trigger of its own. On Linux `install.sh` installs two units
+# and the conductor's declares `Requires=laneward.service`, so a boot brings the
+# API up with it. Registering only the conductor here looked equivalent and is
+# not: after a logon the loop would run against nothing, log a connection
+# failure every interval, and dispatch no lane. The operator's own evidence for
+# that would be an empty dashboard and a task that says Running.
+#
+# Two tasks rather than one wrapper, because a Scheduled Task has no ordering
+# either. The conductor already tolerates an absent hub by design (D-038), which
+# is what makes starting them independently safe.
+$hubArguments = "--env-file=`"$EnvFile`" run start"
+$hubCommand = "`"$BunPath`" $hubArguments"
+$hubAction = New-ScheduledTaskAction -Execute $BunPath `
+  -Argument $hubArguments -WorkingDirectory $AppDir
+
 if ($DryRun) {
+  Write-Output "[dry-run] would register scheduled task '$HubTaskName'"
+  Write-Output "[dry-run]   command:  $hubCommand"
+  Write-Output "[dry-run]   workdir:  $AppDir"
+  Write-Output "[dry-run]   trigger:  at logon of $env:USERNAME"
   Write-Output "[dry-run] would register scheduled task '$TaskName'"
   Write-Output "[dry-run]   command:  $taskCommand"
   Write-Output "[dry-run]   workdir:  $AppDir"
   Write-Output "[dry-run]   trigger:  at logon of $env:USERNAME"
 } else {
+  Register-ScheduledTask -TaskName $HubTaskName -Action $hubAction -Trigger $trigger `
+    -Settings $taskSettings -Force | Out-Null
   Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
     -Settings $taskSettings -Force | Out-Null
 }
@@ -277,6 +303,7 @@ if ($DryRun) {
 @"
 
 Installed:
+  task    $HubTaskName (at logon, serves the API and the dashboard)
   task    $TaskName (at logon, runs the conductor loop)
   config  $EnvFile
   data    $(Join-Path $DataDir 'pgdata')
