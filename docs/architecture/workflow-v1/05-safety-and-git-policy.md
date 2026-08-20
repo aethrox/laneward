@@ -1,17 +1,17 @@
 # Safety and Git Policy
 
-## Codex Git boundary
+## Agent Git boundary
 
-The statement “Codex must not use Git” must be technically enforced, not merely written in a prompt.
+The statement “an agent must not use Git” must be technically enforced, not merely written in a prompt.
 
-Codex may use read-only inspection when necessary, such as:
+An agent may use read-only inspection when necessary, such as:
 
 - current diff;
 - file history needed for diagnosis;
 - branch name;
 - untracked-file inspection.
 
-Codex must be blocked from:
+An agent must be blocked from:
 
 - `git add`;
 - `git commit`;
@@ -28,14 +28,14 @@ Codex must be blocked from:
 Enforcement options should be layered:
 
 1. the lane brief states the rule;
-2. the Codex execution environment denies mutation commands;
+2. the agent's execution environment denies mutation commands;
 3. repository credentials are unavailable to workers;
 4. Laneward validates resulting Git state;
 5. Claude owns the commit step.
 
 A prompt-only rule is insufficient.
 
-Layer 2 means the worker's own environment, not the Codex sandbox. Per D-023 the boundary must never rest on sandbox denial. Sandbox behavior may reinforce it, but it is not the control.
+Layer 2 means the worker's own environment, not an agent's own sandbox. Per D-023 the boundary must never rest on sandbox denial. Sandbox behavior may reinforce it, but it is not the control.
 
 Layers 2, 3, and 4 are now implemented, on Windows, as of the Phase 2 work landed 2026-08-07 on `lane/phase2-git-boundary`. Layer 2 is `scripts/git-guard.ts`, a deny-by-default guard on the worker's PATH (via `scripts/git-shim/`) that allows only an explicit list of read-only subcommands and refuses everything else, including unknown subcommands and global options that could smuggle execution in before the subcommand. A refusal exits 86 and is logged as JSON. Layer 3 is `buildWorkerEnv` in `src/conductor.ts`, which drops credential-bearing variables from the worker environment, points `GIT_CONFIG_GLOBAL` and `GIT_CONFIG_SYSTEM` at the platform null device, sets `GIT_TERMINAL_PROMPT=0`, and gives `gh` an empty config directory. Layer 4 is split across two files: `runLane` in `src/conductor.ts` snapshots HEAD and the checked-out ref before dispatch, and `scripts/check-evidence.ts` compares that snapshot after the worker exits, exiting 3 on a moved HEAD, a changed ref, a populated index, or a non-empty guard log. What this does not cover: the repository-local git config, including the remote URL, is still readable from inside a lane worktree, unchanged by this work. On Linux all three layers are covered by tests that pass, measured 2026-08-15 by running the suite under WSL ([notes](../../notes/2026-08-15-linux-suite-run.md)); no lane has been driven end to end there, so Linux is evidenced by tests rather than by operation. See the Phase 2 status note in [09-implementation-roadmap.md](09-implementation-roadmap.md) for the measured evidence.
 
@@ -55,7 +55,7 @@ Generated files, lockfiles, migrations, shared schemas, and formatting changes m
 
 ## Network policy
 
-Codex network access is denied by default.
+Agent network access is denied by default.
 
 An exception requires:
 

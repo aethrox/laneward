@@ -83,7 +83,7 @@ Laneward owns all write worktrees.
 
 ## 5. Worker execution
 
-Each Codex worker receives:
+Each agent worker receives:
 
 - one bounded goal;
 - explicit owned paths;
@@ -96,7 +96,7 @@ A worker that needs new scope, unapproved network access, credentials, destructi
 
 ## 6. Review and commit
 
-A successful Codex exit is not proof of correctness.
+A successful agent exit is not proof of correctness.
 
 When the worker exits, the conductor runs the project's lane checks and stores their results as lane evidence. Only then does Laneward mark the lane `ready_for_review`.
 

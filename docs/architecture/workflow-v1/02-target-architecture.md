@@ -12,7 +12,7 @@ Claude is responsible for:
 - producing and revising the plan;
 - selecting lane boundaries and dependencies;
 - selecting project-appropriate concurrency;
-- reviewing Codex output;
+- reviewing agent output;
 - running or supervising validation;
 - creating commits after gates pass;
 - integrating verified commits;
@@ -22,7 +22,7 @@ Claude must not bypass Laneward for write execution.
 
 ### The write boundary
 
-Claude proposes and approves plans and reviews and commits the result. Codex writes, but only inside a worktree that Laneward created and scoped. There is no direct path from Claude to Codex: every write is routed through Laneward, which enforces owned paths, dependencies, and evidence before a lane can be reviewed or committed.
+Claude proposes and approves plans and reviews and commits the result. The agent writes, but only inside a worktree that Laneward created and scoped. There is no direct path from Claude to the agent: every write is routed through Laneward, which enforces owned paths, dependencies, and evidence before a lane can be reviewed or committed.
 
 ```mermaid
 flowchart LR
@@ -34,7 +34,7 @@ flowchart LR
     C -.->|blocked: no direct write path| X
 ```
 
-Step 5 closes the loop back into Laneward rather than Git directly: Laneward records the commit against the lane before it moves to integration. The dashed edge is not a rule Claude follows, it is a connection that is never wired up; Codex has no path to receive work except through a lane Laneward dispatched.
+Step 5 closes the loop back into Laneward rather than Git directly: Laneward records the commit against the lane before it moves to integration. The dashed edge is not a rule Claude follows, it is a connection that is never wired up; the agent has no path to receive work except through a lane Laneward dispatched.
 
 ### Laneward: deterministic control plane
 
@@ -45,7 +45,7 @@ Laneward is responsible for:
 - creating and owning write worktrees;
 - registering lanes;
 - enforcing dependencies and owned paths;
-- dispatching Codex workers;
+- dispatching agent workers;
 - storing logs and evidence;
 - tracking approvals and failures;
 - exposing dashboard state;
@@ -56,11 +56,11 @@ Laneward records decisions but does not invent them.
 
 Worktree ownership is a target, not a current fact. As of 2026-08-15 `scripts/new-lane.ts` creates the worktree and Laneward registers the path it is given. The transfer is deferred by decision; see `09-implementation-roadmap.md`.
 
-### Codex: write worker
+### The agent: write worker
 
-Codex receives a bounded brief, owned paths, constraints, and validation expectations.
+The agent receives a bounded brief, owned paths, constraints, and validation expectations. Which agent is a named preset (`src/agent.ts`); there is no default.
 
-Codex may:
+The agent may:
 
 - read the assigned repository;
 - edit only approved paths;
@@ -68,7 +68,7 @@ Codex may:
 - report ambiguity, approval needs, and host-verification needs;
 - leave the worktree ready for review.
 
-Codex may not mutate Git state or expand scope.
+The agent may not mutate Git state or expand scope.
 
 ### Claude subagents: read-only helpers
 

@@ -27,7 +27,7 @@ The implementation phase must compare these against the current recovery model.
 
 After a plan is approved:
 
-- eligible Codex lanes may continue when Claude Code closes;
+- eligible agent lanes may continue when Claude Code closes;
 - workers never commit;
 - the conductor runs the project's lane checks when a worker exits and stores the results;
 - checked work becomes `ready_for_review`;

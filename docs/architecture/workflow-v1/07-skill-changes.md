@@ -20,12 +20,12 @@ Required changes:
 
 Required changes:
 
-- remove every exception that permits Codex to commit;
+- remove every exception that permits the agent to commit;
 - remove independent worktree creation for normal write execution;
 - turn fleet execution into a Laneward worker adapter;
 - retain bounded prompts, owned paths, model selection, and local validation;
 - keep direct use only as an explicitly approved emergency or diagnostic path;
-- default Codex network access to denied.
+- default agent network access to denied.
 
 Codex Fleet must no longer act as a competing orchestrator.
 

@@ -26,8 +26,10 @@ approved stays readable. Only the newest revision's lanes may run.
 file paths nobody else may touch, a git branch (`lane/<lane_id>`), a worktree,
 and usually a database of its own.
 
-**Worker**: the agent that executes a lane. Here that is Codex, run through
-`codex exec` in a sandbox.
+**Worker**: the agent that executes a lane. Which agent is a named preset
+(`src/agent.ts`): `LANEWARD_AGENT=codex` runs Codex through `codex exec` in a
+sandbox, `LANEWARD_AGENT=claude` runs Claude Code. There is no default; an
+operator declares one.
 
 **Brief**: the written instruction a lane's worker receives. It is the entire
 contract: the worker cannot see the conversation that produced it.
@@ -61,8 +63,8 @@ being reviewed is the difference between the base commit and the candidate.
 running it, the way a new machine would. Catches what a passing test suite
 cannot: things that only break on first install or first start.
 
-**Reader**: the review layer that reads the change rather than running it. A
-Codex lane whose declared subject is the test diff: did this change weaken what
+**Reader**: the review layer that reads the change rather than running it. An
+agent lane whose declared subject is the test diff: did this change weaken what
 the tests prove? It advises and never blocks, because it does not answer the
 same question the same way twice.
 

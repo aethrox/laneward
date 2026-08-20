@@ -59,9 +59,9 @@ Name the branches that must fail if removed.]
 
 ## Escalation: read this before you stop
 
-`codex exec` has no custom exit codes, so exiting is not how you report a
-problem. If you stop without escalating, your outcome is inferred from the diff
-alone.
+The agent has no custom exit codes beyond 0 (done), 10 (approval), and
+non-zero (failed), so exiting is not how you report a problem. If you stop
+without escalating, your outcome is inferred from the diff alone.
 
 **If the brief is wrong, ambiguous, or asks for something you should not do:**
 change nothing and print, on a line of its own:

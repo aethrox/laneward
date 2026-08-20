@@ -78,7 +78,7 @@ Suggested fields:
 | `depends_on` | Lane dependencies |
 | `worktree_path` | Laneward-owned worktree |
 | `branch_name` | Lane branch |
-| `worker_type` | Codex or deterministic command |
+| `worker_type` | Agent preset (`codex`, `claude`) or deterministic command |
 | `network_policy` | Lane-specific network decision |
 | `checks` | Required lane gates |
 | `status` | Operational state |
@@ -95,7 +95,7 @@ Target semantics include:
 - `blocked`: dependency or ownership conflict;
 - `running`: worker executing;
 - `waiting_approval`: a human decision is required;
-- `ready_for_review`: Codex finished; Claude review is required;
+- `ready_for_review`: agent finished; Claude review is required;
 - `changes_requested`: review failed within approved scope;
 - `verified`: Claude checks passed;
 - `committed`: Claude created the lane commit;
@@ -128,7 +128,7 @@ Conceptual example:
     ]
   },
 
-  "privacy": { "codex_network": "deny", "redact_logs": true },
+  "privacy": { "agent_network": "deny", "redact_logs": true },
 
   "deployment": {
     "requires_approval": true,

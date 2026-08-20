@@ -66,11 +66,11 @@ Examples:
 
 | Change producer | Reviewer | Verifier |
 |---|---|---|
-| Codex | Claude | Deterministic tests or independent Codex |
-| Claude-authored change | Codex | Deterministic tests |
-| Multiple workers | Claude | Codex |
+| Agent | Claude | Deterministic tests or an independent agent |
+| Claude-authored change | Agent | Deterministic tests |
+| Multiple workers | Claude | Agent |
 | Linux service | Claude | Service and smoke-test evidence |
-| High-risk architecture | Claude and approved specialist | Codex plus deterministic checks |
+| High-risk architecture | Claude and approved specialist | Agent plus deterministic checks |
 
 The same agent/session should not be accepted as the only independent verifier of its own work.
 

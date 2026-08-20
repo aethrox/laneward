@@ -99,7 +99,7 @@ Measured on Windows, whole suite: 2 passing and 28 failing before, 15 passing an
 
 Two decisions worth carrying forward:
 
-- `CODEX_BIN` values ending in `.ts` are invoked as `[process.execPath, path, ...args]`, everything else stays a direct executable. A TypeScript file is not executable on Windows, and this avoids depending on file associations or executable bits.
+- The binary override, then Codex-specific, invoked a value ending in `.ts` as `[process.execPath, path, ...args]`, everything else staying a direct executable. A TypeScript file is not executable on Windows, and this avoids depending on file associations or executable bits. That variable is gone, renamed to `LANEWARD_AGENT_BIN` by D-039, but the rule it names still holds: `agentCommand` in `src/agent.ts` applies the same extension check to whatever binary a preset or override resolves to.
 - `bun run --env-file=/dev/null` became `bun run --no-env-file`, which is a real Bun flag and needs no shim.
 
 One trap, recorded because it survived the rewrite it was meant to remove: `new URL(path, import.meta.url).pathname` yields `/C:/...` on Windows, with a leading slash that no API can resolve. It appeared in six places including `src/conductor.ts`'s evidence-script constant, where it broke the production path while the test still passed, because the test resolved the same file a different way. Use `join(import.meta.dir, ...)`, which the rest of this codebase already does.

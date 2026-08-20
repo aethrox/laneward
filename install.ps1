@@ -76,16 +76,6 @@ $bunVersion = ParseVersion (& $BunPath --version 2>$null)
 if ($bunVersion -and $bunVersion -lt $VerifiedBun) {
   Write-Warning "bun $bunVersion is older than $VerifiedBun, the version Laneward was verified against."
 }
-$codex = Get-Command codex -ErrorAction SilentlyContinue
-if ($codex) {
-  $codexVersion = ParseVersion (& $codex.Source --version 2>$null)
-  if ($codexVersion -and $codexVersion -lt $VerifiedCodex) {
-    Write-Warning "codex $codexVersion is older than $VerifiedCodex, the version Laneward was verified against."
-  }
-} else {
-  Write-Warning 'codex not on PATH. Laneward installs, but no lane can be dispatched until it is.'
-}
-
 $podman = (Get-Command podman -ErrorAction SilentlyContinue)
 if (-not $podman) { Die 'podman not found on PATH; the database runs in a Podman machine (D-037)' }
 
@@ -142,6 +132,31 @@ if (-not $settings.ContainsKey('DATABASE_URL') -or -not $settings['DATABASE_URL'
 foreach ($numeric in @('PORT', 'MAX_ACTIVE_LANES')) {
   if (-not ($settings.ContainsKey($numeric) -and $settings[$numeric] -match '^[0-9]+$')) {
     Die "$numeric must be numeric in $ValidatedFile"
+  }
+}
+
+# There is no default agent (src/agent.ts): a lane refuses to dispatch without
+# one declared. Mirroring that refusal here means an operator finds out at
+# install time, not when the first lane silently never starts.
+$declaredAgent = $settings['LANEWARD_AGENT']
+if ($declaredAgent -and $declaredAgent -notin @('codex', 'claude')) {
+  Die "LANEWARD_AGENT must be codex or claude in $ValidatedFile (got $declaredAgent)"
+}
+if (-not $declaredAgent -and -not $settings['LANEWARD_AGENT_WRITE']) {
+  Die "no agent declared in $ValidatedFile.`n  Set LANEWARD_AGENT to codex or claude, or set LANEWARD_AGENT_WRITE to a JSON argument array."
+}
+
+# The version floor only means anything for the codex preset; a claude preset
+# or a raw LANEWARD_AGENT_WRITE has no business with a Codex CLI version.
+if ($declaredAgent -eq 'codex') {
+  $codex = Get-Command codex -ErrorAction SilentlyContinue
+  if ($codex) {
+    $codexVersion = ParseVersion (& $codex.Source --version 2>$null)
+    if ($codexVersion -and $codexVersion -lt $VerifiedCodex) {
+      Write-Warning "codex $codexVersion is older than $VerifiedCodex, the version Laneward was verified against."
+    }
+  } else {
+    Write-Warning 'codex not on PATH, but LANEWARD_AGENT=codex is set. No lane can be dispatched until it is.'
   }
 }
 

@@ -23,10 +23,12 @@ Needs [Bun](https://bun.sh) 1.3.14 or newer, git, and a PostgreSQL you can reach
 ```bash
 git clone https://github.com/aethrox/laneward.git && cd laneward
 bun install
-cp .env.example .env          # edit DATABASE_URL
+cp .env.example .env          # edit DATABASE_URL, and set LANEWARD_AGENT
 bun run db:migrate
 bun run start                 # dashboard on http://127.0.0.1:8787
 ```
+
+There is no default agent. Set `LANEWARD_AGENT=codex` or `LANEWARD_AGENT=claude` in `.env`, or give `LANEWARD_AGENT_WRITE` a raw command array instead; the first lane fails with a refusal until one is declared. See [Agent presets](#agent-presets).
 
 In a second terminal, register a lane against a repository you want worked on and let the conductor pick it up:
 
@@ -79,7 +81,7 @@ flowchart TB
     class FAIL bad
 ```
 
-The agent is not fixed. Codex is the default only because it is what this was built against; see [Using a different agent](#using-a-different-agent).
+There is no default agent. See [Agent presets](#agent-presets).
 
 ### A lane's life
 
@@ -253,17 +255,28 @@ Everything is read from the `.env` the service loads.
 | `HUB_URL` | derived from `PORT` | Override when the conductor is elsewhere |
 | `LANEWARD_NOTIFY` | `approval_required,lane_failed` | Comma-separated notification classes; empty disables them |
 | `LANEWARD_DRAIN_INTERVAL_MS` | `5000` | Pause between drain passes |
-| `LANEWARD_MODEL_SOL` / `_TERRA` / `_LUNA` | built-in table | Remap a model tier to any model string |
-| `LANEWARD_AGENT_WRITE` | Codex | JSON argument array for the working agent |
-| `LANEWARD_AGENT_READ` | Codex | JSON argument array for the read-only reader |
+| `LANEWARD_AGENT` | none, required unless `LANEWARD_AGENT_WRITE` is set | Selects a preset: `codex` or `claude` |
+| `LANEWARD_MODEL_FAST` / `_BALANCED` / `_DEEP` | preset's table | Remap a model tier to any model string |
+| `LANEWARD_AGENT_WRITE` | preset's write template | JSON argument array for the working agent |
+| `LANEWARD_AGENT_READ` | preset's read-only template | JSON argument array for the read-only reader |
+| `LANEWARD_AGENT_BIN` | preset's `bin` | Overrides a preset's argv[0]; ignored by a raw declared template, which owns its own argv[0] |
 | `LANEWARD_LOG_DIR` | platform state dir | Where lane logs are written |
 | `LANEWARD_CHECK_TIMEOUT_MS` | per check | Ceiling for a declared lane check |
 
-A model tier (`sol`, `terra`, `luna`) is a slot you fill, not a model name. The names are a cost and capability ladder; what each one resolves to is yours to set.
+A model tier (`fast`, `balanced`, `deep`) is a slot you fill, not a model name. The names are a cost and capability ladder; what each one resolves to is yours to set.
 
-### Using a different agent
+### Agent presets
 
-Declare a command template per sandbox mode. `{worktree}` and `{model}` are substituted, and the array is passed to the OS as-is, because paths on Windows contain spaces.
+An agent is a named preset. `LANEWARD_AGENT=codex` or `LANEWARD_AGENT=claude` selects one, and it carries its own argument arrays per sandbox mode, its own default binary, and its own model-tier defaults. There is no default: with neither `LANEWARD_AGENT` nor `LANEWARD_AGENT_WRITE` set, Laneward refuses and names both ways to declare one.
+
+| Preset | Resolves to |
+|---|---|
+| `codex` | `codex exec -C {worktree} -s workspace-write -m {model}` (write), `-s read-only` (read-only) |
+| `claude` | `claude -p --permission-mode acceptEdits --disallowedTools "Bash(git *)" --model {model}` (write), `--permission-mode plan --disallowedTools Edit Write NotebookEdit Bash` (read-only) |
+
+Only these two ship, because only these two were run against this project. Adding an agent means adding a preset plus a real lane driven by it, not just writing the flags down.
+
+For anything else, declare a raw command template per sandbox mode instead of a preset. `{bin}`, `{worktree}` and `{model}` are substituted, and the array is passed to the OS as-is, because paths on Windows contain spaces.
 
 ```bash
 LANEWARD_AGENT_WRITE='["my-agent","run","--dir","{worktree}","--model","{model}"]'
@@ -312,7 +325,8 @@ bun run reset-stranded --failed    # retry genuinely failed lanes, attempt count
 - **Bun** 1.3.14 or newer. Both installers warn below this. It is the version everything here was verified against, not a measured floor.
 - **git**, verified on 2.54.0.
 - **PostgreSQL** 16. Linux can install the shipped container for you.
-- **Codex CLI** 0.147.0 or newer, only if you use the default agent.
+- **Codex CLI** 0.147.0 or newer, only for the `codex` preset.
+- **Claude Code**, only for the `claude` preset.
 - **Linux**: rootless Podman and a working `systemctl --user`.
 - **Windows**: a Podman machine, or any reachable PostgreSQL.
 

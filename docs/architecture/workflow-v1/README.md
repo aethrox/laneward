@@ -16,7 +16,7 @@ This document set supersedes an earlier gaps-and-recommendations note, which was
 
 ## Purpose
 
-This document set defines how Claude Code, Laneward, Codex workers, project-local records, validation gates, Linux services, and the independent verification layer work together.
+This document set defines how Claude Code, Laneward, agent workers, project-local records, validation gates, Linux services, and the independent verification layer work together.
 
 The system is intended primarily for:
 
@@ -70,7 +70,7 @@ flowchart TD
 |---|---|---|
 | Claude Code | Active | Single user entry point and cognitive orchestrator |
 | Laneward | Active | Central operational control plane |
-| Codex | Active | Write worker; no Git authority |
+| Agent | Active | Write worker; no Git authority. No default: `LANEWARD_AGENT` selects a preset (`codex`, `claude`) |
 | Claude subagents | Active | Read-only research and review helpers |
 | Dashboard | Active target | Operational inspection |
 | Linux notifications | Active target | Attention and approval alerts |
@@ -84,7 +84,7 @@ flowchart TD
 ## Non-goals
 
 - Laneward does not replace Claude's reasoning.
-- Codex does not create commits, branches, merges, or pushes.
+- The agent does not create commits, branches, merges, or pushes.
 - Obsidian is not part of project state management.
 - OMP is not part of this architecture.
 - GPT Pro is not a dependency.

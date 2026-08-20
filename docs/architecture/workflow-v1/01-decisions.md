@@ -219,7 +219,7 @@ The advisory layer D-026 declared and D-027 kept advisory is built. Written in f
 
 **A report that cannot be read is a failed run, not a quiet one.** `no_findings` is a claim only a parsed, empty report may make. "The reader saw nothing" and "we do not know what the reader saw" are the difference shadow mode exists to measure, and collapsing them would make the measurement meaningless in exactly the case that matters. The runner's statuses are the `verification_runs` vocabulary already, so the conductor records what it returned rather than translating it.
 
-**The binary comes from the caller, not from the environment.** `runReader` reads `CODEX_BIN` only as a fallback. It was written the other way first, and the conductor's drain tests then believed they were driving a fixture while spending real model calls on a two-line diff, silently and for 254 seconds a run. A layer whose executable is chosen by ambient state cannot be pointed at a fixture by the caller that owns it. The tests assert the fixture actually ran, not merely that a status came back, which is the assertion that would have caught it.
+**The binary comes from the caller, not from the environment.** `runReader` originally read the (since-renamed and since-removed) Codex-specific binary override only as a fallback. It was written the other way first, and the conductor's drain tests then believed they were driving a fixture while spending real model calls on a two-line diff, silently and for 254 seconds a run. A layer whose executable is chosen by ambient state cannot be pointed at a fixture by the caller that owns it. The tests assert the fixture actually ran, not merely that a status came back, which is the assertion that would have caught it. D-039 renamed that override to `LANEWARD_AGENT_BIN`, and `runReader` now takes its binary as an explicit `agentBin` argument rather than an env fallback at all, which is the same principle carried one step further.
 
 **Delivery is one class, and the toast is opt-in.** `findings_to_adjudicate`, scoped to the plan revision, which is why `notifications.subject_kind` gains `plan_revision`. Its urgency is `normal`: a `critical` toast would make an advisory finding a gate by tone, which D-027 forbids in substance. `GET /pending` answers with open findings beside the approvals rather than among them, because an approval blocks a lane and a finding does not. The dashboard shows the reader run and the findings on the revision, so a reader that found nothing and a reader that never ran do not look alike. The record is always visible; only the interruption is configured, and `LANEWARD_NOTIFY` keeps its default of the two classes that block work.
 
@@ -339,6 +339,18 @@ Running without a logged-in user is not a requirement here: the conductor spawns
 This is revisited if Laneward is ever deployed to a Windows host that is not a developer's desktop.
 
 Decided 2026-08-15.
+
+### D-039: Agents are named presets, with no default, and tiers are renamed
+
+The core stops being Codex-shaped. `LANEWARD_AGENT=codex` or `=claude` selects a named preset, each carrying its own argument arrays per sandbox mode, its own binary, and its own model-tier defaults. `LANEWARD_AGENT_WRITE` / `_READ` remain as the raw JSON escape hatch, and `LANEWARD_AGENT_BIN` replaces the old Codex-specific binary override.
+
+There is deliberately no default. A tool that claims neutrality between agents while silently defaulting to one vendor is not neutral; it is that vendor's tool with a config flag. With neither `LANEWARD_AGENT` nor `LANEWARD_AGENT_WRITE` set, Laneward refuses and names both ways to declare one, rather than falling back to Codex.
+
+Model tiers are renamed `fast`, `balanced`, `deep`, replacing `sol`, `terra`, `luna`, which were Codex's own model names wearing a ladder's clothes. This is the one moment the rename is free: v0.1.0, no installed users. The schema carries an idempotent migration.
+
+The Git boundary now distinguishes a refused read from a refused mutation. The shim logs every refusal, and until now `check-evidence` treated any refusal as a violation; but D-008 forbids Git *mutations*, and an agent that reaches for `git status` or `git log` unprompted to orient itself performs no mutation. A refused read now fails nothing and is reported as information; a refused mutation still fails the lane exactly as before. `remote` and `config` are classified by form, since each has both a reading and a writing shape, and anything unrecognised stays classified as a mutation. This narrows D-008's *enforcement* (fewer refusals now fail a lane) without changing what the shim permits: nothing was added to the allowlist, and every mutation is still refused.
+
+Decided 2026-08-20.
 
 ### D-023: The Codex Git boundary is enforced by Laneward, not by the sandbox
 

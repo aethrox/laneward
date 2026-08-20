@@ -56,15 +56,6 @@ if older_than "$BUN_VERSION" "$VERIFIED_BUN"; then
   echo "WARNING: bun $BUN_VERSION is older than $VERIFIED_BUN, the version Laneward was verified against." >&2
 fi
 
-if command -v codex >/dev/null; then
-  CODEX_VERSION="$(codex --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo 0)"
-  if older_than "$CODEX_VERSION" "$VERIFIED_CODEX"; then
-    echo "WARNING: codex $CODEX_VERSION is older than $VERIFIED_CODEX, the version Laneward was verified against." >&2
-  fi
-else
-  echo "WARNING: codex not on PATH. Laneward installs, but no lane can be dispatched until it is." >&2
-fi
-
 mkdir -p "$CONFIG_DIR" "$UNIT_DIR" "$QUADLET_DIR" "$DATA_DIR/pgdata"
 
 if [ ! -f "$CONFIG_DIR/.env" ]; then
@@ -78,6 +69,31 @@ set -a; . "$CONFIG_DIR/.env"; set +a
 [ -n "${DATABASE_URL:-}" ] || die "DATABASE_URL is empty in $CONFIG_DIR/.env"
 [[ "${PORT:-}" =~ ^[0-9]+$ ]] || die "PORT must be numeric in $CONFIG_DIR/.env"
 [[ "${MAX_ACTIVE_LANES:-}" =~ ^[0-9]+$ ]] || die "MAX_ACTIVE_LANES must be numeric in $CONFIG_DIR/.env"
+
+# There is no default agent (src/agent.ts): a lane refuses to dispatch without
+# one declared. Mirroring that refusal here means an operator finds out at
+# install time, not when the first lane silently never starts.
+case "${LANEWARD_AGENT:-}" in
+  codex|claude) : ;;
+  "")
+    [ -n "${LANEWARD_AGENT_WRITE:-}" ] || die "no agent declared in $CONFIG_DIR/.env.
+  Set LANEWARD_AGENT to codex or claude, or set LANEWARD_AGENT_WRITE to a JSON argument array."
+    ;;
+  *) die "LANEWARD_AGENT must be codex or claude in $CONFIG_DIR/.env (got ${LANEWARD_AGENT})" ;;
+esac
+
+# The version floor only means anything for the codex preset; a claude preset
+# or a raw LANEWARD_AGENT_WRITE has no business with a Codex CLI version.
+if [ "${LANEWARD_AGENT:-}" = codex ]; then
+  if command -v codex >/dev/null; then
+    CODEX_VERSION="$(codex --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || echo 0)"
+    if older_than "$CODEX_VERSION" "$VERIFIED_CODEX"; then
+      echo "WARNING: codex $CODEX_VERSION is older than $VERIFIED_CODEX, the version Laneward was verified against." >&2
+    fi
+  else
+    echo "WARNING: codex not on PATH, but LANEWARD_AGENT=codex is set. No lane can be dispatched until it is." >&2
+  fi
+fi
 
 # The notifier invokes notify-send directly. Without it every enabled class is a
 # silent no-op, and a notification system that fails quietly is worse than one
