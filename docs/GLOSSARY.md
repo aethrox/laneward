@@ -81,6 +81,23 @@ lane so a returning session finds results rather than unstarted work.
 **Gate**: the hub's answer to "may this lane start right now?". Checks plan
 approval, dependencies, path conflicts, and the active lane limit.
 
+**Preset**: a named agent configuration, selected with `LANEWARD_AGENT`. It
+holds the command Laneward runs to start that agent, the command for its
+read-only mode, and which model each tier resolves to. `codex` and `claude`
+ship. There is no default: an install with no preset and no raw command
+declared refuses to start.
+
+**Model tier**: `fast`, `balanced` or `deep`. A lane names a tier rather than a
+model, and the preset decides which model that tier means, so the same lane can
+run on a different model just by changing preset or override. A tier is a slot
+the operator fills, not a promise about any particular model.
+
+**Git boundary**: the rule that Laneward owns Git and an agent never changes it
+(D-008). Enforced rather than trusted: a shim ahead of the real `git` on the
+agent's PATH refuses anything it cannot identify as read-only, and records each
+refusal. A refused *read* is reported but does not fail the lane; a refused
+*mutation* does.
+
 ## Process terms
 
 **D-0NN**: a numbered decision in
