@@ -28,6 +28,25 @@ systemd every lane has used a fixture or a declared test agent, because putting
 Codex credentials on a disposable Linux host is a decision rather than a step.
 This is the seam most likely to surprise a first-time Linux user.
 
+## Deferred, and deliberately so
+
+Written down rather than done, so they stop occupying anyone's attention until
+they are worth the cost.
+
+**The rest of the agent-neutral change.** The core stops being Codex-shaped in
+`src/`, `tests/` and the schema. What still names Codex as the engine is the
+README, `docs/`, both installers, the conductor unit, and the decision log,
+which needs a new entry for the preset registry and the tier rename. None of it
+changes behaviour; all of it is documentation drift until it is done.
+
+**The repository's `codex` topic.** Accurate while Codex was the only agent.
+Once presets ship it undersells the tool and should be replaced by something
+that says "any agent".
+
+**More presets.** Only `codex` and `claude` are shipped, because only those two
+were verified by running them here. Another agent is a preset plus a real lane
+driven by it, in that order, and never the preset alone.
+
 ## Decisions, not work
 
 **Visibility.** The repository is private. Going public is the last distribution

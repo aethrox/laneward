@@ -116,13 +116,52 @@ test("a moved HEAD is a Git boundary violation, not an empty write lane", () => 
   expect(result.stderr.toString()).not.toContain("write lane produced no changes");
 });
 
-test("a non-empty guard log is a Git boundary violation", () => {
+test("a refused mutation in the guard log is a Git boundary violation, named", () => {
   const dir = initRepo();
-  const logPath = join(dir, "git-guard.jsonl");
-  writeFileSync(logPath, '{"argv":["commit"]}\n');
+  const logPath = `${dir}.git-guard.jsonl`;
+  writeFileSync(logPath, '{"argv":["commit"],"read_intent":false}\n');
 
   const result = runCheck(dir, "write", ["core/*"], { beforeState: gitState(dir), gitGuardLog: logPath });
 
   expect(result.exitCode).toBe(3);
-  expect(result.stderr.toString()).toContain("git guard recorded a refusal");
+  expect(result.stderr.toString()).toContain("1 non-read refusal");
+  expect(result.stderr.toString()).toContain("commit");
+});
+
+test("a refused read in the guard log does not fail the lane, and is reported", () => {
+  const dir = initRepo();
+  const logPath = `${dir}.git-guard.jsonl`;
+  writeFileSync(logPath, '{"argv":["status"],"read_intent":true}\n');
+
+  const result = runCheck(dir, "read_review", ["core/*"], { beforeState: gitState(dir), gitGuardLog: logPath });
+
+  expect(result.exitCode).toBe(0);
+  expect(result.stdout.toString()).toContain("refused 1 read-only command");
+});
+
+test("a mix of refused reads and a refused mutation still fails the lane", () => {
+  const dir = initRepo();
+  const logPath = `${dir}.git-guard.jsonl`;
+  writeFileSync(
+    logPath,
+    ['{"argv":["status"],"read_intent":true}', '{"argv":["remote","get-url","origin"],"read_intent":false}'].join(
+      "\n",
+    ) + "\n",
+  );
+
+  const result = runCheck(dir, "read_review", ["core/*"], { beforeState: gitState(dir), gitGuardLog: logPath });
+
+  expect(result.exitCode).toBe(3);
+  expect(result.stderr.toString()).toContain("remote");
+});
+
+test("a malformed guard log line is a Git boundary violation, not silently skipped", () => {
+  const dir = initRepo();
+  const logPath = `${dir}.git-guard.jsonl`;
+  writeFileSync(logPath, "not json\n");
+
+  const result = runCheck(dir, "read_review", ["core/*"], { beforeState: gitState(dir), gitGuardLog: logPath });
+
+  expect(result.exitCode).toBe(3);
+  expect(result.stderr.toString()).toContain("git guard");
 });

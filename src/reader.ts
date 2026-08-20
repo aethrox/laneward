@@ -116,7 +116,7 @@ export async function runReader(
   baseCommit: string,
   rejectedFindings: ReaderFinding[],
   logDir: string,
-  codexBin?: string,
+  agentBin?: string,
 ): Promise<ReaderResult> {
   const finish = (status: ReaderResult["status"], options: Partial<Omit<ReaderResult, "schema_version" | "source" | "status">> = {}): ReaderResult => ({
     schema_version: 1, source: "reader", status, findings: options.findings ?? [], output_path: options.output_path ?? null,
@@ -148,9 +148,9 @@ export async function runReader(
   let outputEnded = false;
   let childExited = false;
   try {
-    const tier = process.env.LANEWARD_READER_MODEL ?? "terra";
+    const tier = process.env.LANEWARD_READER_MODEL ?? "balanced";
     const model = modelForTier(tier);
-    const command = agentCommand("read_only", { worktree: worktreePath, model }, process.env, codexBin);
+    const command = agentCommand("read_only", { worktree: worktreePath, model }, process.env, agentBin);
     // A declared agent with no read-only command cannot be stopped from editing
     // the candidate it is reviewing. The layer is advisory by D-027, so losing
     // it costs findings rather than correctness -- and running it unconfined
@@ -167,6 +167,7 @@ export async function runReader(
       };
     }
     proc = Bun.spawn(command, {
+      cwd: worktreePath,
       stdin: new TextEncoder().encode(prompt(testDiff, sourceDiff, rejectedFindings)), stdout: "pipe", stderr: "pipe",
     });
     const copy = async (stream: ReadableStream<Uint8Array>) => {

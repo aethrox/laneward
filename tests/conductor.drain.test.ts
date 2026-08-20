@@ -10,7 +10,16 @@ const FAKE_CODEX = join(import.meta.dir, "fixtures", "fake-codex.ts");
 const FAKE_CANDIDATE = join(import.meta.dir, "fixtures", "fake-candidate.ts");
 const server = Bun.serve({ port: 0, fetch: app.fetch });
 
-afterAll(() => server.stop(true));
+// drain spawns agents through the generic path, which needs an active preset
+// to resolve anything at all -- there is no default.
+const previousAgent = process.env.LANEWARD_AGENT;
+process.env.LANEWARD_AGENT = "codex";
+
+afterAll(() => {
+  server.stop(true);
+  if (previousAgent === undefined) delete process.env.LANEWARD_AGENT;
+  else process.env.LANEWARD_AGENT = previousAgent;
+});
 
 beforeEach(async () => {
   await sql`TRUNCATE lanes, messages, approvals, verification_runs, plans, plan_revisions RESTART IDENTITY CASCADE`;
@@ -19,7 +28,7 @@ beforeEach(async () => {
 async function config(): Promise<ConductorConfig> {
   return {
     hubUrl: server.url.href,
-    codexBin: FAKE_CODEX,
+    agentBin: FAKE_CODEX,
     candidateScript: FAKE_CANDIDATE,
     logDir: await mkdtemp(join(tmpdir(), "conductor-logs-")),
     drainIntervalMs: 0,
@@ -67,7 +76,7 @@ async function registerLane(opts: {
       lane_id: opts.laneId,
       owned_paths: ownedPaths,
       lane_type: "write",
-      model: "terra",
+      model: "balanced",
       depends_on: opts.dependsOn ?? [],
       worktree_path: worktree,
       original_brief: `brief for ${opts.laneId}`,

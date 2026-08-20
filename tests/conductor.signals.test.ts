@@ -37,7 +37,7 @@ test.skipIf(process.platform === "win32")(
         lane_id: "slow",
         owned_paths: ["slow.txt"],
         lane_type: "write",
-        model: "terra",
+        model: "balanced",
         depends_on: [],
         worktree_path: worktree,
         original_brief: "take your time",
@@ -48,7 +48,8 @@ test.skipIf(process.platform === "win32")(
       env: {
         ...process.env,
         HUB_URL: server.url.href,
-        CODEX_BIN: FAKE_CODEX,
+        LANEWARD_AGENT: "codex",
+        LANEWARD_AGENT_BIN: FAKE_CODEX,
         LANEWARD_LOG_DIR: await mkdtemp(join(tmpdir(), "conductor-logs-")),
       },
       stdout: "pipe",

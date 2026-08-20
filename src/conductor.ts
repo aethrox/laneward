@@ -9,7 +9,7 @@ import { runReader, type ReaderFinding, type ReaderResult } from "./reader";
 
 export interface ConductorConfig {
   hubUrl: string;
-  codexBin: string;
+  agentBin?: string;
   logDir: string;
   drainIntervalMs: number;
   candidateScript?: string;
@@ -67,7 +67,7 @@ function isCredentialVariable(name: string): boolean {
   ]).has(upper) || /(?:^|_)(?:TOKEN|PASSWORD|PASSWD|SECRET|API_KEY|ACCESS_KEY|PRIVATE_KEY|ASKPASS|AUTH_SOCK)$/.test(upper);
 }
 
-// A worker needs Codex's own HOME and USERPROFILE, but not the host's Git,
+// A worker needs the agent's own HOME and USERPROFILE, but not the host's Git,
 // GitHub, SSH, or database credentials. Local repository config remains
 // readable, including its remote URL.
 export function buildWorkerEnv(
@@ -132,7 +132,7 @@ function guardLogPath(cfg: ConductorConfig, lane: DispatchableLane): string {
 }
 
 // The brief goes in on stdin. A positional prompt makes a backgrounded
-// `codex exec` wait on stdin anyway, and it hangs forever.
+// agent wait on stdin anyway, and it hangs forever.
 //
 // The child inherits this process's environment, and Bun auto-loads `.env` from
 // the working directory, so running the conductor from the laneward checkout
@@ -140,7 +140,7 @@ function guardLogPath(cfg: ConductorConfig, lane: DispatchableLane): string {
 // served the driven repository on 8787 and collided with HUB. The `conductor`
 // script therefore runs with `--no-env-file`; the conductor needs no
 // settings from a file. Invoking `bun run conductor.ts` directly bypasses that.
-export async function runCodex(
+export async function runAgent(
   cfg: ConductorConfig,
   lane: DispatchableLane,
   active?: Map<string, Bun.Subprocess>,
@@ -154,10 +154,11 @@ export async function runCodex(
 
   const model = modelForTier(lane.model);
   // Never null for "write": only the read-only template can be absent.
-  const command = agentCommand("write", { worktree: lane.worktree_path, model }, process.env, cfg.codexBin)!;
+  const command = agentCommand("write", { worktree: lane.worktree_path, model }, process.env, cfg.agentBin)!;
   const proc = Bun.spawn(
     command,
     {
+      cwd: lane.worktree_path,
       stdin: new TextEncoder().encode(buildPrompt(lane)),
       stdout: "pipe",
       stderr: "pipe",
@@ -244,13 +245,13 @@ export async function runLane(
   active?: Map<string, Bun.Subprocess>,
 ): Promise<LaneOutcome> {
   const beforeState = snapshotGitState(lane.worktree_path);
-  const exitCode = await runCodex(cfg, lane, active);
+  const exitCode = await runAgent(cfg, lane, active);
   const evidenceExitCode = await checkEvidence(lane, beforeState, guardLogPath(cfg, lane));
 
   if (evidenceExitCode === 3) {
     await hubPost(cfg, `/lanes/${lane.lane_id}/messages`, {
       message_type: "FAILURE",
-      question: `lane ${lane.lane_id} violated the Codex Git boundary`,
+      question: `lane ${lane.lane_id} violated the agent's Git boundary`,
     });
     const result = await hubPost(cfg, `/lanes/${lane.lane_id}/result`, { exit_code: 30 });
     return result.status as LaneOutcome;
@@ -271,7 +272,7 @@ export async function runLane(
     if (tailStart > 0) {
       tail = tail.replace(/^[^\n]*(?:\n|$)/, "");
     }
-    // Codex prints the brief into the transcript, so the template's own
+    // Some agents print the brief into the transcript, so the template's own
     // example markers appear as real lines and used to match before anything
     // the agent said. A line that is verbatim brief text is an echo, never a
     // report; the agent's own marker carries a real question and never matches.
@@ -524,7 +525,7 @@ async function recordReaderRun(
   }
 
   const rejectedFindings = await hubJson(cfg, `/plans/${candidate.plan_id}/rejected-findings`);
-  const result = await runReader(worktreePath, baseCommit, rejectedFindings as unknown as ReaderFinding[], cfg.logDir, cfg.codexBin);
+  const result = await runReader(worktreePath, baseCommit, rejectedFindings as unknown as ReaderFinding[], cfg.logDir, cfg.agentBin);
   for (const finding of result.findings) {
     await hubPost(cfg, `/verification-runs/${opened.id}/findings`, finding);
   }
@@ -679,7 +680,7 @@ export function defaultConfig(): ConductorConfig {
   const defaultHub = `http://127.0.0.1:${Number.isFinite(port) && port > 0 ? port : 8787}`;
   return {
     hubUrl: process.env.HUB_URL ?? defaultHub,
-    codexBin: process.env.CODEX_BIN ?? "codex",
+    agentBin: process.env.LANEWARD_AGENT_BIN,
     logDir: defaultLogDir(),
     drainIntervalMs: Number.isFinite(configured) && configured > 0 ? configured : 5_000,
   };

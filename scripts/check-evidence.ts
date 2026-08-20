@@ -66,8 +66,35 @@ if (beforeState) {
 const staged = Bun.spawnSync(["git", "-C", worktree, "diff", "--cached", "--quiet"]);
 if (staged.exitCode === 1) gitBoundaryViolations.push("index has staged entries");
 
-if (gitGuardLog && existsSync(gitGuardLog) && readFileSync(gitGuardLog, "utf8").trim()) {
-  gitBoundaryViolations.push("git guard recorded a refusal");
+// A refused read tried nothing D-008 cares about: the shim still blocked it,
+// nothing in Git moved. Only a refused command whose intent was NOT a read
+// (or a log line we can't even parse) counts as the agent reaching for a
+// mutation, so those are the only ones that fail the lane.
+let refusedReadCount = 0;
+if (gitGuardLog && existsSync(gitGuardLog)) {
+  const lines = readFileSync(gitGuardLog, "utf8").trim().split("\n").filter(Boolean);
+  const refusedMutationSubcommands: string[] = [];
+  for (const line of lines) {
+    let entry: { argv?: unknown; read_intent?: unknown };
+    try {
+      entry = JSON.parse(line);
+    } catch {
+      // An unparseable audit entry is not evidence of innocence.
+      refusedMutationSubcommands.push("(unparseable log entry)");
+      continue;
+    }
+    if (entry.read_intent === true) {
+      refusedReadCount++;
+      continue;
+    }
+    const argv = Array.isArray(entry.argv) ? entry.argv : [];
+    refusedMutationSubcommands.push(typeof argv[0] === "string" ? argv[0] : "(no subcommand)");
+  }
+  if (refusedMutationSubcommands.length > 0) {
+    gitBoundaryViolations.push(
+      `git guard recorded ${refusedMutationSubcommands.length} non-read refusal(s): ${refusedMutationSubcommands.join(", ")}`,
+    );
+  }
 }
 
 if (gitBoundaryViolations.length > 0) {
@@ -103,6 +130,10 @@ const violations = changed.filter((path) => !ownedPaths.some((pattern) => matche
 if (violations.length > 0) {
   console.error(`FAIL: ownership violation: ${violations.join(" ")}`);
   process.exit(1);
+}
+
+if (refusedReadCount > 0) {
+  console.log(`INFO: git guard refused ${refusedReadCount} read-only command(s) (agent reached for Git, lane still passed)`);
 }
 
 console.log(`PASS: ${changed.length} changed path(s), all within owned_paths`);

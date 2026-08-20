@@ -7,7 +7,7 @@ export type LaneStatus =
 
 export type LaneType = "write" | "read_review";
 
-export type ModelTier = "sol" | "terra" | "luna";
+export type ModelTier = "fast" | "balanced" | "deep";
 
 export type MessageType =
   | "QUESTION"

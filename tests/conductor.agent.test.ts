@@ -1,15 +1,24 @@
-﻿import { expect, test } from "bun:test";
+import { afterAll, expect, test } from "bun:test";
 import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
-import { buildPrompt, buildWorkerEnv, runCodex, type ConductorConfig, type DispatchableLane } from "../src/conductor";
+import { buildPrompt, buildWorkerEnv, runAgent, type ConductorConfig, type DispatchableLane } from "../src/conductor";
 
 const FAKE_CODEX = join(import.meta.dir, "fixtures", "fake-codex.ts");
+
+// These tests exercise the generic agent-spawning path, so they need an active
+// preset for agentCommand to resolve anything at all -- there is no default.
+const previousAgent = process.env.LANEWARD_AGENT;
+process.env.LANEWARD_AGENT = "codex";
+afterAll(() => {
+  if (previousAgent === undefined) delete process.env.LANEWARD_AGENT;
+  else process.env.LANEWARD_AGENT = previousAgent;
+});
 
 async function tempConfig(): Promise<ConductorConfig> {
   return {
     hubUrl: "http://127.0.0.1:1", // unused in this file
-    codexBin: FAKE_CODEX,
+    agentBin: FAKE_CODEX,
     logDir: await mkdtemp(join(tmpdir(), "conductor-logs-")),
     drainIntervalMs: 0,
   };
@@ -20,7 +29,7 @@ async function tempLane(overrides: Partial<DispatchableLane> = {}): Promise<Disp
     lane_id: `lane-${crypto.randomUUID()}`,
     owned_paths: ["src/*"],
     lane_type: "write",
-    model: "terra",
+    model: "balanced",
     depends_on: [],
     worktree_path: await mkdtemp(join(tmpdir(), "conductor-wt-")),
     original_brief: "do the thing",
@@ -112,56 +121,56 @@ test("the worker's git config null device follows the injected platform", () => 
   expect(linux.GIT_CONFIG_SYSTEM).toBe("/dev/null");
 });
 
-test("runCodex returns the child's exit code", async () => {
+test("runAgent returns the child's exit code", async () => {
   const cfg = await tempConfig();
   const lane = await tempLane();
   await writeFile(join(lane.worktree_path, ".exit-code"), "20");
 
-  expect(await runCodex(cfg, lane)).toBe(20);
+  expect(await runAgent(cfg, lane)).toBe(20);
 });
 
-test("runCodex feeds the prompt on stdin, not as an argument", async () => {
+test("runAgent feeds the prompt on stdin, not as an argument", async () => {
   const cfg = await tempConfig();
   const lane = await tempLane({ resume_decision: "use option B" });
 
-  await runCodex(cfg, lane);
+  await runAgent(cfg, lane);
 
   const received = await readFile(join(lane.worktree_path, ".prompt"), "utf8");
   expect(received).toBe(buildPrompt(lane));
 });
 
-test("runCodex writes stdout and stderr to a per-lane log file", async () => {
+test("runAgent writes stdout and stderr to a per-lane log file", async () => {
   const cfg = await tempConfig();
   const lane = await tempLane();
 
-  await runCodex(cfg, lane);
+  await runAgent(cfg, lane);
 
   const log = await readFile(join(cfg.logDir, `${lane.lane_id}.log`), "utf8");
   expect(log).toContain("fake codex running in");
   expect(log).toContain("fake codex stderr line");
 });
 
-test("runCodex truncates an existing lane log", async () => {
+test("runAgent truncates an existing lane log", async () => {
   const cfg = await tempConfig();
   const lane = await tempLane();
   const logPath = join(cfg.logDir, `${lane.lane_id}.log`);
   await writeFile(logPath, `${"old transcript\n".repeat(100)}STALE APPROVAL REQUIRED`);
   await writeFile(join(lane.worktree_path, ".output"), "new transcript only\n");
 
-  await runCodex(cfg, lane);
+  await runAgent(cfg, lane);
 
   const log = await readFile(logPath, "utf8");
   expect(log).toContain("new transcript only");
   expect(log).not.toContain("STALE APPROVAL REQUIRED");
 });
 
-test("runCodex writes the log before the child exits", async () => {
+test("runAgent writes the log before the child exits", async () => {
   const cfg = await tempConfig();
   const lane = await tempLane();
   const active = new Map<string, Bun.Subprocess>();
   await writeFile(join(lane.worktree_path, ".sleep"), "2");
 
-  const running = runCodex(cfg, lane, active);
+  const running = runAgent(cfg, lane, active);
   const logPath = join(cfg.logDir, `${lane.lane_id}.log`);
   let log = "";
   for (let i = 0; i < 100 && !log.includes("fake codex running"); i++) {
@@ -174,12 +183,30 @@ test("runCodex writes the log before the child exits", async () => {
   await running;
 });
 
-test("runCodex removes the lane from the active map when it exits", async () => {
+test("runAgent removes the lane from the active map when it exits", async () => {
   const cfg = await tempConfig();
   const lane = await tempLane();
   const active = new Map<string, Bun.Subprocess>();
 
-  await runCodex(cfg, lane, active);
+  await runAgent(cfg, lane, active);
 
   expect(active.has(lane.lane_id)).toBe(false);
+});
+
+// Codex accepts `-C`, which is how fake-codex.ts finds its worktree above, but
+// most agents (Claude Code among them) have no such flag and use the process
+// working directory instead. This asserts the guarantee that makes those
+// agents land in the lane's worktree rather than the conductor's own.
+test("runAgent spawns the agent with its cwd set to the lane's worktree", async () => {
+  const root = await mkdtemp(join(tmpdir(), "conductor-cwd-agent-"));
+  const cwdAgent = join(root, "cwd-agent.ts");
+  await writeFile(cwdAgent, "await Bun.stdin.text();\nconsole.log(`cwd: ${process.cwd()}`);\n");
+  const cfg = await tempConfig();
+  cfg.agentBin = cwdAgent;
+  const lane = await tempLane();
+
+  await runAgent(cfg, lane);
+
+  const log = await readFile(join(cfg.logDir, `${lane.lane_id}.log`), "utf8");
+  expect(log).toContain(`cwd: ${lane.worktree_path}`);
 });

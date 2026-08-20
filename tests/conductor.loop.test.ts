@@ -21,7 +21,7 @@ beforeEach(async () => {
 // point of D-014 is that nothing ends it but a signal.
 function spawnLoop(env: Record<string, string>) {
   return Bun.spawn(["bun", "run", ENTRYPOINT, "--loop"], {
-    env: { ...process.env, CODEX_BIN: FAKE_CODEX, ...env },
+    env: { ...process.env, LANEWARD_AGENT: "codex", LANEWARD_AGENT_BIN: FAKE_CODEX, ...env },
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -106,7 +106,7 @@ test.skipIf(process.platform === "win32")(
         lane_id: "loop-slow",
         owned_paths: ["slow.txt"],
         lane_type: "write",
-        model: "terra",
+        model: "balanced",
         depends_on: [],
         worktree_path: worktree,
         original_brief: "take your time",

@@ -24,7 +24,7 @@ async function insertLane(overrides: Partial<Record<string, unknown>> = {}) {
     lane_id: `test-${crypto.randomUUID()}`,
     owned_paths: ["core/*"],
     lane_type: "write",
-    model: "terra",
+    model: "balanced",
     depends_on: [],
     status: "pending",
     worktree_path: tmpdir(),

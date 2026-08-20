@@ -145,5 +145,30 @@ test("records a refused argv in the configured guard log", () => {
     const [entry] = text.trim().split("\n").map((line) => JSON.parse(line));
     expect(entry.argv).toEqual(["commit", "--allow-empty", "-m", "x"]);
     expect(entry.timestamp).toBeString();
+    expect(entry.read_intent).toBe(false);
+  });
+});
+
+test("records read_intent true for a refused read hidden behind -c", () => {
+  const dir = initRepo();
+  const logPath = join(dir, "git-guard.jsonl");
+
+  expect(runGuard(dir, ["-c", "core.pager=cat", "status", "--short"], logPath).exitCode).toBe(86);
+
+  return Bun.file(logPath).text().then((text) => {
+    const [entry] = text.trim().split("\n").map((line) => JSON.parse(line));
+    expect(entry.read_intent).toBe(true);
+  });
+});
+
+test("records read_intent false for a refused branch mutation", () => {
+  const dir = initRepo();
+  const logPath = join(dir, "git-guard.jsonl");
+
+  expect(runGuard(dir, ["branch", "-D", "some-branch"], logPath).exitCode).toBe(86);
+
+  return Bun.file(logPath).text().then((text) => {
+    const [entry] = text.trim().split("\n").map((line) => JSON.parse(line));
+    expect(entry.read_intent).toBe(false);
   });
 });

@@ -39,7 +39,7 @@ function invalidLaneField(body: any): string | null {
   if (!filled(body.worktree_path) || !existsSync(body.worktree_path)) return "worktree_path";
   if (!stringArray(body.owned_paths) || body.owned_paths.length === 0) return "owned_paths";
   if (!filled(body.original_brief)) return "original_brief";
-  if (body.model !== undefined && body.model !== "sol" && body.model !== "terra" && body.model !== "luna") return "model";
+  if (body.model !== undefined && body.model !== "fast" && body.model !== "balanced" && body.model !== "deep") return "model";
   if (body.depends_on !== undefined && !stringArray(body.depends_on)) return "depends_on";
   return null;
 }
@@ -327,7 +327,7 @@ app.post("/lanes", async (c) => {
     lane_id: body.lane_id,
     owned_paths: body.owned_paths,
     lane_type: body.lane_type,
-    model: body.model ?? "terra",
+    model: body.model ?? "balanced",
     depends_on: body.depends_on ?? [],
     status: "pending",
     worktree_path: body.worktree_path,

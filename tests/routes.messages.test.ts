@@ -16,7 +16,7 @@ async function registerLane() {
       lane_id: laneId,
       owned_paths: ["core/*"],
       lane_type: "write",
-      model: "terra",
+      model: "balanced",
       depends_on: [],
       worktree_path: tmpdir(),
       original_brief: "brief",

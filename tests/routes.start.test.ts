@@ -12,7 +12,7 @@ async function registerLane(overrides: Record<string, unknown> = {}) {
     lane_id: `test-${crypto.randomUUID()}`,
     owned_paths: ["core/*"],
     lane_type: "write",
-    model: "terra",
+    model: "balanced",
     depends_on: [],
     worktree_path: tmpdir(),
     original_brief: "test brief",

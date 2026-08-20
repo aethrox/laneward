@@ -7,7 +7,16 @@ import { runReader, type ReaderFinding } from "../src/reader";
 const roots: string[] = [];
 const fakeCodex = join(import.meta.dir, "fixtures", "fake-codex.ts");
 
-afterAll(async () => { await Promise.all(roots.map((root) => rm(root, { recursive: true, force: true }))); });
+// runReader spawns an agent through the generic path, which needs an active
+// preset to resolve anything at all -- there is no default.
+const previousAgent = process.env.LANEWARD_AGENT;
+process.env.LANEWARD_AGENT = "codex";
+
+afterAll(async () => {
+  await Promise.all(roots.map((root) => rm(root, { recursive: true, force: true })));
+  if (previousAgent === undefined) delete process.env.LANEWARD_AGENT;
+  else process.env.LANEWARD_AGENT = previousAgent;
+});
 
 async function git(worktree: string, args: string[]) {
   const result = Bun.spawnSync(["git", "-C", worktree, ...args]);
@@ -57,10 +66,10 @@ function location(path: string, side: "base" | "head" = "head") { return { path,
 
 async function run(item: Awaited<ReturnType<typeof fixture>>, output: string, rejected: ReaderFinding[] = []) {
   await writeFile(join(item.worktree, ".output"), output);
-  const previous = process.env.CODEX_BIN;
-  process.env.CODEX_BIN = fakeCodex;
+  const previous = process.env.LANEWARD_AGENT_BIN;
+  process.env.LANEWARD_AGENT_BIN = fakeCodex;
   try { return await runReader(item.worktree, item.base, rejected, item.logs); }
-  finally { if (previous === undefined) delete process.env.CODEX_BIN; else process.env.CODEX_BIN = previous; }
+  finally { if (previous === undefined) delete process.env.LANEWARD_AGENT_BIN; else process.env.LANEWARD_AGENT_BIN = previous; }
 }
 
 test("returns validated findings and preserves their fields", async () => {
@@ -97,13 +106,13 @@ test("a nonzero reader exit fails even when its report parses", async () => {
 test("a caller-supplied reader binary wins over the environment", async () => {
   const item = await fixture();
   await writeFile(join(item.worktree, ".output"), report([]));
-  const previous = process.env.CODEX_BIN;
-  process.env.CODEX_BIN = join(item.worktree, "missing-reader-binary");
+  const previous = process.env.LANEWARD_AGENT_BIN;
+  process.env.LANEWARD_AGENT_BIN = join(item.worktree, "missing-reader-binary");
   try {
     expect(await runReader(item.worktree, item.base, [], item.logs, fakeCodex)).toMatchObject({ status: "no_findings", exit_code: 0 });
     expect(await Bun.file(join(item.worktree, ".prompt")).exists()).toBe(true);
   } finally {
-    if (previous === undefined) delete process.env.CODEX_BIN; else process.env.CODEX_BIN = previous;
+    if (previous === undefined) delete process.env.LANEWARD_AGENT_BIN; else process.env.LANEWARD_AGENT_BIN = previous;
   }
 });
 
@@ -128,14 +137,14 @@ test("missing, malformed, empty, and malformed test-path declarations are skippe
 test("a timeout kills the reader and fails", async () => {
   const item = await fixture();
   await writeFile(join(item.worktree, ".sleep"), "2");
-  const previousBin = process.env.CODEX_BIN;
+  const previousBin = process.env.LANEWARD_AGENT_BIN;
   const previousTimeout = process.env.LANEWARD_READER_TIMEOUT_MS;
-  process.env.CODEX_BIN = fakeCodex;
+  process.env.LANEWARD_AGENT_BIN = fakeCodex;
   process.env.LANEWARD_READER_TIMEOUT_MS = "500";
   try {
     expect(await runReader(item.worktree, item.base, [], item.logs)).toMatchObject({ status: "failed", findings: [], exit_code: null, error: "reader timed out after 500 ms" });
   } finally {
-    if (previousBin === undefined) delete process.env.CODEX_BIN; else process.env.CODEX_BIN = previousBin;
+    if (previousBin === undefined) delete process.env.LANEWARD_AGENT_BIN; else process.env.LANEWARD_AGENT_BIN = previousBin;
     if (previousTimeout === undefined) delete process.env.LANEWARD_READER_TIMEOUT_MS; else process.env.LANEWARD_READER_TIMEOUT_MS = previousTimeout;
   }
 }, 20_000);

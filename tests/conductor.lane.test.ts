@@ -16,7 +16,16 @@ const server = Bun.serve({
   },
 });
 
-afterAll(() => server.stop(true));
+// runLane spawns an agent through the generic path, which needs an active
+// preset to resolve anything at all -- there is no default.
+const previousAgent = process.env.LANEWARD_AGENT;
+process.env.LANEWARD_AGENT = "codex";
+
+afterAll(() => {
+  server.stop(true);
+  if (previousAgent === undefined) delete process.env.LANEWARD_AGENT;
+  else process.env.LANEWARD_AGENT = previousAgent;
+});
 
 beforeEach(async () => {
   requests.length = 0;
@@ -26,7 +35,7 @@ beforeEach(async () => {
 async function config(): Promise<ConductorConfig> {
   return {
     hubUrl: server.url.href,
-    codexBin: FAKE_CODEX,
+    agentBin: FAKE_CODEX,
     logDir: await mkdtemp(join(tmpdir(), "conductor-logs-")),
     drainIntervalMs: 0,
   };
@@ -52,7 +61,7 @@ async function seedLane(
     lane_id: `lane-${crypto.randomUUID()}`,
     owned_paths: ["owned.txt"],
     lane_type: "write",
-    model: "terra",
+    model: "balanced",
     depends_on: [],
     worktree_path: worktreePath,
     original_brief: "do the thing",

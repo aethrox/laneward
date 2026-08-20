@@ -69,7 +69,7 @@ test("POST /lanes rejects an invalid lane_type", async () => {
   expect(await res.json()).toEqual({ error: "invalid lane_type", field: "lane_type" });
 });
 
-test("POST /lanes defaults model to terra and rejects an invalid model", async () => {
+test("POST /lanes defaults model to balanced and rejects an invalid model", async () => {
   const laneId = `test-${crypto.randomUUID()}`;
   const registered = await app.request("/lanes", {
     method: "POST",
@@ -85,7 +85,7 @@ test("POST /lanes defaults model to terra and rejects an invalid model", async (
   });
   expect(registered.status).toBe(201);
   const [stored] = await sql`SELECT model FROM lanes WHERE lane_id = ${laneId}`;
-  expect(stored.model).toBe("terra");
+  expect(stored.model).toBe("balanced");
 
   const invalid = await app.request("/lanes", {
     method: "POST",
@@ -113,7 +113,7 @@ test("POST /lanes registers a lane, GET /lanes/:id/gate reports allowed", async 
       lane_id: laneId,
       owned_paths: ["core/*"],
       lane_type: "write",
-      model: "terra",
+      model: "balanced",
       depends_on: [],
       worktree_path: existingPath,
       original_brief: "test brief",
@@ -135,7 +135,7 @@ test("POST /lanes rejects a second lane whose owned_paths overlap", async () => 
       lane_id: laneId,
       owned_paths: ["web/*"],
       lane_type: "write",
-      model: "terra",
+      model: "balanced",
       depends_on: [],
       worktree_path: existingPath,
       original_brief: "first",
@@ -149,7 +149,7 @@ test("POST /lanes rejects a second lane whose owned_paths overlap", async () => 
       lane_id: `test-${crypto.randomUUID()}`,
       owned_paths: ["web/*"],
       lane_type: "write",
-      model: "terra",
+      model: "balanced",
       depends_on: [],
       worktree_path: existingPath,
       original_brief: "second",

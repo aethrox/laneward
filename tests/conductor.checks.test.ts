@@ -7,6 +7,11 @@ import { runLane, type ConductorConfig, type DispatchableLane } from "../src/con
 
 const FAKE_CODEX = join(import.meta.dir, "fixtures", "fake-codex.ts");
 const roots: string[] = [];
+
+// runLane spawns an agent through the generic path, which needs an active
+// preset to resolve anything at all -- there is no default.
+const previousAgent = process.env.LANEWARD_AGENT;
+process.env.LANEWARD_AGENT = "codex";
 const requests: Array<{ path: string; body: any }> = [];
 const server = Bun.serve({
   port: 0,
@@ -24,6 +29,8 @@ const server = Bun.serve({
 afterAll(async () => {
   server.stop(true);
   await Promise.all(roots.map((root) => rm(root, { recursive: true, force: true })));
+  if (previousAgent === undefined) delete process.env.LANEWARD_AGENT;
+  else process.env.LANEWARD_AGENT = previousAgent;
 });
 
 beforeEach(() => requests.splice(0));
@@ -31,7 +38,7 @@ beforeEach(() => requests.splice(0));
 async function fixture(options: {
   check?: string[];
   dirty?: string | null;
-  codexBin?: string;
+  agentBin?: string;
   output?: string;
   laneType?: "write" | "read_review";
   configured?: boolean;
@@ -59,12 +66,12 @@ async function fixture(options: {
 
   return {
     marker,
-    cfg: { hubUrl: server.url.href, codexBin: options.codexBin ?? FAKE_CODEX, logDir: logs, drainIntervalMs: 0 },
+    cfg: { hubUrl: server.url.href, agentBin: options.agentBin ?? FAKE_CODEX, logDir: logs, drainIntervalMs: 0 },
     lane: {
       lane_id: `lane-${crypto.randomUUID()}`,
       owned_paths: ["owned.txt"],
       lane_type: options.laneType ?? "write",
-      model: "terra",
+      model: "balanced",
       depends_on: [],
       worktree_path: worktree,
       original_brief: "brief",
@@ -89,7 +96,7 @@ test("Git boundary failure posts exit 30 before any lane check", async () => {
     await Bun.stdin.text();
     Bun.spawnSync(["git", "add", "owned.txt"], { cwd: worktree });
   `);
-  const seeded = await fixture({ dirty: "owned.txt", codexBin: codex });
+  const seeded = await fixture({ dirty: "owned.txt", agentBin: codex });
 
   expect(await runLane(seeded.cfg, seeded.lane)).toBe("failed");
   expect(existsSync(seeded.marker)).toBe(false);

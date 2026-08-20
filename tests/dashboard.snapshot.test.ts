@@ -26,7 +26,7 @@ async function registerLane(laneId: string, ownedPaths: string[]) {
     body: JSON.stringify({
       lane_id: laneId,
       lane_type: "write",
-      model: "terra",
+      model: "balanced",
       worktree_path: tmpdir(),
       owned_paths: ownedPaths,
       original_brief: "brief",

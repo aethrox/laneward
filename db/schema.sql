@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS lanes (
   lane_id        text PRIMARY KEY,
   owned_paths    text[] NOT NULL,
   lane_type      text NOT NULL CHECK (lane_type IN ('write', 'read_review')),
-  model          text NOT NULL DEFAULT 'terra' CHECK (model IN ('sol', 'terra', 'luna')),
+  model          text NOT NULL DEFAULT 'balanced' CHECK (model IN ('fast', 'balanced', 'deep')),
   depends_on     text[] NOT NULL DEFAULT '{}',
   status         text NOT NULL DEFAULT 'pending'
                    CHECK (status IN ('pending', 'running', 'waiting_approval', 'completed', 'failed')),
@@ -18,6 +18,28 @@ CREATE TABLE IF NOT EXISTS lanes (
 ALTER TABLE lanes
   ADD COLUMN IF NOT EXISTS model text NOT NULL DEFAULT 'terra'
     CHECK (model IN ('sol', 'terra', 'luna'));
+
+-- The tier names moved from Codex-specific (sol/terra/luna) to agent-neutral
+-- (fast/balanced/deep), so the core no longer names one agent's models in a
+-- database constraint. This migrates existing rows, then swaps the default and
+-- the constraint to match. Idempotent: on an already-migrated database the
+-- UPDATEs touch no rows (nothing is still 'sol'/'terra'/'luna'), and DROP
+-- CONSTRAINT IF EXISTS makes the constraint swap safe to run again too.
+UPDATE lanes SET model = 'deep' WHERE model = 'sol';
+
+UPDATE lanes SET model = 'balanced' WHERE model = 'terra';
+
+UPDATE lanes SET model = 'fast' WHERE model = 'luna';
+
+ALTER TABLE lanes
+  ALTER COLUMN model SET DEFAULT 'balanced';
+
+ALTER TABLE lanes
+  DROP CONSTRAINT IF EXISTS lanes_model_check;
+
+ALTER TABLE lanes
+  ADD CONSTRAINT lanes_model_check
+    CHECK (model IN ('fast', 'balanced', 'deep'));
 
 CREATE TABLE IF NOT EXISTS messages (
   id            serial PRIMARY KEY,

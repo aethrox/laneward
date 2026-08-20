@@ -302,7 +302,7 @@ async function main() {
       body: JSON.stringify({
         lane_id: laneId,
         lane_type: process.env.LANE_TYPE ?? "write",
-        model: process.env.LANE_MODEL ?? "terra",
+        model: process.env.LANE_MODEL ?? "balanced",
         worktree_path: worktreePath,
         owned_paths: [...ownedPaths, ...openerPaths],
         original_brief: await Bun.file(briefFile).text(),
