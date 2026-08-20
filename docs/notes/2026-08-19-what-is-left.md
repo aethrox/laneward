@@ -88,9 +88,11 @@ running it unconfined, so check for one before writing the preset.
 
 ## 5. Decisions, not work
 
-**Visibility.** The repository is private. Going public is the last distribution
-step, and the host details that used to make it awkward are gone
-([the rename note](2026-08-19-clean-repository-and-rename.md)).
+**Visibility.** ~~The repository is private.~~ Public since 2026-08-20. The last
+distribution step, taken after a final sweep found no host details, no
+credentials and no tracked `.env` across nine commits and the whole tree. The
+scrub that made it safe is recorded in
+[the rename note](2026-08-19-clean-repository-and-rename.md).
 
 **Clean shutdown on Windows (CP-3).** Windows has no catchable `SIGTERM`, so
 stopping the conductor strands its lanes. Two ways to stand:
