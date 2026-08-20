@@ -33,10 +33,6 @@ This is the seam most likely to surprise a first-time Linux user.
 Written down rather than done, so they stop occupying anyone's attention until
 they are worth the cost.
 
-**The repository's `codex` topic.** Accurate while Codex was the only agent.
-Once presets ship it undersells the tool and should be replaced by something
-that says "any agent".
-
 **More presets.** Only `codex` and `claude` are shipped, because only those two
 were verified by running them here. Another agent is a preset plus a real lane
 driven by it, in that order, and never the preset alone.
