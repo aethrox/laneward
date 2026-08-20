@@ -28,25 +28,21 @@ re-running the `codex` preset for real. Nothing else in this project depends on
 it. Delegation of implementation work goes to subagents rather than
 `codex exec` for the same reason.
 
-## 1. Do next, and nothing blocks it
+## 1. Done, and it was the last unobserved seam
 
-**A real agent under systemd.** The last seam this project has never observed.
-A real agent has completed a lane under the Windows Scheduled Task, with the
-stripped environment and no terminal. Under systemd every lane so far has used a
-fixture or a declared test agent, and a systemd user service is a genuinely
-different environment: a constructed `PATH`, no terminal, no login shell, and
-`buildWorkerEnv`'s stripped variables. It is the seam most likely to surprise a
-first-time Linux user, because it is the first thing they do that this project
-never has.
+~~**A real agent under systemd.**~~ **Done 2026-08-20**
+([evidence](2026-08-20-real-agent-under-systemd.md)). The conductor sat idle for
+forty seconds, picked up a lane registered through the API, spawned `claude`
+under `laneward-conductor.service` with no terminal and the stripped
+environment, and recorded the lane `completed` with its evidence. The lane wrote
+exactly the one file it owned.
 
-The Linux host is the privileged Fedora container on the Podman machine, the
-same one the shipped database container was exercised in. The agent is `claude`,
-whose credentials live in the profile directory rather than in an environment
-variable, so the strip does not remove them.
-
-**Done when:** a lane registered through the API completes with nobody attached,
-under `laneward-conductor.service`, driven by a real agent, with its evidence
-recorded and the journal showing the dispatch.
+It also showed something the preset comment does not say: the nine Git refusals
+in the guard log are the agent's **internal** calls, which
+`--disallowedTools "Bash(git *)"` does not reach. All of them were reads, so
+`check-evidence` passed them, but an agent whose internal Git use includes a
+write would fail a lane for a reason its operator could not predict from the
+preset.
 
 ## 2. Needs one action from the operator
 
