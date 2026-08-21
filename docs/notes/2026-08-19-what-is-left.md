@@ -53,11 +53,17 @@ agent once it arrived. It also found that `install.ps1` had been registering
 only the conductor and never the hub, which would have left a first-time
 Windows user with a task reporting `Running` and a dashboard that never loads.
 
-**Reboot survival, and logout on Linux.** A logoff and logon is not a cold boot,
-so Windows still has a reboot to survive. On Linux `WantedBy=default.target`
-stops at logout unless `loginctl enable-linger` is set, which the installer says
-and nobody has tested. Linger is a persistent host change and needs its own
-approval, which is why the installer will not do it on your behalf.
+~~**Logout on Linux.**~~ **Done 2026-08-21**
+([evidence](2026-08-21-logout-and-linger.md)). Closing the session stops every
+unit without linger and leaves all three running with it, which is exactly what
+`install.sh` claims. It also found that `loginctl terminate-user` ends the user
+manager whatever linger says, so anyone testing their own setup that way will
+conclude linger is broken. Linger stays a persistent host change the installer
+will not make on your behalf.
+
+**Reboot survival on Windows.** A logoff and logon is not a cold boot, so
+Windows still has a reboot to survive. It needs a real restart of the machine,
+which is the operator's to give.
 
 Note that nothing starts the Podman machine at logon, and nothing here should:
 it is a machine-wide service rather than Laneward's to register. Both platforms
