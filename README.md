@@ -16,6 +16,21 @@ A unit of work is called a **lane**. A lane owns a set of file paths, a worktree
 >
 > Each lane's worktree receives a **copy of the driven repository's `.env`**, so an agent can read your real secret values. Only `DATABASE_URL` is rewritten, to a database created for that lane. Redaction is not implemented.
 
+## Project status
+
+**Development has stopped, and the reason is money rather than interest.**
+
+Laneward exists to drive commercial coding agents, and every hour of work on it costs agent subscriptions on top of the time. I cannot currently fund that, so the project stops here rather than drifting into a repository that looks maintained and is not.
+
+What that means in practice:
+
+- **It works, and what works was measured rather than assumed.** Lanes run unattended under a systemd user service and under a Windows Scheduled Task, driven by a real agent, with their evidence recorded. The runs are written up in [docs/notes](docs/notes), including what each one failed to establish.
+- **The known gaps are documented rather than fixed.** [Limitations](#limitations) is the honest list, and [docs/notes/2026-08-19-what-is-left.md](docs/notes/2026-08-19-what-is-left.md) is the work that was planned and not done.
+- **Issues and pull requests may go unanswered.** Do not wait on me.
+- **The licence is MIT.** Fork it, take it somewhere, no permission needed.
+
+If you are looking for something to run in production, this is not it. If you are looking for a working design to read, take apart, or continue, that is exactly what is here.
+
 ## Quick start
 
 Needs [Bun](https://bun.sh) 1.3.14 or newer, git, and a PostgreSQL you can reach. On Linux with rootless Podman, `install.sh` brings its own database.
