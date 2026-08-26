@@ -367,6 +367,9 @@ Other current gaps:
 
 ## More information
 
+- [Documentation site](https://aethrox.github.io/laneward/): the usage guide, the glossary, the
+  architecture and the evidence notes, navigable and searchable. The guide is task-first and
+  bilingual (English and Turkish), and lives in [docs/guide/](docs/guide/)
 - [Workflow v1 target architecture](docs/architecture/workflow-v1/README.md), including the decision log every `D-0NN` reference points at
 - [Glossary](docs/GLOSSARY.md)
 - [Task brief template](docs/brief-template.md)

@@ -1,0 +1,280 @@
+/* Laneward documentation theme.
+   The palette is defined here rather than picked from Material's presets, so
+   both schemes are one decision in one file. */
+
+:root {
+  --md-primary-fg-color:        #12151c;
+  --md-primary-fg-color--light: #262b36;
+  --md-primary-fg-color--dark:  #090b10;
+  --md-primary-bg-color:        #f7f8fa;
+  --md-primary-bg-color--light: #c9ced9;
+
+  --md-accent-fg-color:         #4f5bd5;
+  --md-accent-fg-color--transparent: #4f5bd51a;
+
+  --lw-link:                    #3f4bc4;
+
+  --lw-surface:                 #ffffff;
+  --lw-border:                  #e3e6ec;
+  --lw-muted:                   #5b6472;
+  --lw-radius:                  10px;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 222;
+
+  --md-default-bg-color:        #0d1117;
+  --md-default-bg-color--light: #131923;
+
+  --md-primary-fg-color:        #0d1117;
+  --md-primary-fg-color--light: #1b2230;
+  --md-primary-fg-color--dark:  #070a0f;
+  --md-primary-bg-color:        #e8ecf4;
+
+  --md-accent-fg-color:         #8b95ff;
+  --md-accent-fg-color--transparent: #8b95ff1f;
+  --lw-link:                    #8b95ff;
+
+  --lw-surface:                 #151b24;
+  --lw-border:                  #232b38;
+  --lw-muted:                   #9aa4b3;
+}
+
+/* Material's `custom` palette redefines the link colour on <body>, which beats
+   a :root declaration for everything inside the page. Match its selector so
+   links are the accent rather than the near-black header colour. */
+body[data-md-color-primary="custom"] {
+  --md-typeset-a-color: var(--lw-link);
+}
+
+/* Typography ------------------------------------------------------------- */
+
+.md-typeset {
+  font-feature-settings: "kern", "liga", "calt";
+  line-height: 1.72;
+}
+
+.md-typeset h1 {
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: var(--md-default-fg-color);
+  margin-bottom: 0.6em;
+}
+
+.md-typeset h2 {
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-top: 2.2em;
+  padding-top: 0.35em;
+  border-top: 1px solid var(--lw-border);
+}
+
+.md-typeset h3 {
+  font-weight: 620;
+  letter-spacing: -0.012em;
+}
+
+.md-typeset code {
+  font-size: 0.82em;
+  border-radius: 5px;
+  padding: 0.14em 0.38em;
+}
+
+/* Header and tabs -------------------------------------------------------- */
+
+.md-header {
+  box-shadow: none;
+  border-bottom: 1px solid transparent;
+}
+
+.md-header--shadow {
+  box-shadow: 0 1px 0 var(--lw-border), 0 6px 18px -12px rgba(0, 0, 0, 0.35);
+}
+
+.md-tabs {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.md-tabs__link {
+  opacity: 0.72;
+  font-size: 0.74rem;
+}
+
+.md-tabs__link--active,
+.md-tabs__link:hover {
+  opacity: 1;
+}
+
+.md-search__form {
+  border-radius: var(--lw-radius);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.md-search__form:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Navigation ------------------------------------------------------------- */
+
+.md-nav {
+  font-size: 0.72rem;
+}
+
+.md-nav__title {
+  font-weight: 620;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  color: var(--lw-muted);
+}
+
+.md-nav__link {
+  border-radius: 6px;
+  padding: 0.18rem 0.4rem;
+  margin-left: -0.4rem;
+  transition: background-color 120ms, color 120ms;
+}
+
+.md-nav__link:hover {
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+.md-nav__item .md-nav__link--active {
+  font-weight: 600;
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+/* Blocks ----------------------------------------------------------------- */
+
+.md-typeset pre > code,
+.md-typeset .highlight > pre {
+  border-radius: var(--lw-radius);
+}
+
+.md-typeset .highlight {
+  border: 1px solid var(--lw-border);
+  border-radius: var(--lw-radius);
+  overflow: hidden;
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  border: 1px solid var(--lw-border);
+  border-left-width: 3px;
+  border-radius: var(--lw-radius);
+  box-shadow: none;
+  font-size: 0.76rem;
+}
+
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-weight: 620;
+  letter-spacing: -0.005em;
+}
+
+.md-typeset table:not([class]) {
+  border: 1px solid var(--lw-border);
+  border-radius: var(--lw-radius);
+  overflow: hidden;
+  font-size: 0.74rem;
+  box-shadow: none;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--md-default-bg-color--light);
+  font-weight: 620;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.md-typeset table:not([class]) code {
+  white-space: nowrap;
+}
+
+.md-typeset table:not([class]) tr:hover td {
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+.md-typeset blockquote {
+  border-left-width: 3px;
+  color: var(--lw-muted);
+}
+
+/* The mermaid diagrams carry the state machines, so give them room */
+.md-typeset .mermaid {
+  margin: 1.6em 0;
+  padding: 1.1em;
+  border: 1px solid var(--lw-border);
+  border-radius: var(--lw-radius);
+  background-color: var(--lw-surface);
+}
+
+/* Home page -------------------------------------------------------------- */
+
+.lw-hero {
+  margin: 0 0 2.4rem;
+}
+
+.md-typeset .lw-hero h1 {
+  font-size: 2.5rem;
+  line-height: 1.12;
+  margin-bottom: 0.35em;
+}
+
+.lw-hero__tagline {
+  font-size: 0.92rem;
+  line-height: 1.62;
+  color: var(--lw-muted);
+  max-width: 34em;
+}
+
+.md-typeset .md-button {
+  border-radius: 8px;
+  border-width: 1px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  padding: 0.5em 1.1em;
+  transition: transform 120ms, box-shadow 120ms, background-color 120ms;
+}
+
+.md-typeset .md-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Cards ------------------------------------------------------------------ */
+
+.md-typeset .grid.cards > ul > li {
+  border: 1px solid var(--lw-border);
+  border-radius: var(--lw-radius);
+  background-color: var(--lw-surface);
+  padding: 1rem 1.1rem;
+  box-shadow: none;
+  transition: transform 140ms, border-color 140ms, box-shadow 140ms;
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  transform: translateY(-2px);
+  border-color: var(--md-accent-fg-color);
+  box-shadow: 0 10px 26px -18px rgba(0, 0, 0, 0.55);
+}
+
+.md-typeset .grid.cards > ul > li > hr {
+  margin: 0.6em 0;
+  border-color: var(--lw-border);
+}
+
+.md-typeset .grid.cards p:last-child {
+  margin-bottom: 0;
+  color: var(--lw-muted);
+  font-size: 0.74rem;
+}
+
+/* Footer ----------------------------------------------------------------- */
+
+.md-footer-meta {
+  background-color: var(--md-primary-fg-color--dark);
+}
+
+.md-copyright {
+  font-size: 0.62rem;
+}
