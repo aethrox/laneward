@@ -1,0 +1,138 @@
+# Kurulum ve ilk çalıştırma
+
+Bu sayfa, bir klondan başlayarak tek makinede çalışan bir hub ve bir conductor
+elde eder. Hiçbir şeyi servis olarak kurmaz; o
+[Servis olarak çalıştırmak](running-as-a-service.md) sayfasında.
+
+## Önce gerekenler
+
+| Gereksinim | Not |
+|---|---|
+| [Bun](https://bun.sh) 1.3.14 veya üstü | İki kurulum betiği de bunun altında uyarır. Ölçülmüş bir alt sınır değil, her şeyin doğrulandığı sürüm. |
+| git | 2.54.0 üzerinde doğrulandı. |
+| PostgreSQL 16 | Erişebildiğin herhangi bir örnek. Linux'ta rootless Podman ile `install.sh` kendi veritabanını getirebilir. |
+| Bir ajan CLI'ı | `codex` preseti için Codex 0.147.0 veya üstü, `claude` preseti için Claude Code, ya da kendi komutun. Bkz. [Yapılandırma](configure.md). |
+
+Masaüstü bildirimleri Linux'ta (`notify-send`) ve Windows'ta (PowerShell toast)
+çalışır. macOS'ta bildirim yoktur; geri kalan her şey yine çalışır.
+
+## Klonla ve yapılandır
+
+```bash
+git clone https://github.com/aethrox/laneward.git && cd laneward
+bun install
+cp .env.example .env
+```
+
+Şimdi `.env`'i düzenle. Herhangi bir şeyin çalışması için iki değer önemli:
+
+```bash
+DATABASE_URL=postgres://laneward:laneward@localhost:5433/laneward
+LANEWARD_AGENT=claude     # ya da codex, ya da bunun yerine LANEWARD_AGENT_WRITE tanımla
+```
+
+!!! warning "`.env.example`'daki port 5432 değil, 5433"
+
+    5433, paketle gelen Podman konteynerinin yayımladığı porttur. Zaten
+    çalıştırdığın bir PostgreSQL neredeyse kesinlikle 5432'dedir ve bunu yanlış
+    bırakmanın belirtisi, sonradan gelen açıklayıcı bir hata değil, ilk komutta
+    reddedilen bir bağlantıdır.
+
+`LANEWARD_AGENT` de `LANEWARD_AGENT_WRITE` de boşken hub ve migration yine
+çalışır; asıl başarısız olan ilk lane'dir ve reddi, ajanı tanımlamanın iki yolunu
+da adıyla söyler.
+
+## Şemayı oluştur
+
+```bash
+bun run db:migrate
+```
+
+`Applied N statements.` yazar ve tekrar çalıştırmak güvenlidir: şema dosyası
+eklemeli `CREATE ... IF NOT EXISTS` ve `ALTER ... IF EXISTS` ifadelerinden oluşur.
+
+`DATABASE_URL` tanımlı değilse tam olarak şunu alırsın ve hiçbir şeye
+dokunulmaz:
+
+```
+DATABASE_URL is not set: copy .env.example to .env
+```
+
+## Hub'ı başlat
+
+```bash
+bun run start
+```
+
+Pano [http://127.0.0.1:8787](http://127.0.0.1:8787) adresinde. Bir lane
+kaydedene kadar boştur. `bun run dev` aynı şeyi hot reload ile yapar; kodu
+okurken işe yarar, lane sürerken gereksizdir.
+
+Hub yalnızca `127.0.0.1` dinler ve bu adres yapılandırılabilir değil, koda
+gömülüdür. `PORT` portu değiştirir; conductor, `HUB_URL` vermediğin sürece hub
+adresini `PORT`'tan türetir.
+
+## Conductor'ı başlat
+
+İkinci bir terminalde:
+
+```bash
+bun run conductor          # tek drain pass, sonra özet
+bun run conductor --loop   # 5 saniyede bir sürekli drain
+```
+
+Tek pass, herhangi bir lane başarısız olduysa sıfırdan farklı çıkar; bu da onu
+bir betikten kullanılabilir kılar. `--loop` hiç dönmez ve özet yazmaz; servis
+biriminin çalıştırdığı şey odur.
+
+!!! warning "Conductor'ı paket betiği üzerinden çalıştır"
+
+    `bun run conductor`, `bun run --no-env-file conductor.ts` demektir. Bu
+    bayrak taşıyıcıdır: aksi hâlde Bun, bulunduğun dizindeki `.env`'i otomatik
+    yükler ve Laneward'ın kendi `PORT` ile `DATABASE_URL` değerlerini başlattığı
+    her ajana geçirir; ajan da lane'inin veritabanı yerine hub'ın veritabanına
+    bakar. `bun run conductor.ts` demek bu korumayı atlar.
+
+İkisini de bir araç oturumunun arka plan işi olarak değil, detached başlat. Lane
+ortasında öldürülen bir conductor, kimsenin puanlamadığı bir worktree'ye yazan
+öksüz bir ajan bırakır.
+
+## Gerçekten ayakta mı
+
+```bash
+curl -s http://127.0.0.1:8787/pending
+curl -s http://127.0.0.1:8787/lanes
+```
+
+Taze bir kurulum şunu yanıtlar:
+
+```json
+{"waiting_approval":[],"failed":[],"findings":[]}
+```
+
+`GET /pending`, operatörün tek "bana ne düşüyor" sorgusudur. Masaüstü
+bildiricisi ve Claude Code köprüsü de aynı şeyi okur.
+
+## Test paketini çalıştırmak
+
+`bun test` çalıştırmadan önce `DATABASE_URL`'i adı `_test` ile biten **ayrı** bir
+veritabanına yönlendir. Paket, bulduğu tabloları truncate eder:
+
+```bash
+DATABASE_URL=postgres://laneward:laneward@localhost:5433/laneward_test bun run db:migrate
+DATABASE_URL=postgres://laneward:laneward@localhost:5433/laneward_test bun test
+DATABASE_URL=postgres://laneward:laneward@localhost:5433/laneward_test bun run typecheck
+```
+
+Başka her şey, ilk ifade çalışmadan reddedilir:
+
+```
+refusing to run tests against laneward: the suite truncates lanes, messages and
+approvals. Point DATABASE_URL at laneward_test, a name ending in _test, or a
+laneward_lane_* database.
+```
+
+## Sonraki adım
+
+Sıradaki adım [Yapılandırma](configure.md): hangi ajanın çalışacağını ve her
+model katmanının ne anlama geldiğini tanımlamak.
