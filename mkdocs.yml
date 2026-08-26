@@ -28,32 +28,54 @@ theme:
   name: material
   language: en
   icon:
+    logo: material/road-variant
     repo: fontawesome/brands/github
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
+    # navigation.instant is deliberately absent: mkdocs-static-i18n's language
+    # switcher cannot build a contextual link with it on, so the Turkish reader
+    # loses the "same page, other language" jump. Instant loading is not worth
+    # that trade in a bilingual site.
+    - navigation.tabs
     - navigation.sections
     - navigation.top
     - navigation.tracking
     - navigation.indexes
+    - navigation.footer
     - content.code.copy
+    - content.code.annotate
     - content.action.edit
+    - content.tooltips
     - search.suggest
     - search.highlight
+    - search.share
     - toc.follow
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: indigo
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/aethrox/laneward
+      name: The repository
 
 markdown_extensions:
   - admonition
@@ -64,6 +86,9 @@ markdown_extensions:
   - toc:
       permalink: true
   - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite

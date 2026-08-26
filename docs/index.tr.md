@@ -1,8 +1,22 @@
-# Laneward nedir
+---
+hide:
+  - navigation
+---
 
+<div class="lw-hero" markdown>
+
+# Laneward
+
+<p class="lw-hero__tagline">
 Laneward, tek bir depo üzerinde aynı anda birden çok kodlama ajanı çalıştırır,
 her birini kendi git worktree'sine koyar ve birbirlerine çarpmalarını engeller.
 Onaylanmış iş, editörünü kapattıktan sonra da sürer.
+</p>
+
+[Kur](guide/install.md){ .md-button .md-button--primary }
+[Neye karşı korumadığını oku](guide/safety-and-limits.md){ .md-button }
+
+</div>
 
 İş planlamaz, kod yazmaz. Neyin yapılacağına sen karar verirsin; Laneward her
 görevi kaydeder, ne zaman başlamanın güvenli olduğuna karar verir, ajanı
@@ -92,12 +106,58 @@ kılavuz da onu çalıştırmanın yolu.
 
 ## Nereye gitmeli
 
-| İstediğin | Oku |
-|---|---|
-| Bu makinede çalıştırmak | [Kurulum ve ilk çalıştırma](guide/install.md) |
-| Ajan seçip bağlamak | [Yapılandırma](guide/configure.md) |
-| Gerçek bir işi baştan sona sürmek | [İlk lane](guide/first-lane.md) |
-| Doğru puanlanan bir brief yazmak | [Brief yazmak](guide/writing-briefs.md) |
-| Lane'in neden başlamadığını anlamak | [Sorun giderme](guide/troubleshooting.md) |
-| Neye karşı korunmadığını bilmek | [Güvenlik ve sınırlar](guide/safety-and-limits.md) |
-| Sözlüğü öğrenmek | [Glossary](GLOSSARY.md) |
+<div class="grid cards" markdown>
+
+-   :material-download: __Kurulum ve ilk çalıştırma__
+
+    ---
+
+    Bir hub, bir conductor ve bir veritabanı, bir klondan, bu makinede.
+
+    [:octicons-arrow-right-24: Kur](guide/install.md)
+
+-   :material-tune: __Yapılandırma__
+
+    ---
+
+    Bir ajan tanımla, model katmanlarını doldur, her değişkeni oku.
+
+    [:octicons-arrow-right-24: Yapılandır](guide/configure.md)
+
+-   :material-road-variant: __İlk lane__
+
+    ---
+
+    Gerçek bir iş baştan sona: brief, lane, ajan, karar, sonuç elinde.
+
+    [:octicons-arrow-right-24: Lane sür](guide/first-lane.md)
+
+-   :material-file-document-edit: __Brief yazmak__
+
+    ---
+
+    Ajanın gerçekten okuduğu sözleşme, ve onu doğru puanlatmanın yolu.
+
+    [:octicons-arrow-right-24: Brief yaz](guide/writing-briefs.md)
+
+-   :material-lifebuoy: __Sorun giderme__
+
+    ---
+
+    Bir lane neden başlamaz, sistemdeki her ret ne anlama gelir.
+
+    [:octicons-arrow-right-24: Teşhis et](guide/troubleshooting.md)
+
+-   :material-shield-alert: __Güvenlik ve sınırlar__
+
+    ---
+
+    Kimlik doğrulaması yok, kopyalanmış bir `.env`, ve gerçekte doğrulanmış olan.
+
+    [:octicons-arrow-right-24: Sınırları oku](guide/safety-and-limits.md)
+
+</div>
+
+[Sözlük](GLOSSARY.md) bu projenin belirli bir anlamda kullandığı terimlerdir,
+ve [mimari serisi](architecture/workflow-v1/README.md) her `D-0NN` referansının
+işaret ettiği karar kaydı dahil, altındaki tasarımdır.

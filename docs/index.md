@@ -1,8 +1,22 @@
-# What Laneward is
+---
+hide:
+  - navigation
+---
 
-Laneward runs several coding agents on one repository at the same time, each in
-its own git worktree, and keeps them from colliding. Approved work continues
-after you close your editor.
+<div class="lw-hero" markdown>
+
+# Laneward
+
+<p class="lw-hero__tagline">
+Runs several coding agents on one repository at the same time, each in its own
+git worktree, and keeps them from colliding. Approved work continues after you
+close your editor.
+</p>
+
+[Install it](guide/install.md){ .md-button .md-button--primary }
+[Read what it does not protect you from](guide/safety-and-limits.md){ .md-button }
+
+</div>
 
 It does not plan work and it does not write code. You decide what needs doing;
 Laneward records each task, decides when it is safe to start, spawns the agent,
@@ -92,12 +106,58 @@ exactly what is here, and this guide is how you get it running.
 
 ## Where to go next
 
-| You want to | Read |
-|---|---|
-| Get it running on this machine | [Install and first run](guide/install.md) |
-| Choose and wire up an agent | [Configuration](guide/configure.md) |
-| Drive one real task through it | [Your first lane](guide/first-lane.md) |
-| Write a brief that gets scored correctly | [Writing briefs](guide/writing-briefs.md) |
-| Understand why a lane will not start | [Troubleshooting](guide/troubleshooting.md) |
-| Know what it does not protect you from | [Safety and limits](guide/safety-and-limits.md) |
-| Learn the vocabulary | [Glossary](GLOSSARY.md) |
+<div class="grid cards" markdown>
+
+-   :material-download: __Install and first run__
+
+    ---
+
+    A hub, a conductor and a database, from a clone, on this machine.
+
+    [:octicons-arrow-right-24: Install](guide/install.md)
+
+-   :material-tune: __Configuration__
+
+    ---
+
+    Declare an agent, fill the model tiers, and read every variable there is.
+
+    [:octicons-arrow-right-24: Configure](guide/configure.md)
+
+-   :material-road-variant: __Your first lane__
+
+    ---
+
+    One real task end to end: brief, lane, agent, verdict, work in your hands.
+
+    [:octicons-arrow-right-24: Drive a lane](guide/first-lane.md)
+
+-   :material-file-document-edit: __Writing briefs__
+
+    ---
+
+    The contract the agent actually reads, and how to make it score correctly.
+
+    [:octicons-arrow-right-24: Write a brief](guide/writing-briefs.md)
+
+-   :material-lifebuoy: __Troubleshooting__
+
+    ---
+
+    Why a lane will not start, and what every refusal in the system means.
+
+    [:octicons-arrow-right-24: Diagnose it](guide/troubleshooting.md)
+
+-   :material-shield-alert: __Safety and limits__
+
+    ---
+
+    No authentication, a copied `.env`, and what has actually been verified.
+
+    [:octicons-arrow-right-24: Read the limits](guide/safety-and-limits.md)
+
+</div>
+
+The [glossary](GLOSSARY.md) is the vocabulary this project uses in a specific
+sense, and [the architecture series](architecture/workflow-v1/README.md) is the
+design underneath, including the decision log every `D-0NN` reference points at.
