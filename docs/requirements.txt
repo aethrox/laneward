@@ -1,0 +1,4 @@
+# Pinned because development has stopped: a floating version would break this
+# build months after anyone is watching. Bump deliberately, not by drift.
+mkdocs-material==9.7.7
+mkdocs-static-i18n==1.3.1

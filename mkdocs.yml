@@ -1,0 +1,160 @@
+# The documentation site. `docs/` is published as it stands: the guide under
+# docs/guide/ is new, everything else (glossary, workflow-v1, evidence notes)
+# is the repository's existing documentation, unchanged and now navigable.
+#
+# The guide is bilingual, the rest is not. mkdocs-static-i18n falls back to the
+# default locale for any page without a `.tr.md` sibling, so the Turkish build
+# carries the English architecture and notes rather than a stale translation of
+# them.
+
+site_name: Laneward
+site_description: Runs several coding agents on one repository at once, each in its own git worktree, and keeps them from colliding.
+site_url: https://aethrox.github.io/laneward/
+site_author: aethrox
+copyright: MIT licensed. Development has stopped; the design is here to read, take apart, or continue.
+
+repo_url: https://github.com/aethrox/laneward
+repo_name: aethrox/laneward
+edit_uri: edit/master/docs/
+
+docs_dir: docs
+site_dir: site
+
+# Installed by the Pages workflow, not content.
+exclude_docs: |
+  requirements.txt
+
+theme:
+  name: material
+  language: en
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - content.code.copy
+    - content.action.edit
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: tr
+          name: Türkçe
+          build: true
+          nav_translations:
+            Guide: Kılavuz
+            Reference: Başvuru
+            Architecture: Mimari
+            Evidence notes: Kanıt notları
+            Repository conventions: Depo kuralları
+            What Laneward is: Laneward nedir
+            Install and first run: Kurulum ve ilk çalıştırma
+            Configuration: Yapılandırma
+            Your first lane: İlk lane
+            Writing briefs: Brief yazmak
+            Preparing the driven repository: Sürülen depoyu hazırlamak
+            Daily operation: Günlük kullanım
+            Plans, revisions and authority: Planlar, revizyonlar ve yetki
+            Running as a service: Servis olarak çalıştırmak
+            The Claude Code bridge: Claude Code köprüsü
+            API reference: API başvurusu
+            Troubleshooting: Sorun giderme
+            Safety and limits: Güvenlik ve sınırlar
+
+nav:
+  - What Laneward is: index.md
+  - Guide:
+      - Install and first run: guide/install.md
+      - Configuration: guide/configure.md
+      - Your first lane: guide/first-lane.md
+      - Writing briefs: guide/writing-briefs.md
+      - Preparing the driven repository: guide/driven-repo.md
+      - Daily operation: guide/daily-operation.md
+      - Plans, revisions and authority: guide/plans-and-authority.md
+      - Running as a service: guide/running-as-a-service.md
+      - The Claude Code bridge: guide/claude-code-bridge.md
+      - API reference: guide/api-reference.md
+      - Troubleshooting: guide/troubleshooting.md
+      - Safety and limits: guide/safety-and-limits.md
+  - Reference:
+      - Glossary: GLOSSARY.md
+      - Lane brief template: brief-template.md
+  - Architecture:
+      - Workflow v1: architecture/workflow-v1/README.md
+      - Approved decisions: architecture/workflow-v1/01-decisions.md
+      - Target architecture: architecture/workflow-v1/02-target-architecture.md
+      - Workflow lifecycle: architecture/workflow-v1/03-workflow-lifecycle.md
+      - Plan and lane model: architecture/workflow-v1/04-plan-and-lane-model.md
+      - Safety and Git policy: architecture/workflow-v1/05-safety-and-git-policy.md
+      - Operations and notifications: architecture/workflow-v1/06-operations-and-notifications.md
+      - Required skill changes: architecture/workflow-v1/07-skill-changes.md
+      - Future ACOS integration: architecture/workflow-v1/08-acos-integration.md
+      - Implementation roadmap: architecture/workflow-v1/09-implementation-roadmap.md
+      - Platform support: architecture/workflow-v1/10-platform-support.md
+  - Evidence notes:
+      - Logout, with and without linger: notes/2026-08-21-logout-and-linger.md
+      - The Windows logon trigger, fired: notes/2026-08-20-windows-logon-trigger.md
+      - A real agent under systemd: notes/2026-08-20-real-agent-under-systemd.md
+      - What is left: notes/2026-08-19-what-is-left.md
+      - Windows, started: notes/2026-08-19-s3-windows-end-to-end.md
+      - The shipped database container, run: notes/2026-08-19-s24-shipped-database-container.md
+      - A clean repository, and a new name: notes/2026-08-19-clean-repository-and-rename.md
+      - The suite under Linux: notes/2026-08-15-linux-suite-run.md
+      - Issue 12, verified against the tree: notes/2026-08-15-issue-12-verification-and-plan.md
+      - D-014, demonstrated: notes/2026-08-15-d014-demonstrated.md
+      - Verification bake-off: notes/2026-08-09-verification-bakeoff.md
+      - Escaped defects survey: notes/2026-08-09-escaped-defects-survey.md
+      - Phase 4 pilot, neura-system: notes/2026-08-08-phase4-pilot-neura-system.md
+      - Model routing pilot: notes/2026-08-08-model-routing-pilot.md
+      - Codex sandbox and Git-boundary probe: notes/2026-08-07-codex-sandbox-and-git-boundary-probe.md
+  - Repository conventions:
+      - Domain docs: agents/domain.md
+      - Issue tracker: agents/issue-tracker.md
+      - Triage labels: agents/triage-labels.md
