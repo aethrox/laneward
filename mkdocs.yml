@@ -24,6 +24,9 @@ site_dir: site
 exclude_docs: |
   requirements.txt
 
+hooks:
+  - scripts/mkdocs_hooks.py
+
 theme:
   name: material
   language: en

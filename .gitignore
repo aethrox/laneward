@@ -4,3 +4,4 @@ node_modules/
 .codegraph/
 site/
 .venv-docs/
+__pycache__/
