@@ -1,14 +1,14 @@
 # İlk lane
 
-Bu sayfa gerçek bir işi baştan sona Laneward'dan geçirir: bir brief, bir lane,
-bir ajan, bir karar ve iş senin elinde. Çalışan bir hub ve tanımlı bir ajan
-varsayar ([Kurulum](install.md), [Yapılandırma](configure.md)).
+Gerçek bir iş burada baştan sona Laneward'dan geçiyor: bir brief, bir lane, bir
+ajan, bir karar ve iş senin elinde. Çalışan bir hub ve tanımlı bir ajan
+gerekiyor ([Kurulum](install.md), [Yapılandırma](configure.md)).
 
 ## 1. Brief yaz
 
-Brief sözleşmenin tamamıdır. Ajan, onu üreten konuşmayı göremez.
-[Şablonu](../brief-template.md) kopyalayıp doldur; hangi brief'in doğru
-puanlandığını [Brief yazmak](writing-briefs.md) anlatıyor.
+Ajan, bu işi üreten konuşmayı göremez; o yüzden konuşmanın tamamını brief
+taşımak zorunda. [Şablonu](../brief-template.md) kopyalayıp doldur; hangi
+brief'in doğru puanlandığını [Brief yazmak](writing-briefs.md) anlatıyor.
 
 Şimdilik işe yarayan en kısa hâli:
 

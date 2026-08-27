@@ -183,9 +183,9 @@ Uncommitted changes in /home/you/your-repo-worktrees/fix-login:
   src/auth/login.ts
 ```
 
-Bu, güvenlik ağının çalışmasıdır. Önce işi commit et ve depona
-merge et; teardown yalnızca worktree'si temiz olan ve branch'i
-deponda zaten olmayan hiçbir şey taşımayan bir lane'i kaldırır.
+Teardown bilerek reddetti. Önce işi commit et ve depona merge et; teardown
+yalnızca worktree'si temiz olan ve branch'i deponda zaten olmayan hiçbir şey
+taşımayan bir lane'i kaldırır.
 
 ## Bir şey yalnızca Windows'ta, başıboş bir carriage return ile bozuldu
 

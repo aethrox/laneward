@@ -1,7 +1,7 @@
 # Kurulum ve ilk çalıştırma
 
-Bu sayfa, bir klondan başlayarak tek makinede çalışan bir hub ve bir conductor
-elde eder. Hiçbir şeyi servis olarak kurmaz; o
+Bir hub ve bir conductor, bir klondan başlayarak tek makinede çalışıyor. Burada
+hiçbir şey servis olarak kurulmuyor; o
 [Servis olarak çalıştırmak](running-as-a-service.md) sayfasında.
 
 ## Önce gerekenler
@@ -110,8 +110,8 @@ Taze bir kurulum şunu yanıtlar:
 {"waiting_approval":[],"failed":[],"findings":[]}
 ```
 
-`GET /pending`, operatörün tek "bana ne düşüyor" sorgusudur. Masaüstü
-bildiricisi ve Claude Code köprüsü de aynı şeyi okur.
+`GET /pending`, senin tek "bana ne düşüyor" sorgun. Masaüstü bildiricisi ve
+Claude Code köprüsü de aynı şeyi okur.
 
 ## Test paketini çalıştırmak
 

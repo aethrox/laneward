@@ -1,7 +1,7 @@
 # Günlük kullanım
 
 Lane'ler koşmaya başladıktan sonra sana üç şey düşer: onaylar, başarısızlıklar
-ve biten işi dışarı almak. Bu sayfa aralarında ne yaptığın.
+ve biten işi dışarı almak. Aşağıdaki her şey, aralarında olup bitenler.
 
 ## Komutlar
 

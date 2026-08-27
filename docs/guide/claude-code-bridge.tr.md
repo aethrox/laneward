@@ -1,10 +1,9 @@
 # Claude Code köprüsü
 
 `scripts/bridge.ts`, etkileşimli bir Claude Code oturumunu çalışan bir hub'a
-bağlar. İsteğe bağlıdır: lane'ler onsuz da çalışır. Sağladığı şey, sen
-sormadan önce neyin bloke olduğunu bilen bir oturumdur; istersen, hub'ın
-onaylamadığı bir lane worktree'si içinde düzenleme yapmayı reddeden bir oturum
-da olabilir.
+bağlar. İsteğe bağlıdır: lane'ler onsuz da çalışır. Onunla birlikte oturum,
+sen sormadan önce neyin bloke olduğunu bilir ve istersen hub'ın onaylamadığı
+bir lane worktree'si içinde düzenleme yapmayı reddeder.
 
 `HUB_URL`, okuduğu tek değişkendir (varsayılan `http://127.0.0.1:8787`) ve
 yaptığı her istek iki saniye sonra zaman aşımına uğrar.

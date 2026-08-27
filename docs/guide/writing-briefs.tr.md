@@ -2,8 +2,8 @@
 
 Brief sözleşmenin tamamıdır. Ajanın stdin'ine gelir ve başka hiçbir şey gelmez:
 ajan onu üreten konuşmayı, ait olduğu planı ve yanında koşan diğer lane'leri
-göremez. [Şablondan](../brief-template.md) başla; bu sayfa işin operatör
-tarafı.
+göremez. [Şablondan](../brief-template.md) başla; aşağıdakiler işin senin
+tarafın.
 
 !!! note "Brief İngilizce yazılır"
 

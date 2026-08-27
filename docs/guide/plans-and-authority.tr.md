@@ -1,12 +1,12 @@
 # Planlar, revizyonlar ve yetki
 
-Şimdiye kadarki her şey serbest lane'lerle çalışır. Bir plan, serbest lane'lerin
-sahip olamadığı şeyi ekler: halihazırda devam eden işten izni geri çekmenin bir
-yolu ve birkaç tamamlanmış lane'in bir araya getirilip tek parça halinde kontrol
+Lane'ler kendi başlarına gayet iyi çalışır. Bir plan, serbest bir lane'in sahip
+olamadığı şeyi ekler: halihazırda devam eden işten izni geri çekmenin bir yolu
+ve birkaç tamamlanmış lane'in bir araya getirilip tek parça halinde kontrol
 edildiği bir nokta.
 
-Tek tek lane'leri elle çalıştırıyorsan bu sayfayı atla. Bu sayfa,
-mekanizmanın geri kalanının ne işe yaradığını anlatır.
+Tek tek lane'leri elle çalıştırıyorsan bu sayfayı atla. Mekanizmanın geri
+kalanının ne işe yaradığını anlatır.
 
 ## Yapı
 
@@ -17,10 +17,10 @@ versiyonudur. Bir lane bir revision'a bağlanabilir ve bu durumda:
 - yalnızca o revision **approved** iken başlayabilir, ve
 - yalnızca o revision **en yenisi** iken başlayabilir.
 
-İkinci kural tasarımın tamamıdır. Kapsamdaki maddi bir değişiklik yeni bir
-revision haline gelir ve bunu oluşturmak, eski revision'a hâlâ bağlı olan her
-lane'in çalıştırma yetkisini sessizce geri çeker. Kimsenin gidip onları
-durdurması gerekmez.
+Bir planı sahip olmaya değer kılan şey bu ikinci kural. Kapsamdaki maddi bir
+değişiklik yeni bir revision haline gelir ve bunu oluşturmak, eski revision'a
+hâlâ bağlı olan her lane'in çalıştırma yetkisini sessizce geri çeker. Kimsenin
+gidip onları durdurması gerekmez.
 
 ```bash
 # create the plan; this is revision 1
