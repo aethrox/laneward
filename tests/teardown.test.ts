@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, realpath, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -43,8 +43,19 @@ async function fixture() {
       stderr: "pipe",
     });
 
-  return { root, repo, git, worktree: join(worktrees, laneId), teardown };
+  // `laneLocation` resolves LANE_WORKTREE_ROOT through `realpath`, and both
+  // `new-lane` and `teardown` reach a worktree that way. The fixture creates
+  // one directly, so it has to look at the directory teardown will look at
+  // rather than the spelling it passed in: on a machine whose temp directory is
+  // reached through a link or an 8.3 short name those are different strings.
+  const worktree = join(await realpath(worktrees), laneId);
+
+  return { root, repo, git, worktree, teardown };
 }
+
+/** Names the path when it survives, so a failure says which one it looked at. */
+const removalOf = (worktree: string) =>
+  existsSync(worktree) ? `still there: ${worktree}` : "removed";
 
 test("a clean, integrated lane is removed whole", async () => {
   const { root, repo, worktree, teardown } = await fixture();
@@ -52,7 +63,7 @@ test("a clean, integrated lane is removed whole", async () => {
   const result = teardown();
   expect(new TextDecoder().decode(result.stderr)).toBe("");
   expect(result.exitCode).toBe(0);
-  expect(existsSync(worktree)).toBe(false);
+  expect(removalOf(worktree)).toBe("removed");
 
   const branches = Bun.spawnSync(["git", "-C", repo, "branch", "--list", `lane/${laneId}`], { stdout: "pipe" });
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
@@ -90,7 +101,7 @@ test("a lane integrated by cherry-pick tears down completely", async () => {
   const result = teardown();
   expect(new TextDecoder().decode(result.stderr)).toBe("");
   expect(result.exitCode).toBe(0);
-  expect(existsSync(worktree)).toBe(false);
+  expect(removalOf(worktree)).toBe("removed");
   const branches = Bun.spawnSync(["git", "-C", repo, "branch", "--list", `lane/${laneId}`], { stdout: "pipe" });
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
 
