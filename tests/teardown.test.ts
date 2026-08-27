@@ -54,16 +54,22 @@ async function fixture() {
 }
 
 /**
- * Windows deletes a directory that still has an open handle lazily: the entry
- * stays visible, delete-pending, until the last handle closes. Teardown has
- * already returned by then and reported the removal, so asserting on the same
- * instant reads a directory that is on its way out as one that survived. Wait
- * for it to go, and name it when it does not.
+ * Waits for the worktree directory to go, and reports what teardown believed it
+ * did when it does not.
+ *
+ * The wait covers a Windows directory that is delete-pending, still visible
+ * until the last handle on it closes. On the GitHub Windows runner it does not
+ * help: the directory is still there after the full budget, while teardown
+ * exits 0 with nothing on stderr, which means its own existence check found the
+ * path gone. Two processes disagreeing about one path is what the reported
+ * stdout is here to pin down.
  */
-async function removalOf(worktree: string, timeoutMs = 5000): Promise<string> {
+async function removalOf(worktree: string, said = "", timeoutMs = 5000): Promise<string> {
   const deadline = Date.now() + timeoutMs;
   while (existsSync(worktree)) {
-    if (Date.now() >= deadline) return `still there after ${timeoutMs}ms: ${worktree}`;
+    if (Date.now() >= deadline) {
+      return `still there after ${timeoutMs}ms: ${worktree}\nteardown said: ${said.trim()}`;
+    }
     await Bun.sleep(25);
   }
   return "removed";
@@ -75,7 +81,7 @@ test("a clean, integrated lane is removed whole", async () => {
   const result = teardown();
   expect(new TextDecoder().decode(result.stderr)).toBe("");
   expect(result.exitCode).toBe(0);
-  expect(await removalOf(worktree)).toBe("removed");
+  expect(await removalOf(worktree, new TextDecoder().decode(result.stdout))).toBe("removed");
 
   const branches = Bun.spawnSync(["git", "-C", repo, "branch", "--list", `lane/${laneId}`], { stdout: "pipe" });
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
@@ -113,7 +119,7 @@ test("a lane integrated by cherry-pick tears down completely", async () => {
   const result = teardown();
   expect(new TextDecoder().decode(result.stderr)).toBe("");
   expect(result.exitCode).toBe(0);
-  expect(await removalOf(worktree)).toBe("removed");
+  expect(await removalOf(worktree, new TextDecoder().decode(result.stdout))).toBe("removed");
   const branches = Bun.spawnSync(["git", "-C", repo, "branch", "--list", `lane/${laneId}`], { stdout: "pipe" });
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
 
