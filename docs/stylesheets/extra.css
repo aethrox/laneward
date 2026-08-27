@@ -18,6 +18,16 @@
   --lw-border:                  #e3e6ec;
   --lw-muted:                   #5b6472;
   --lw-radius:                  10px;
+
+  --lw-diag-node-bg:            #f7f8fa;
+  --lw-diag-node-border:        #ccd2dd;
+  --lw-diag-ok:                 #1a7f4b;
+  --lw-diag-bad:                #b3261e;
+  --lw-diag-wait:               #96590a;
+  --lw-diag-guard:              #4f5bd5;
+  --lw-diag-edge:               #6b7382;
+  --lw-diag-label:              #5b6472;
+  --lw-diag-band:               #eef0f5;
 }
 
 [data-md-color-scheme="slate"] {
@@ -38,6 +48,16 @@
   --lw-surface:                 #151b24;
   --lw-border:                  #232b38;
   --lw-muted:                   #9aa4b3;
+
+  --lw-diag-node-bg:            #1b2230;
+  --lw-diag-node-border:        #38435a;
+  --lw-diag-ok:                 #56d394;
+  --lw-diag-bad:                #ff8b82;
+  --lw-diag-wait:               #e6ad55;
+  --lw-diag-guard:              #8b95ff;
+  --lw-diag-edge:               #8f99ab;
+  --lw-diag-label:              #a6b0c0;
+  --lw-diag-band:               #10161f;
 }
 
 /* Material's `custom` palette redefines the link colour on <body>, which beats
@@ -200,13 +220,129 @@ body[data-md-color-primary="custom"] {
   color: var(--lw-muted);
 }
 
-/* The mermaid diagrams carry the state machines, so give them room */
-.md-typeset .mermaid {
+/* Diagrams ---------------------------------------------------------------
+   The diagrams are hand-authored inline SVG that carries no colour of its
+   own, so the theme toggle reaches inside them the same way it reaches the
+   rest of the page. Every fill and stroke below resolves through a variable
+   that both schemes define. */
+.md-typeset .lw-diagram {
   margin: 1.6em 0;
   padding: 1.1em;
   border: 1px solid var(--lw-border);
   border-radius: var(--lw-radius);
   background-color: var(--lw-surface);
+  overflow-x: auto;
+}
+
+.lw-diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 640px;
+}
+
+/* A few diagrams carry more columns than a content column can hold. They keep
+   their type legible and let the surrounding box scroll instead of shrinking
+   the labels into illegibility. */
+.lw-diagram--wide svg {
+  min-width: 1040px;
+}
+
+.lw-diagram text {
+  font-family: var(--md-text-font-family), sans-serif;
+}
+
+.lw-node-box {
+  fill: var(--lw-diag-node-bg);
+  stroke: var(--lw-diag-node-border);
+  stroke-width: 1;
+}
+
+.lw-node-label {
+  fill: var(--md-default-fg-color);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.lw-node-sub {
+  fill: var(--lw-diag-label);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.lw-node--ok .lw-node-box    { stroke: var(--lw-diag-ok); }
+.lw-node--ok .lw-node-label  { fill: var(--lw-diag-ok); }
+.lw-node--bad .lw-node-box   { stroke: var(--lw-diag-bad); }
+.lw-node--bad .lw-node-label { fill: var(--lw-diag-bad); }
+.lw-node--wait .lw-node-box   { stroke: var(--lw-diag-wait); }
+.lw-node--wait .lw-node-label { fill: var(--lw-diag-wait); }
+.lw-node--guard .lw-node-box   { stroke: var(--lw-diag-guard); }
+.lw-node--guard .lw-node-label { fill: var(--lw-diag-guard); }
+
+.lw-dot {
+  fill: var(--lw-diag-edge);
+  stroke: none;
+}
+
+.lw-dot-ring {
+  fill: none;
+  stroke: var(--lw-diag-edge);
+  stroke-width: 1.5;
+}
+
+.lw-edge {
+  fill: none;
+  stroke: var(--lw-diag-edge);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.lw-edge--dashed {
+  stroke-dasharray: 5 4;
+}
+
+.lw-edge--bad {
+  stroke: var(--lw-diag-bad);
+}
+
+.lw-cross {
+  fill: none;
+  stroke: var(--lw-diag-bad);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.lw-edge-label {
+  fill: var(--lw-diag-label);
+  font-size: 11px;
+}
+
+.lw-arrowhead {
+  fill: var(--lw-diag-edge);
+  stroke: none;
+}
+
+.lw-arrowhead--bad {
+  fill: var(--lw-diag-bad);
+}
+
+.lw-band {
+  fill: var(--lw-diag-band);
+  stroke: none;
+}
+
+/* The alternating band is the page's own surface, so a stack of lanes reads as
+   stripes without a second colour to keep in step across two schemes. */
+.lw-band--alt {
+  fill: none;
+}
+
+.lw-band-label {
+  fill: var(--lw-diag-label);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 /* Home page -------------------------------------------------------------- */

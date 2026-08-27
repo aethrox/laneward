@@ -103,6 +103,7 @@ The `.env` copied into each lane worktree is the largest remaining gap: only `DA
 
 ## More information
 
+- [The MCP server](https://aethrox.github.io/laneward/guide/mcp-server/): hands Laneward to your own coding agent as a set of tools, alongside the [Claude Code bridge](https://aethrox.github.io/laneward/guide/claude-code-bridge/) hook
 - [Documentation site](https://aethrox.github.io/laneward/): the guide, the glossary, the architecture and the evidence notes, navigable and searchable. The guide is bilingual, English and Turkish, and lives in [docs/guide/](docs/guide/)
 - [Workflow v1 target architecture](docs/architecture/workflow-v1/README.md), including the decision log every `D-0NN` reference points at
 - [Evidence notes](docs/notes/): what was run, what it found, and what it did not establish

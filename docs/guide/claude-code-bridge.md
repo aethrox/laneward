@@ -8,6 +8,14 @@ worktree the hub has not cleared.
 `HUB_URL` is the only variable it reads (default `http://127.0.0.1:8787`), and
 every request it makes times out after two seconds.
 
+It is not the same thing as [the MCP server](mcp-server.md), and the two do not
+replace each other. The bridge is a **hook**: the session does not call it, the
+harness does, at session start and, if you wire the gate, before every tool
+call. It gives a session context it did not ask for and can refuse an edit. The
+MCP server is a **tool**: the agent calls it, deliberately, to register lanes,
+read their state, and carry a parked lane's question back to you. They are
+complementary and both can be on at once.
+
 ## What is wired in this repository
 
 One hook, in `.claude/settings.json`:

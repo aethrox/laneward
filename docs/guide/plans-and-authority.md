@@ -84,13 +84,62 @@ what puts the revision into `GET /pending`.
 
 They run in order, and each one records its own result against the revision:
 
-```mermaid
-flowchart LR
-    C["construction<br/>merge every lane branch,<br/>install, migrate"] --> R["clean run<br/>start it the way<br/>a new machine would"]
-    R --> D["reader<br/>read the change,<br/>advisory only"]
-    C -.->|"failed"| S1["clean run: skipped<br/>blocked_by: construction"]
-    R -.->|"failed"| S2["reader: skipped<br/>blocked_by: clean_run"]
-```
+<div class="lw-diagram" markdown="0">
+<svg viewBox="0 0 900 270" role="img" aria-labelledby="verify-layers-t verify-layers-d">
+  <title id="verify-layers-t">The three verification layers</title>
+  <desc id="verify-layers-d">Construction runs first, then the clean run, then the reader. A layer whose predecessor failed is recorded as skipped with the layer that blocked it. The reader produces advisory findings, which never block.</desc>
+  <defs>
+    <marker id="lw-arrow-verify-layers" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path class="lw-arrowhead" d="M0,0 L7,3 L0,6 Z"/>
+    </marker>
+  </defs>
+
+  <g class="lw-node">
+    <rect class="lw-node-box" x="20" y="40" width="230" height="86" rx="8"/>
+    <text class="lw-node-label" x="135" y="68" text-anchor="middle">construction</text>
+    <text class="lw-node-sub" x="135" y="90" text-anchor="middle">merge every lane branch,</text>
+    <text class="lw-node-sub" x="135" y="107" text-anchor="middle">install, migrate</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="335" y="40" width="230" height="86" rx="8"/>
+    <text class="lw-node-label" x="450" y="68" text-anchor="middle">clean run</text>
+    <text class="lw-node-sub" x="450" y="90" text-anchor="middle">start it the way</text>
+    <text class="lw-node-sub" x="450" y="107" text-anchor="middle">a new machine would</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="650" y="40" width="230" height="86" rx="8"/>
+    <text class="lw-node-label" x="765" y="68" text-anchor="middle">reader</text>
+    <text class="lw-node-sub" x="765" y="90" text-anchor="middle">read the change,</text>
+    <text class="lw-node-sub" x="765" y="107" text-anchor="middle">advisory only</text>
+  </g>
+
+  <path class="lw-edge" d="M 250 83 H 335" marker-end="url(#lw-arrow-verify-layers)"/>
+  <path class="lw-edge" d="M 565 83 H 650" marker-end="url(#lw-arrow-verify-layers)"/>
+
+  <path class="lw-edge lw-edge--dashed" d="M 135 126 V 190" marker-end="url(#lw-arrow-verify-layers)"/>
+  <text class="lw-edge-label" x="147" y="162">failed</text>
+  <path class="lw-edge lw-edge--dashed" d="M 450 126 V 190" marker-end="url(#lw-arrow-verify-layers)"/>
+  <text class="lw-edge-label" x="462" y="162">failed</text>
+  <path class="lw-edge lw-edge--dashed" d="M 765 126 V 190" marker-end="url(#lw-arrow-verify-layers)"/>
+  <text class="lw-edge-label" x="777" y="162">advisory</text>
+
+  <g class="lw-node lw-node--wait">
+    <rect class="lw-node-box" x="20" y="190" width="230" height="52" rx="8"/>
+    <text class="lw-node-label" x="135" y="212" text-anchor="middle">clean run: skipped</text>
+    <text class="lw-node-sub" x="135" y="229" text-anchor="middle">blocked_by: construction</text>
+  </g>
+  <g class="lw-node lw-node--wait">
+    <rect class="lw-node-box" x="335" y="190" width="230" height="52" rx="8"/>
+    <text class="lw-node-label" x="450" y="212" text-anchor="middle">reader: skipped</text>
+    <text class="lw-node-sub" x="450" y="229" text-anchor="middle">blocked_by: clean_run</text>
+  </g>
+  <g class="lw-node lw-node--guard">
+    <rect class="lw-node-box" x="650" y="190" width="230" height="52" rx="8"/>
+    <text class="lw-node-label" x="765" y="212" text-anchor="middle">advisory findings</text>
+    <text class="lw-node-sub" x="765" y="229" text-anchor="middle">open until adjudicated</text>
+  </g>
+</svg>
+</div>
 
 **Construction** is the merge above. **Clean run** installs and starts the
 candidate and scores its output against the expectations the driven repository

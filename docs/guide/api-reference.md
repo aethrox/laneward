@@ -209,3 +209,35 @@ brief when it runs again.
 
 The dashboard router is mounted last, so the JSON API above keeps priority over
 any path it shares.
+
+## The MCP server
+
+[The MCP server](mcp-server.md) exposes a curated subset of these routes as
+tools. It is a subset on purpose, so the mapping is worth having in one place.
+
+| Tool | Route |
+|---|---|
+| `laneward_status` | `GET /pending` and `GET /lanes` |
+| `lane_list` | `GET /lanes` |
+| `lane_gate` | `GET /lanes/:id/gate` |
+| `lane_log` | `GET /lanes/:id/log`, tailed in memory |
+| `lane_evidence` | `GET /lanes/:id/evidence` |
+| `plan_show` | `GET /plans/:id` |
+| `findings_list` | `GET /plan-revisions/:id/findings` |
+| `candidates_due` | `GET /candidates/due` |
+| `plan_submit` | `POST /plans` |
+| `plan_revise` | `POST /plans/:id/revisions` |
+| `plan_approve` | `POST /plans/:id/revisions/:revision/approve` |
+| `lane_answer` | `POST /approvals/:id` |
+| `finding_adjudicate` | `POST /verification-findings/:id/adjudication` |
+| `lane_create` | none: spawns `scripts/new-lane.ts`, which posts `/lanes` itself |
+| `build_candidate` | none: spawns `scripts/build-candidate.ts` |
+| `lane_teardown` | none: spawns `scripts/teardown.ts` |
+| `reset_stranded` | none: spawns `scripts/reset-stranded.ts`, which talks to Postgres directly |
+
+`POST /lanes/:id/start`, `POST /lanes/:id/messages`, `POST /lanes/:id/result`
+and `GET /lanes/dispatchable` have no tool: they are the conductor's and the
+worker's side of the protocol, and a driving agent that calls them races the
+conductor or reports on work it did not do. `DELETE /lanes/:id` has none
+because teardown deliberately leaves the row behind. The remaining verification
+routes are the reader's own and are reached by the reader, not by a tool.

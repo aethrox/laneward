@@ -1,19 +1,7 @@
 import { statSync } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-
-const timeout = 2_000;
-
-function url(path: string) {
-  const hubUrl = process.env.HUB_URL ?? "http://127.0.0.1:8787";
-  return new URL(path, hubUrl.endsWith("/") ? hubUrl : `${hubUrl}/`);
-}
-
-async function hubJson(path: string, init?: RequestInit): Promise<unknown> {
-  const response = await fetch(url(path), { ...init, signal: AbortSignal.timeout(timeout) });
-  if (!response.ok) throw new Error(`hub returned HTTP ${response.status}`);
-  return await response.json();
-}
+import { hubJson } from "../src/hub";
 
 type HookPayload = { cwd?: unknown; hook_event_name?: unknown; tool_name?: unknown; tool_input?: unknown };
 
