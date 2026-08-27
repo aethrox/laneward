@@ -1,13 +1,13 @@
 # Your first lane
 
-This page drives one real task through Laneward end to end: a brief, a lane, an
-agent, a verdict, and the work in your hands. It assumes a hub is running and an
-agent is declared ([Install](install.md), [Configuration](configure.md)).
+One real task goes through Laneward end to end here: a brief, a lane, an agent,
+a verdict, and the work in your hands. You need a hub running and an agent
+declared ([Install](install.md), [Configuration](configure.md)).
 
 ## 1. Write a brief
 
-The brief is the entire contract. The agent cannot see the conversation that
-produced it. Copy [the template](../brief-template.md) and fill it in;
+The agent cannot see the conversation that produced this task, so the brief has
+to carry all of it. Copy [the template](../brief-template.md) and fill it in;
 [Writing briefs](writing-briefs.md) explains what makes one score correctly.
 
 For now, the shortest brief that works:

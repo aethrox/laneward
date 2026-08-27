@@ -1,9 +1,9 @@
 # The Claude Code bridge
 
 `scripts/bridge.ts` connects an interactive Claude Code session to a running
-hub. It is optional: lanes run without it. What it buys you is a session that
-knows what is blocked before you ask, and, if you want it, one that refuses to
-edit inside a lane worktree the hub has not cleared.
+hub. It is optional: lanes run without it. With it, the session knows what is
+blocked before you ask, and, if you want it, refuses to edit inside a lane
+worktree the hub has not cleared.
 
 `HUB_URL` is the only variable it reads (default `http://127.0.0.1:8787`), and
 every request it makes times out after two seconds.

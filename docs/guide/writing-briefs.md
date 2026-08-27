@@ -3,7 +3,7 @@
 The brief is the entire contract. It arrives on the agent's stdin and nothing
 else does: the agent cannot see the conversation that produced it, the plan it
 belongs to, or the other lanes running beside it. Start from
-[the template](../brief-template.md); this page is the operator's side of it.
+[the template](../brief-template.md); what follows is your side of it.
 
 ## Why a vague brief gets scored wrong
 

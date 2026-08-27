@@ -1,7 +1,7 @@
 # Install and first run
 
-This page gets a hub and a conductor running on one machine, from a clone. It
-does not install anything as a service; that is
+A hub and a conductor run on one machine, from a clone. Nothing here is
+installed as a service; that is
 [Running as a service](running-as-a-service.md).
 
 ## What you need first
@@ -110,8 +110,8 @@ A fresh install answers:
 {"waiting_approval":[],"failed":[],"findings":[]}
 ```
 
-`GET /pending` is the operator's one "what needs me" query. The desktop notifier
-and the Claude Code bridge read the same thing.
+`GET /pending` is your one "what needs me" query. The desktop notifier and the
+Claude Code bridge read the same thing.
 
 ## Running the test suite
 

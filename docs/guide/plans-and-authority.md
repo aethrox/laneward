@@ -1,6 +1,6 @@
 # Plans, revisions and authority
 
-Everything so far works with loose lanes. A plan adds the thing loose lanes
+Lanes work perfectly well on their own. A plan adds the thing a loose lane
 cannot have: a way to withdraw permission from work already in flight, and a
 point at which several finished lanes are put together and checked as one.
 
@@ -16,9 +16,10 @@ may be bound to a revision, and then:
 - it may start only while that revision is **approved**, and
 - it may start only while that revision is **the newest one**.
 
-That second rule is the whole design. A material change of scope becomes a new
-revision, and creating it silently withdraws the execution authority of every
-lane still bound to the old one. Nobody has to go and stop them.
+That second rule is what makes a plan worth having. A material change of scope
+becomes a new revision, and creating it silently withdraws the execution
+authority of every lane still bound to the old one. Nobody has to go and stop
+them.
 
 ```bash
 # create the plan; this is revision 1

@@ -175,9 +175,9 @@ Uncommitted changes in /home/you/your-repo-worktrees/fix-login:
   src/auth/login.ts
 ```
 
-That is the safety net working. Commit the work and merge it into your
-repository first; teardown only removes a lane whose worktree is clean and whose
-branch carries nothing your repository does not already have.
+Teardown refused on purpose. Commit the work and merge it into your repository
+first; teardown only removes a lane whose worktree is clean and whose branch
+carries nothing your repository does not already have.
 
 ## Something broke only on Windows, with a stray carriage return
 

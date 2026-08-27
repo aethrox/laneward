@@ -1,7 +1,7 @@
 # Daily operation
 
 Once lanes are running, three things need you: approvals, failures, and getting
-finished work out. This page is what you do between them.
+finished work out. Everything below is what happens between them.
 
 ## The commands
 
