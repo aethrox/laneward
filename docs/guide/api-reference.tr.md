@@ -216,3 +216,36 @@ lane tekrar çalıştığında brief'ine eklenir.
 
 Dashboard router'ı en son mount edilir, böylece yukarıdaki JSON API,
 paylaştığı herhangi bir path üzerinde önceliğini korur.
+
+## MCP sunucusu
+
+[MCP sunucusu](mcp-server.md), bu rotaların seçilmiş bir alt kümesini araç
+olarak sunar. Bu bir alt küme olduğu için eşlemenin tek yerde durması işe
+yarar.
+
+| Araç | Rota |
+|---|---|
+| `laneward_status` | `GET /pending` ve `GET /lanes` |
+| `lane_list` | `GET /lanes` |
+| `lane_gate` | `GET /lanes/:id/gate` |
+| `lane_log` | `GET /lanes/:id/log`, sonu bellekte alınır |
+| `lane_evidence` | `GET /lanes/:id/evidence` |
+| `plan_show` | `GET /plans/:id` |
+| `findings_list` | `GET /plan-revisions/:id/findings` |
+| `candidates_due` | `GET /candidates/due` |
+| `plan_submit` | `POST /plans` |
+| `plan_revise` | `POST /plans/:id/revisions` |
+| `plan_approve` | `POST /plans/:id/revisions/:revision/approve` |
+| `lane_answer` | `POST /approvals/:id` |
+| `finding_adjudicate` | `POST /verification-findings/:id/adjudication` |
+| `lane_create` | yok: `scripts/new-lane.ts` başlatır, `/lanes` isteğini o yapar |
+| `build_candidate` | yok: `scripts/build-candidate.ts` başlatır |
+| `lane_teardown` | yok: `scripts/teardown.ts` başlatır |
+| `reset_stranded` | yok: doğrudan Postgres ile konuşan `scripts/reset-stranded.ts` başlatır |
+
+`POST /lanes/:id/start`, `POST /lanes/:id/messages`, `POST /lanes/:id/result` ve
+`GET /lanes/dispatchable` için araç yoktur: bunlar protokolün conductor ve
+worker tarafıdır; onları çağıran bir sürücü ajan ya conductor ile yarışır ya da
+kendi yapmadığı bir iş hakkında rapor verir. `DELETE /lanes/:id` için de yoktur,
+çünkü teardown satırı bilerek geride bırakır. Kalan doğrulama rotaları reader'ın
+kendi rotalarıdır ve bir araç tarafından değil reader tarafından çağrılır.

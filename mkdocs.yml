@@ -98,11 +98,11 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+  # The diagrams are hand-authored inline SVG bound to this site's own colour
+  # variables, so there is no mermaid fence here any more. Material lazy-loads
+  # mermaid from a CDN when it finds one, which cost the site its diagrams
+  # offline and left them themed by Material's accent rather than ours.
+  - pymdownx.superfences
 
 plugins:
   - search
@@ -132,6 +132,7 @@ plugins:
             Plans, revisions and authority: Planlar, revizyonlar ve yetki
             Running as a service: Servis olarak çalıştırmak
             The Claude Code bridge: Claude Code köprüsü
+            The MCP server: MCP sunucusu
             API reference: API başvurusu
             Troubleshooting: Sorun giderme
             Safety and limits: Güvenlik ve sınırlar
@@ -148,6 +149,7 @@ nav:
       - Plans, revisions and authority: guide/plans-and-authority.md
       - Running as a service: guide/running-as-a-service.md
       - The Claude Code bridge: guide/claude-code-bridge.md
+      - The MCP server: guide/mcp-server.md
       - API reference: guide/api-reference.md
       - Troubleshooting: guide/troubleshooting.md
       - Safety and limits: guide/safety-and-limits.md

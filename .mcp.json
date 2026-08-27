@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "laneward": {
+      "command": "bun",
+      "args": ["run", "--no-env-file", "mcp.ts"]
+    }
+  }
+}

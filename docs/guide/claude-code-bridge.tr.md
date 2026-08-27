@@ -8,6 +8,14 @@ bir lane worktree'si içinde düzenleme yapmayı reddeder.
 `HUB_URL`, okuduğu tek değişkendir (varsayılan `http://127.0.0.1:8787`) ve
 yaptığı her istek iki saniye sonra zaman aşımına uğrar.
 
+Bu, [MCP sunucusu](mcp-server.md) ile aynı şey değildir ve ikisi birbirinin
+yerine geçmez. Köprü bir **hook**'tur: onu oturum değil, harness çağırır;
+oturum başlangıcında ve gate'i bağlarsan her araç çağrısından önce. Oturuma
+istemediği bir bağlam verir ve bir düzenlemeyi reddedebilir. MCP sunucusu ise
+bir **araç**'tır: ajan onu bilerek çağırır; lane kaydetmek, durumlarını okumak
+ve park etmiş bir lane'in sorusunu sana getirmek için. Birbirlerini tamamlarlar
+ve ikisi aynı anda açık olabilir.
+
 ## Bu depoda neyin bağlı olduğu
 
 `.claude/settings.json` içinde tek bir hook:
