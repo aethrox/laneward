@@ -202,15 +202,15 @@ body[data-md-color-primary="custom"] {
   box-shadow: none;
 }
 
+/* Headers and inline code here used to be held on one line. It reads well on a
+   table narrow enough to fit, and every wide table in this guide is not: with
+   the rule on, the troubleshooting tables measure 974px and 795px inside a
+   792px column on a 1600px screen, so both have to be dragged sideways. They
+   are 755px without it and simply fit. The cost is a header that wraps. */
 .md-typeset table:not([class]) th {
   background-color: var(--md-default-bg-color--light);
   font-weight: 620;
   letter-spacing: 0.01em;
-  white-space: nowrap;
-}
-
-.md-typeset table:not([class]) code {
-  white-space: nowrap;
 }
 
 .md-typeset table:not([class]) tr:hover td {
@@ -441,4 +441,53 @@ body[data-md-color-primary="custom"] .md-typeset .md-button:hover {
 
 .md-copyright {
   font-size: 0.62rem;
+}
+
+/* Phones -----------------------------------------------------------------
+   Everything above is written for a content column that does not exist on a
+   phone, so the rules that assume width are relaxed here rather than being
+   softened everywhere.
+
+   Table width is handled above rather than here, because the rule that caused
+   it hurt every width and not just this one. Code blocks still scroll: a shell
+   command is not prose and breaking it across lines would misrepresent what to
+   type. The diagrams keep their min-width for the reason given above them. */
+@media screen and (max-width: 44.9375em) {
+  .md-typeset table:not([class]) {
+    font-size: 0.7rem;
+  }
+
+  /* A rule and 2.2em of air above every h2 reads as a gap on a narrow column
+     rather than as a section break. */
+  .md-typeset h2 {
+    margin-top: 1.5em;
+  }
+
+  .md-typeset pre > code {
+    font-size: 0.74em;
+  }
+
+  .md-typeset .lw-diagram {
+    padding: 0.55em;
+  }
+
+  .lw-hero__tagline {
+    font-size: 1rem;
+  }
+
+  /* 2.5rem is 50px here, which is a headline sized for a column three times
+     this wide. */
+  .md-typeset .lw-hero h1 {
+    font-size: 1.9rem;
+  }
+
+  /* The two hero buttons are sized by their own labels, so they wrap onto
+     separate lines at 98px and 336px with their edges touching. Full width
+     gives them one left edge and room to breathe. */
+  .md-typeset .md-button {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.6rem;
+    text-align: center;
+  }
 }
