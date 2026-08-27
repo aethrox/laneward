@@ -18,6 +18,7 @@
   --lw-border:                  #e3e6ec;
   --lw-muted:                   #5b6472;
   --lw-radius:                  10px;
+  --lw-on-accent:               #ffffff;
 
   --lw-diag-node-bg:            #f7f8fa;
   --lw-diag-node-border:        #ccd2dd;
@@ -58,6 +59,7 @@
   --lw-diag-edge:               #8f99ab;
   --lw-diag-label:              #a6b0c0;
   --lw-diag-band:               #10161f;
+  --lw-on-accent:               #0d1117;
 }
 
 /* Material's `custom` palette redefines the link colour on <body>, which beats
@@ -375,6 +377,32 @@ body[data-md-color-primary="custom"] {
 
 .md-typeset .md-button:hover {
   transform: translateY(-1px);
+}
+
+/* Material draws both buttons out of --md-primary-fg-color, which this site
+   sets to the header's near-black. In the dark scheme that is also the page
+   background, so the outlined button lost its text entirely and both lost
+   their border. Material patches this for the `black` and `white` primaries it
+   ships; a `custom` primary matches neither of those selectors, so it is
+   patched here, on the same <body> selector the link colour needs. */
+body[data-md-color-primary="custom"] .md-typeset .md-button {
+  color: var(--lw-link);
+  border-color: var(--lw-link);
+}
+
+body[data-md-color-primary="custom"] .md-typeset .md-button--primary {
+  background-color: var(--lw-link);
+  border-color: var(--lw-link);
+  color: var(--lw-on-accent);
+}
+
+/* Material's hover state is white on the accent, which is legible on the light
+   accent and thin on the dark one. Use the same on-accent colour as above. */
+body[data-md-color-primary="custom"] .md-typeset .md-button:focus,
+body[data-md-color-primary="custom"] .md-typeset .md-button:hover {
+  background-color: var(--md-accent-fg-color);
+  border-color: var(--md-accent-fg-color);
+  color: var(--lw-on-accent);
 }
 
 /* Cards ------------------------------------------------------------------ */
