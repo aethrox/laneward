@@ -1,4 +1,4 @@
-import { access } from "node:fs/promises";
+import { access, rm } from "node:fs/promises";
 import { constants } from "node:fs";
 import { join } from "node:path";
 
@@ -13,6 +13,13 @@ import {
 } from "./new-lane";
 
 const usage = "Usage: scripts/teardown.ts <lane_id>";
+
+async function exists(path: string): Promise<boolean> {
+  return access(path, constants.F_OK).then(
+    () => true,
+    () => false,
+  );
+}
 
 /**
  * The lane's own database, read from the `.env` that `provisionLaneDatabase`
@@ -64,9 +71,7 @@ async function main() {
 
   const { repoRoot, worktreePath, branch } = await laneLocation(laneId);
 
-  try {
-    await access(worktreePath, constants.F_OK);
-  } catch {
+  if (!(await exists(worktreePath))) {
     console.error(`No worktree at ${worktreePath}`);
     process.exit(1);
   }
@@ -101,6 +106,20 @@ async function main() {
 
   const removed = run(["git", "-C", repoRoot, "worktree", "remove", worktreePath]);
   if (removed.exitCode !== 0) throw new Error(removed.stderr.trim() || "Could not remove worktree");
+
+  // Git unregisters the worktree and then deletes the directory, and on Windows
+  // the second half can fail while git still exits 0, warning on stderr that
+  // nothing here reads. The lane is already known clean and integrated by this
+  // point, so finish the deletion rather than print a removal that did not
+  // happen. A directory that survives even this carries git's own words.
+  if (await exists(worktreePath)) {
+    await rm(worktreePath, { recursive: true, force: true }).catch(() => {});
+    if (await exists(worktreePath)) {
+      throw new Error(
+        removed.stderr.trim() || `Worktree directory survived removal: ${worktreePath}`,
+      );
+    }
+  }
   console.log(`Removed worktree: ${worktreePath}`);
 
   // `-D`, not `-d`, because integration was already decided above and `-d` would
