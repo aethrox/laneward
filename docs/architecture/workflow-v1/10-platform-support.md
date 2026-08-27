@@ -1,4 +1,4 @@
-# Platform Support
+# Platform support
 
 Laneward targets Windows and Linux. Both are first-class: a change is not
 complete until it works on both.

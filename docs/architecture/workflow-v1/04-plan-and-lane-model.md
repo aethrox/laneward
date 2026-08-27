@@ -1,4 +1,4 @@
-# Plan and Lane Model
+# Plan and lane model
 
 This document describes the target concepts. It is not yet a database migration specification.
 

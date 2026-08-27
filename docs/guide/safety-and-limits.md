@@ -39,7 +39,7 @@ remote URL. That is a known exposure, not an oversight.
 
 ## The git boundary
 
-Laneward owns git. A shim is placed first on the agent's `PATH`, so every `git`
+Laneward owns git. It places a shim first on the agent's `PATH`, so every `git`
 call the agent makes goes through it.
 
 Permitted: `status`, `diff`, `log`, `show`, `rev-parse`, `rev-list`, `ls-files`,

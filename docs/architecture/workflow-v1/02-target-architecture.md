@@ -1,4 +1,4 @@
-# Target Architecture
+# Target architecture
 
 ## Responsibility boundaries
 

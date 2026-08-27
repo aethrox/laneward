@@ -1,4 +1,4 @@
-# Required Skill Changes
+# Required skill changes
 
 The current skills contain useful behavior, but several rules conflict with the approved architecture.
 

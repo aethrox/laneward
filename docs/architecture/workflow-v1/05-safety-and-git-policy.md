@@ -1,8 +1,8 @@
-# Safety and Git Policy
+# Safety and Git policy
 
 ## Agent Git boundary
 
-The statement “an agent must not use Git” must be technically enforced, not merely written in a prompt.
+The statement "an agent must not use Git" must be technically enforced, not merely written in a prompt.
 
 An agent may use read-only inspection when necessary, such as:
 
@@ -102,7 +102,7 @@ Required before integration reaches the target branch or remote.
 
 Required before any verification-layer finding becomes a correction lane. The reader's findings advise only, per D-027, so they never reach a correction lane without this approval.
 
-These are separate decisions and must not be collapsed into a broad “approved” flag.
+These are separate decisions and must not be collapsed into a broad "approved" flag.
 
 ## Commit gate
 

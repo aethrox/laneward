@@ -1,4 +1,4 @@
-# Approved Decisions
+# Approved decisions
 
 This file is the durable record of the decisions approved during workflow design.
 

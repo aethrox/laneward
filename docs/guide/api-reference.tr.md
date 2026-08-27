@@ -134,8 +134,8 @@ Varsayılanlar: model `balanced`, bağımlılık yok, attempt sayısı 0.
 ### `GET /lanes/:id/gate`
 
 - `200` `{allowed, reason}`, her zaman. Var olmayan bir lane, 404 yerine
-  `{allowed: false, reason: "lane not found"}` yanıtı verir. Yedi ret
-  gerekçesi [Sorun giderme](troubleshooting.md#lane-will-not-start)
+  `{allowed: false, reason: "lane not found"}` yanıtı verir. Ret
+  gerekçeleri [Sorun giderme](troubleshooting.md#lane-will-not-start)
   sayfasında listelenir.
 
 ### `GET /lanes/dispatchable`

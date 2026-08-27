@@ -1,4 +1,4 @@
-# Workflow Lifecycle
+# Workflow lifecycle
 
 ## State overview
 

@@ -1,4 +1,4 @@
-# Domain Docs
+# Domain docs
 
 How the `doctrine` skills should consume this repo's domain documentation when exploring the codebase.
 

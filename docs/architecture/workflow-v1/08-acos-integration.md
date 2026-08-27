@@ -1,4 +1,4 @@
-# Future ACOS Integration
+# Future ACOS integration
 
 > **Superseded in its central claim by D-028.** ACOS is not Laneward's
 > independent verification layer. It was run twice against a real change in the

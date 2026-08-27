@@ -136,7 +136,7 @@ kılavuz da onu çalıştırmanın yolu.
 
     ---
 
-    Ajanın gerçekten okuduğu sözleşme, ve onu doğru puanlatmanın yolu.
+    Ajanın gerçekten okuduğu sözleşme ve onu doğru puanlatmanın yolu.
 
     [:octicons-arrow-right-24: Brief yaz](guide/writing-briefs.md)
 
@@ -152,12 +152,12 @@ kılavuz da onu çalıştırmanın yolu.
 
     ---
 
-    Kimlik doğrulaması yok, kopyalanmış bir `.env`, ve gerçekte doğrulanmış olan.
+    Kimlik doğrulaması yok, kopyalanmış bir `.env` ve gerçekte doğrulanmış olan.
 
     [:octicons-arrow-right-24: Sınırları oku](guide/safety-and-limits.md)
 
 </div>
 
-[Sözlük](GLOSSARY.md) bu projenin belirli bir anlamda kullandığı terimlerdir,
-ve [mimari serisi](architecture/workflow-v1/README.md) her `D-0NN` referansının
+[Sözlük](GLOSSARY.md) bu projenin belirli bir anlamda kullandığı terimlerdir ve
+[mimari serisi](architecture/workflow-v1/README.md) her `D-0NN` referansının
 işaret ettiği karar kaydı dahil, altındaki tasarımdır.

@@ -1,4 +1,4 @@
-# Operations and Notifications
+# Operations and notifications
 
 ## Service model
 
@@ -89,7 +89,7 @@ Notifications should include:
 - urgency;
 - a safe command or dashboard location for details.
 
-They must not contain secrets, large logs, or misleading “done” claims.
+They must not contain secrets, large logs, or misleading "done" claims.
 
 ## Notification reliability
 

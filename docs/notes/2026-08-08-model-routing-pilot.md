@@ -79,7 +79,7 @@ task shapes, including beating Luna, the nominally "cheapest and fastest"
 tier, on every single run. Luna was never the token leader in this sample.
 
 This means Luna's lower sticker price does not automatically translate into
-the lowest total cost: Luna spent 1.4x–2.1x as many tokens as Terra to reach
+the lowest total cost: Luna spent 1.4x to 2.1x as many tokens as Terra to reach
 an equally-correct answer on every task tested here. Using an illustrative
 85%-output/15%-input token split (not measured directly: `codex exec`'s
 plain-text output does not expose the split, so this is a rough estimate, not

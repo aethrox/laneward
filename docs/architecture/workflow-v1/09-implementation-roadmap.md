@@ -1,4 +1,4 @@
-# Implementation Roadmap
+# Implementation roadmap
 
 The roadmap is sequenced by risk and delivered value, not by architectural tidiness.
 
@@ -352,7 +352,7 @@ Removed completely. It is not a deferred roadmap item.
 
 ## Evidence required before increasing autonomy
 
-Merge, push, deployment, or verification blocking authority should not become automatic merely because the system “feels stable.”
+Merge, push, deployment, or verification blocking authority should not become automatic merely because the system "feels stable."
 
 Track at least:
 

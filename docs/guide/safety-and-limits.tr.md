@@ -43,8 +43,8 @@ dahil. Bu bilinen bir açıktır, bir gözden kaçırma değil.
 
 ## Git sınırı
 
-Laneward git'in sahibidir. Ajanın `PATH`'inin başına bir shim
-yerleştirilir, bu yüzden ajanın yaptığı her `git` çağrısı ondan geçer.
+Laneward git'in sahibidir. Ajanın `PATH`'inin başına önce bir shim
+yerleştirir, bu yüzden ajanın yaptığı her `git` çağrısı ondan geçer.
 
 İzin verilenler: `status`, `diff`, `log`, `show`, `rev-parse`, `rev-list`,
 `ls-files`, `ls-tree`, `cat-file`, `blame`, `describe`, `grep`, `show-ref`,
