@@ -8,7 +8,7 @@ hiçbir şey servis olarak kurulmuyor; o
 
 | Gereksinim | Not |
 |---|---|
-| [Bun](https://bun.sh) 1.3.14 veya üstü | İki kurulum betiği de bunun altında uyarır. Ölçülmüş bir alt sınır değil, her şeyin doğrulandığı sürüm. |
+| [Bun](https://bun.sh) 1.3.14 | İki kurulum betiği de bunun altında uyarır ve her şey bu sürüme karşı doğrulandı. Daha yenisi güvenli değil: Windows'ta Bun 1.4.0 ile `scripts/teardown.ts` hiçbir şey kaldırmadan ve hiçbir şey yazmadan 0 dönüyor. CI bu yüzden 1.3.14'e sabitli. |
 | git | 2.54.0 üzerinde doğrulandı. |
 | PostgreSQL 16 | Erişebildiğin herhangi bir örnek. Linux'ta rootless Podman ile `install.sh` kendi veritabanını getirebilir. |
 | Bir ajan CLI'ı | `codex` preseti için Codex 0.147.0 veya üstü, `claude` preseti için Claude Code, ya da kendi komutun. Bkz. [Yapılandırma](configure.md). |

@@ -30,7 +30,7 @@ If you are looking for something to run in production, this is not it. If you ar
 
 ## Quick start
 
-Needs [Bun](https://bun.sh) 1.3.14 or newer, git, and a PostgreSQL you can reach. On Linux with rootless Podman, `install.sh` brings its own database.
+Needs [Bun](https://bun.sh) 1.3.14, git, and a PostgreSQL you can reach. Bun 1.4.0 breaks teardown on Windows, so 1.3.14 is what CI pins and what this was verified against. On Linux with rootless Podman, `install.sh` brings its own database.
 
 ```bash
 git clone https://github.com/aethrox/laneward.git && cd laneward

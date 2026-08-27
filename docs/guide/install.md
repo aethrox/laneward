@@ -8,7 +8,7 @@ installed as a service; that is
 
 | Requirement | Notes |
 |---|---|
-| [Bun](https://bun.sh) 1.3.14 or newer | Both installers warn below this. It is the version everything here was verified against, not a measured floor. |
+| [Bun](https://bun.sh) 1.3.14 | Both installers warn below this, and it is the version everything here was verified against. Newer is not safe: on Bun 1.4.0 under Windows, `scripts/teardown.ts` exits 0 having removed nothing and printed nothing. CI pins 1.3.14 for that reason. |
 | git | Verified on 2.54.0. |
 | PostgreSQL 16 | Any reachable instance. On Linux with rootless Podman, `install.sh` can bring its own. |
 | An agent CLI | Codex 0.147.0 or newer for the `codex` preset, Claude Code for the `claude` preset, or any command of your own. See [Configuration](configure.md). |
