@@ -53,9 +53,21 @@ async function fixture() {
   return { root, repo, git, worktree, teardown };
 }
 
-/** Names the path when it survives, so a failure says which one it looked at. */
-const removalOf = (worktree: string) =>
-  existsSync(worktree) ? `still there: ${worktree}` : "removed";
+/**
+ * Windows deletes a directory that still has an open handle lazily: the entry
+ * stays visible, delete-pending, until the last handle closes. Teardown has
+ * already returned by then and reported the removal, so asserting on the same
+ * instant reads a directory that is on its way out as one that survived. Wait
+ * for it to go, and name it when it does not.
+ */
+async function removalOf(worktree: string, timeoutMs = 5000): Promise<string> {
+  const deadline = Date.now() + timeoutMs;
+  while (existsSync(worktree)) {
+    if (Date.now() >= deadline) return `still there after ${timeoutMs}ms: ${worktree}`;
+    await Bun.sleep(25);
+  }
+  return "removed";
+}
 
 test("a clean, integrated lane is removed whole", async () => {
   const { root, repo, worktree, teardown } = await fixture();
@@ -63,7 +75,7 @@ test("a clean, integrated lane is removed whole", async () => {
   const result = teardown();
   expect(new TextDecoder().decode(result.stderr)).toBe("");
   expect(result.exitCode).toBe(0);
-  expect(removalOf(worktree)).toBe("removed");
+  expect(await removalOf(worktree)).toBe("removed");
 
   const branches = Bun.spawnSync(["git", "-C", repo, "branch", "--list", `lane/${laneId}`], { stdout: "pipe" });
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
@@ -101,7 +113,7 @@ test("a lane integrated by cherry-pick tears down completely", async () => {
   const result = teardown();
   expect(new TextDecoder().decode(result.stderr)).toBe("");
   expect(result.exitCode).toBe(0);
-  expect(removalOf(worktree)).toBe("removed");
+  expect(await removalOf(worktree)).toBe("removed");
   const branches = Bun.spawnSync(["git", "-C", repo, "branch", "--list", `lane/${laneId}`], { stdout: "pipe" });
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
 
