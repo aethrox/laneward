@@ -24,15 +24,53 @@ Claude must not bypass Laneward for write execution.
 
 Claude proposes and approves plans and reviews and commits the result. The agent writes, but only inside a worktree that Laneward created and scoped. There is no direct path from Claude to the agent: every write is routed through Laneward, which enforces owned paths, dependencies, and evidence before a lane can be reviewed or committed.
 
-```mermaid
-flowchart LR
-    C[Claude] -->|1 propose + approve plan| H[Laneward]
-    H -->|2 dispatch: brief + owned paths| X[Codex]
-    X -->|3 evidence + diff| H
-    H -->|4 ready_for_review| C
-    C -->|5 commit, Claude only| H
-    C -.->|blocked: no direct write path| X
-```
+<div class="lw-diagram" markdown="0">
+<svg viewBox="0 0 950 310" role="img" aria-labelledby="write-boundary-t write-boundary-d">
+  <title id="write-boundary-t">The write boundary</title>
+  <desc id="write-boundary-d">Claude proposes and approves a plan to Laneward, which dispatches a brief
+  and owned paths to Codex; Codex returns evidence and a diff, Laneward marks the lane
+  ready_for_review, and Claude commits back through Laneward. The path from Claude straight to Codex
+  is crossed out: it is never wired up.</desc>
+  <defs>
+    <marker id="lw-arrow-write-boundary" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path class="lw-arrowhead" d="M0,0 L7,3 L0,6 Z"/>
+    </marker>
+    <marker id="lw-arrow-write-boundary-bad" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path class="lw-arrowhead lw-arrowhead--bad" d="M0,0 L7,3 L0,6 Z"/>
+    </marker>
+  </defs>
+
+  <g class="lw-node">
+    <rect class="lw-node-box" x="40" y="100" width="150" height="80" rx="8"/>
+    <text class="lw-node-label" x="115" y="145" text-anchor="middle">Claude</text>
+  </g>
+  <g class="lw-node lw-node--guard">
+    <rect class="lw-node-box" x="400" y="100" width="150" height="80" rx="8"/>
+    <text class="lw-node-label" x="475" y="145" text-anchor="middle">Laneward</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="760" y="100" width="150" height="80" rx="8"/>
+    <text class="lw-node-label" x="835" y="145" text-anchor="middle">Codex</text>
+  </g>
+
+  <path class="lw-edge" d="M 190 118 H 400" marker-end="url(#lw-arrow-write-boundary)"/>
+  <text class="lw-edge-label" x="295" y="110" text-anchor="middle">1 propose + approve plan</text>
+  <path class="lw-edge" d="M 400 142 H 190" marker-end="url(#lw-arrow-write-boundary)"/>
+  <text class="lw-edge-label" x="295" y="136" text-anchor="middle">4 ready_for_review</text>
+  <path class="lw-edge" d="M 190 166 H 400" marker-end="url(#lw-arrow-write-boundary)"/>
+  <text class="lw-edge-label" x="295" y="160" text-anchor="middle">5 commit, Claude only</text>
+
+  <path class="lw-edge" d="M 550 126 H 760" marker-end="url(#lw-arrow-write-boundary)"/>
+  <text class="lw-edge-label" x="655" y="107" text-anchor="middle">2 dispatch:</text>
+  <text class="lw-edge-label" x="655" y="120" text-anchor="middle">brief + owned paths</text>
+  <path class="lw-edge" d="M 760 160 H 550" marker-end="url(#lw-arrow-write-boundary)"/>
+  <text class="lw-edge-label" x="655" y="154" text-anchor="middle">3 evidence + diff</text>
+
+  <path class="lw-edge lw-edge--dashed lw-edge--bad" d="M 115 180 V 250 H 835 V 180" marker-end="url(#lw-arrow-write-boundary-bad)"/>
+  <path class="lw-cross" d="M 466 241 L 484 259 M 484 241 L 466 259"/>
+  <text class="lw-edge-label" x="475" y="276" text-anchor="middle">blocked: no direct write path</text>
+</svg>
+</div>
 
 Step 5 closes the loop back into Laneward rather than Git directly: Laneward records the commit against the lane before it moves to integration. The dashed edge is not a rule Claude follows, it is a connection that is never wired up; the agent has no path to receive work except through a lane Laneward dispatched.
 

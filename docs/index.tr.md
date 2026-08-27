@@ -65,20 +65,70 @@ reddir.
 
 ## Bir lane nasıl biter
 
-```mermaid
-stateDiagram-v2
-    direction LR
+<div class="lw-diagram lw-diagram--wide" markdown="0">
+<svg viewBox="0 0 940 330" role="img" aria-labelledby="lane-life-tr-t lane-life-tr-d">
+  <title id="lane-life-tr-t">Bir lane nasıl biter</title>
+  <desc id="lane-life-tr-d">Bir lane pending olarak kaydedilir, bütün kapılar geçilince running olur ve running durumundan üç sondan birine varır: completed, failed ya da waiting_approval. Yeniden denenebilir bir hata onu 1. ve 2. deneme için pending durumuna geri gönderir; çözülen bir onay da aynısını yapar.</desc>
+  <defs>
+    <marker id="lw-arrow-lane-life-tr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path class="lw-arrowhead" d="M0,0 L7,3 L0,6 Z"/>
+    </marker>
+  </defs>
 
-    [*] --> pending: kaydedildi
-    pending --> running: bütün kapılar geçildi
-    running --> completed: çıkış 0, kanıt temiz, kontroller geçti
-    running --> waiting_approval: çıkış 10, ya da bir eskalasyon işareti
-    running --> failed: Git sınırı ihlali, ya da 3. deneme
-    running --> pending: yeniden denenebilir hata, 1. ve 2. deneme
-    waiting_approval --> pending: onay çözüldü
-    completed --> [*]
-    failed --> [*]
-```
+  <circle class="lw-dot" cx="145" cy="42" r="7"/>
+  <path class="lw-edge" d="M 145 49 V 118" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="157" y="83">kaydedildi</text>
+
+  <g class="lw-node">
+    <rect class="lw-node-box" x="80" y="118" width="130" height="44" rx="8"/>
+    <text class="lw-node-label" x="145" y="145" text-anchor="middle">pending</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="350" y="118" width="130" height="44" rx="8"/>
+    <text class="lw-node-label" x="415" y="145" text-anchor="middle">running</text>
+  </g>
+  <g class="lw-node lw-node--ok">
+    <rect class="lw-node-box" x="700" y="38" width="170" height="44" rx="8"/>
+    <text class="lw-node-label" x="785" y="65" text-anchor="middle">completed</text>
+  </g>
+  <g class="lw-node lw-node--bad">
+    <rect class="lw-node-box" x="700" y="118" width="170" height="44" rx="8"/>
+    <text class="lw-node-label" x="785" y="145" text-anchor="middle">failed</text>
+  </g>
+  <g class="lw-node lw-node--wait">
+    <rect class="lw-node-box" x="700" y="224" width="170" height="44" rx="8"/>
+    <text class="lw-node-label" x="785" y="251" text-anchor="middle">waiting_approval</text>
+  </g>
+
+  <path class="lw-edge" d="M 210 140 H 350" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="280" y="130" text-anchor="middle">bütün kapılar geçildi</text>
+
+  <path class="lw-edge" d="M 480 140 H 540 V 60 H 700" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="622" y="40" text-anchor="middle">çıkış 0, kanıt temiz,</text>
+  <text class="lw-edge-label" x="622" y="53" text-anchor="middle">kontroller geçti</text>
+
+  <path class="lw-edge" d="M 480 140 H 700" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="622" y="118" text-anchor="middle">Git sınırı ihlali,</text>
+  <text class="lw-edge-label" x="622" y="131" text-anchor="middle">ya da 3. deneme</text>
+
+  <path class="lw-edge" d="M 480 140 H 540 V 246 H 700" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="622" y="224" text-anchor="middle">çıkış 10, ya da bir</text>
+  <text class="lw-edge-label" x="622" y="237" text-anchor="middle">eskalasyon işareti</text>
+
+  <path class="lw-edge" d="M 415 162 V 190 H 145 V 162" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="280" y="206" text-anchor="middle">yeniden denenebilir hata, 1. ve 2. deneme</text>
+
+  <path class="lw-edge" d="M 785 268 V 300 H 50 V 140 H 80" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <text class="lw-edge-label" x="420" y="292" text-anchor="middle">onay çözüldü</text>
+
+  <path class="lw-edge" d="M 870 60 H 893" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <circle class="lw-dot-ring" cx="908" cy="60" r="8"/>
+  <circle class="lw-dot" cx="908" cy="60" r="4"/>
+  <path class="lw-edge" d="M 870 140 H 893" marker-end="url(#lw-arrow-lane-life-tr)"/>
+  <circle class="lw-dot-ring" cx="908" cy="140" r="8"/>
+  <circle class="lw-dot" cx="908" cy="140" r="4"/>
+</svg>
+</div>
 
 `completed`, ajanın 0 ile çıktığı, yalnızca sahip olduğu yollara dokunduğu ve
 sürülen deponun tanımladığı kontrollerin geçtiği anlamına gelir. İşin **doğru,

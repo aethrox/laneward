@@ -2,23 +2,113 @@
 
 ## State overview
 
-```mermaid
-stateDiagram-v2
-    [*] --> Research
-    Research --> AwaitingPlanApproval
-    AwaitingPlanApproval --> Research: revise
-    AwaitingPlanApproval --> Executing: approve
-    Executing --> WaitingApproval: ambiguity or external need
-    WaitingApproval --> Executing: approve and resume
-    Executing --> ReadyForReview: worker finished
-    ReadyForReview --> Executing: correction required
-    ReadyForReview --> Integrated: Claude validates and commits
-    Integrated --> ReleaseCandidate: full checks pass
-    ReleaseCandidate --> RuntimeApproval: audit gate passes
-    RuntimeApproval --> Deploying: approve
-    Deploying --> Done: runtime verification passes
-    Deploying --> WaitingApproval: verification fails
-```
+<div class="lw-diagram lw-diagram--wide" markdown="0">
+<svg viewBox="0 0 1100 660" role="img" aria-labelledby="wf-lifecycle-t wf-lifecycle-d">
+  <title id="wf-lifecycle-t">Workflow lifecycle, by phase</title>
+  <desc id="wf-lifecycle-d">Four phases. Plan holds Research and AwaitingPlanApproval, which can send the
+  work back to Research to revise. Execute holds Executing, WaitingApproval and ReadyForReview, with
+  returns for ambiguity and for a required correction. Integrate holds Integrated. Release runs
+  ReleaseCandidate, RuntimeApproval, Deploying and Done, and a failed runtime verification sends the
+  work back to WaitingApproval.</desc>
+  <defs>
+    <marker id="lw-arrow-wf-lifecycle" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path class="lw-arrowhead" d="M0,0 L7,3 L0,6 Z"/>
+    </marker>
+  </defs>
+
+  <rect class="lw-band" x="0" y="60" width="1100" height="130"/>
+  <rect class="lw-band lw-band--alt" x="0" y="190" width="1100" height="200"/>
+  <rect class="lw-band" x="0" y="390" width="1100" height="120"/>
+  <rect class="lw-band lw-band--alt" x="0" y="510" width="1100" height="130"/>
+  <text class="lw-band-label" x="14" y="82">Plan</text>
+  <text class="lw-band-label" x="14" y="212">Execute</text>
+  <text class="lw-band-label" x="14" y="412">Integrate</text>
+  <text class="lw-band-label" x="14" y="532">Release</text>
+
+  <circle class="lw-dot" cx="125" cy="80" r="7"/>
+  <path class="lw-edge" d="M 125 87 V 102" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+
+  <g class="lw-node">
+    <rect class="lw-node-box" x="40" y="102" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="125" y="129" text-anchor="middle">Research</text>
+  </g>
+  <g class="lw-node lw-node--guard">
+    <rect class="lw-node-box" x="320" y="102" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="405" y="129" text-anchor="middle">AwaitingPlanApproval</text>
+  </g>
+  <g class="lw-node lw-node--wait">
+    <rect class="lw-node-box" x="40" y="227" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="125" y="254" text-anchor="middle">WaitingApproval</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="320" y="227" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="405" y="254" text-anchor="middle">Executing</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="880" y="227" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="965" y="254" text-anchor="middle">ReadyForReview</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="40" y="427" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="125" y="454" text-anchor="middle">Integrated</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="40" y="552" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="125" y="579" text-anchor="middle">ReleaseCandidate</text>
+  </g>
+  <g class="lw-node lw-node--guard">
+    <rect class="lw-node-box" x="320" y="552" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="405" y="579" text-anchor="middle">RuntimeApproval</text>
+  </g>
+  <g class="lw-node">
+    <rect class="lw-node-box" x="600" y="552" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="685" y="579" text-anchor="middle">Deploying</text>
+  </g>
+  <g class="lw-node lw-node--ok">
+    <rect class="lw-node-box" x="880" y="552" width="170" height="46" rx="8"/>
+    <text class="lw-node-label" x="965" y="579" text-anchor="middle">Done</text>
+  </g>
+
+  <path class="lw-edge" d="M 210 118 H 320" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <path class="lw-edge" d="M 320 132 H 210" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="265" y="150" text-anchor="middle">revise</text>
+
+  <path class="lw-edge" d="M 405 148 V 227" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="415" y="184">approve</text>
+
+  <path class="lw-edge" d="M 320 243 H 210" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="265" y="224" text-anchor="middle">ambiguity or</text>
+  <text class="lw-edge-label" x="265" y="237" text-anchor="middle">external need</text>
+  <path class="lw-edge" d="M 210 257 H 320" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="265" y="276" text-anchor="middle">approve and resume</text>
+
+  <path class="lw-edge" d="M 490 250 H 880" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="685" y="240" text-anchor="middle">worker finished</text>
+
+  <path class="lw-edge" d="M 930 273 V 300 H 440 V 273" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="685" y="316" text-anchor="middle">correction required</text>
+
+  <path class="lw-edge" d="M 965 273 V 360 H 180 V 427" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="780" y="342" text-anchor="middle">Claude validates</text>
+  <text class="lw-edge-label" x="780" y="355" text-anchor="middle">and commits</text>
+
+  <path class="lw-edge" d="M 125 473 V 552" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="137" y="504">full checks pass</text>
+
+  <path class="lw-edge" d="M 210 575 H 320" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="265" y="556" text-anchor="middle">audit gate</text>
+  <text class="lw-edge-label" x="265" y="569" text-anchor="middle">passes</text>
+  <path class="lw-edge" d="M 490 575 H 600" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="545" y="569" text-anchor="middle">approve</text>
+  <path class="lw-edge" d="M 770 575 H 880" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="825" y="543" text-anchor="middle">runtime</text>
+  <text class="lw-edge-label" x="825" y="556" text-anchor="middle">verification</text>
+  <text class="lw-edge-label" x="825" y="569" text-anchor="middle">passes</text>
+
+  <path class="lw-edge" d="M 685 552 V 336 H 20 V 250 H 40" marker-end="url(#lw-arrow-wf-lifecycle)"/>
+  <text class="lw-edge-label" x="400" y="330" text-anchor="middle">verification fails</text>
+</svg>
+</div>
 
 ## 1. Intake and research
 
