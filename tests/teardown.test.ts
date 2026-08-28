@@ -63,6 +63,10 @@ async function fixture() {
  * exits 0 with nothing on stderr, which means its own existence check found the
  * path gone. Two processes disagreeing about one path is what the reported
  * stdout is here to pin down.
+ *
+ * The caller has to allow more than `timeoutMs`. A test left on Bun's 5000ms
+ * default cannot outlast a 5000ms wait, so this message was never the one CI
+ * printed: it reported an opaque test timeout instead, twice.
  */
 async function removalOf(worktree: string, said = "", timeoutMs = 5000): Promise<string> {
   const deadline = Date.now() + timeoutMs;
@@ -87,7 +91,7 @@ test("a clean, integrated lane is removed whole", async () => {
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
 
   await rm(root, { recursive: true, force: true });
-});
+}, 20_000);
 
 test("an uncommitted change stops teardown and removes nothing", async () => {
   const { root, worktree, teardown } = await fixture();
@@ -124,7 +128,7 @@ test("a lane integrated by cherry-pick tears down completely", async () => {
   expect(new TextDecoder().decode(branches.stdout).trim()).toBe("");
 
   await rm(root, { recursive: true, force: true });
-});
+}, 20_000);
 
 // A worktree whose branch was deleted or moved by hand sits on a detached HEAD.
 // `git cherry` then exits 128, and reading that as "nothing unintegrated"

@@ -156,7 +156,7 @@ test("closing the connection stops the poll loop", async () => {
   const second = await dash.request("/events");
   const events = await collect(second, (e) => e.some((x) => x.event === "lanes"));
   expect(events.some((e) => e.event === "lanes")).toBe(true);
-});
+}, 20_000);
 
 test("the stream sends a heartbeat so an idle socket is not reaped", async () => {
   const cfg = await tempConfig();
