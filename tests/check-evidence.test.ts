@@ -5,6 +5,11 @@ import { join } from "node:path";
 
 const temporaryDirectories: string[] = [];
 
+// Same reason as tests/build-candidate.test.ts: every test here builds a real
+// repository with git and runs check-evidence under bun, and the Windows
+// runner's spread does not fit in the 5000 ms default.
+const SPAWN_BUDGET = 20_000;
+
 afterEach(() => {
   for (const dir of temporaryDirectories.splice(0)) rmSync(dir, { force: true, recursive: true });
 });
@@ -52,14 +57,14 @@ test("write lane with no changes exits 2", () => {
   const dir = initRepo();
   const result = runCheck(dir, "write", ["core/*"]);
   expect(result.exitCode).toBe(2);
-});
+}, SPAWN_BUDGET);
 
 test("write lane with an in-scope change passes", () => {
   const dir = initRepo();
   writeFileSync(join(dir, "core", "new.ts"), "export const x = 1;\n");
   const result = runCheck(dir, "write", ["core/*"]);
   expect(result.exitCode).toBe(0);
-});
+}, SPAWN_BUDGET);
 
 test("write lane with an out-of-scope change exits 1", () => {
   const dir = initRepo();
@@ -67,13 +72,13 @@ test("write lane with an out-of-scope change exits 1", () => {
   writeFileSync(join(dir, "web", "new.ts"), "export const x = 1;\n");
   const result = runCheck(dir, "write", ["core/*"]);
   expect(result.exitCode).toBe(1);
-});
+}, SPAWN_BUDGET);
 
 test("read_review lane with no changes passes", () => {
   const dir = initRepo();
   const result = runCheck(dir, "read_review", ["core/*"]);
   expect(result.exitCode).toBe(0);
-});
+}, SPAWN_BUDGET);
 
 test("read_review lane with an out-of-scope change still fails", () => {
   const dir = initRepo();
@@ -81,7 +86,7 @@ test("read_review lane with an out-of-scope change still fails", () => {
   writeFileSync(join(dir, "web", "new.ts"), "export const x = 1;\n");
   const result = runCheck(dir, "read_review", ["core/*"]);
   expect(result.exitCode).toBe(1);
-});
+}, SPAWN_BUDGET);
 
 test("an out-of-scope file in a new directory is named, not its directory", () => {
   const dir = initRepo();
@@ -90,7 +95,7 @@ test("an out-of-scope file in a new directory is named, not its directory", () =
   const result = runCheck(dir, "write", ["core/*"]);
   expect(result.exitCode).toBe(1);
   expect(result.stderr.toString()).toContain("assets/style.css");
-});
+}, SPAWN_BUDGET);
 
 test("handles a worktree path containing spaces", () => {
   const dir = initRepo();
@@ -100,7 +105,7 @@ test("handles a worktree path containing spaces", () => {
   writeFileSync(join(spaced, "core", "new.ts"), "export const x = 1;\n");
 
   expect(runCheck(spaced, "write", ["core/*"]).exitCode).toBe(0);
-});
+}, SPAWN_BUDGET);
 
 test("a moved HEAD is a Git boundary violation, not an empty write lane", () => {
   const dir = initRepo();
@@ -114,7 +119,7 @@ test("a moved HEAD is a Git boundary violation, not an empty write lane", () => 
   expect(result.exitCode).toBe(3);
   expect(result.stderr.toString()).toContain("Git boundary violation: HEAD changed");
   expect(result.stderr.toString()).not.toContain("write lane produced no changes");
-});
+}, SPAWN_BUDGET);
 
 test("a refused mutation in the guard log is a Git boundary violation, named", () => {
   const dir = initRepo();
@@ -126,7 +131,7 @@ test("a refused mutation in the guard log is a Git boundary violation, named", (
   expect(result.exitCode).toBe(3);
   expect(result.stderr.toString()).toContain("1 non-read refusal");
   expect(result.stderr.toString()).toContain("commit");
-});
+}, SPAWN_BUDGET);
 
 test("a refused read in the guard log does not fail the lane, and is reported", () => {
   const dir = initRepo();
@@ -137,7 +142,7 @@ test("a refused read in the guard log does not fail the lane, and is reported", 
 
   expect(result.exitCode).toBe(0);
   expect(result.stdout.toString()).toContain("refused 1 read-only command");
-});
+}, SPAWN_BUDGET);
 
 test("a mix of refused reads and a refused mutation still fails the lane", () => {
   const dir = initRepo();
@@ -153,7 +158,7 @@ test("a mix of refused reads and a refused mutation still fails the lane", () =>
 
   expect(result.exitCode).toBe(3);
   expect(result.stderr.toString()).toContain("remote");
-});
+}, SPAWN_BUDGET);
 
 test("a malformed guard log line is a Git boundary violation, not silently skipped", () => {
   const dir = initRepo();
@@ -164,4 +169,4 @@ test("a malformed guard log line is a Git boundary violation, not silently skipp
 
   expect(result.exitCode).toBe(3);
   expect(result.stderr.toString()).toContain("git guard");
-});
+}, SPAWN_BUDGET);

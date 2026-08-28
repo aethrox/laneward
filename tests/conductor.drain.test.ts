@@ -286,7 +286,7 @@ test("a failed candidate records the failure, raises approval, and does not fail
   `;
   expect(readerRun).toMatchObject({ status: "skipped", detail: { blocked_by_layer: "construction" } });
   expect((await readdir(cfg.logDir)).some((name) => name.endsWith(".reader.log"))).toBe(false);
-});
+}, 45_000);
 
 test("a failed clean run is shadow-only and leaves lanes and approvals untouched", async () => {
   const cfg = await config();

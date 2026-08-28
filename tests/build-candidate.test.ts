@@ -12,6 +12,13 @@ const roots: string[] = [];
 const servers: ReturnType<typeof Bun.serve>[] = [];
 const script = join(import.meta.dir, "../scripts/build-candidate.ts");
 
+// Every test below spawns git and a bun script, and the Windows runner has been
+// measured taking eight to ten times its usual time under load: one of these
+// ran 548 ms in one CI run and 4643 ms in the next, against bun's 5000 ms
+// default. The budget is not about how long the work takes, it is about the
+// runner's spread.
+const SPAWN_BUDGET = 20_000;
+
 afterEach(async () => {
   for (const server of servers.splice(0)) server.stop(true);
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true });
@@ -173,7 +180,7 @@ test("a plan with no lanes is refused before repository inspection", async () =>
   expect(result.stderr).toContain("the plan has no lanes");
   expect(result.state.runs).toHaveLength(0);
   expect(existsSync(worktrees)).toBe(false);
-});
+}, SPAWN_BUDGET);
 
 test("an incomplete newest revision is refused without creating a candidate", async () => {
   const { repo, worktrees } = await fixture();
@@ -192,7 +199,7 @@ test("an incomplete newest revision is refused without creating a candidate", as
   expect(existsSync(join(worktrees, `candidate-${planId}-r2`))).toBe(false);
   expect(git(repo, "branch", "--list", `integration/${planId}-r2`)).toBe("");
   expect(git(repo, "status", "--porcelain")).toBe("");
-});
+}, SPAWN_BUDGET);
 
 test("a completed newest revision produces a branch containing every lane commit", async () => {
   const { repo, worktrees, commitLane } = await fixture();
@@ -217,7 +224,7 @@ test("a completed newest revision produces a branch containing every lane commit
   // files, not which newline this host writes.
   expect((await Bun.file(join(worktrees, `candidate-${planId}-r2`, "a.txt")).text()).trim()).toBe("a");
   expect((await Bun.file(join(worktrees, `candidate-${planId}-r2`, "b.txt")).text()).trim()).toBe("b");
-});
+}, SPAWN_BUDGET);
 
 test("a plain build records its attempt and a second plain build is refused before repository changes", async () => {
   const { repo, worktrees, commitLane } = await fixture();
@@ -235,7 +242,7 @@ test("a plain build records its attempt and a second plain build is refused befo
   expect(second.stderr).toContain("a construction attempt is already recorded");
   expect(second.stderr).toContain("--rebuild");
   expect(first.state.runs).toHaveLength(1);
-});
+}, SPAWN_BUDGET);
 
 test("a merge conflict leaves the candidate and conflicted state in place", async () => {
   const { repo, worktrees, commitLane } = await fixture();
@@ -265,7 +272,7 @@ test("a merge conflict leaves the candidate and conflicted state in place", asyn
   expect(git(repo, "branch", "--list", branch)).toContain(branch);
   expect(git(candidate, "status", "--porcelain")).toContain("UU shared.txt");
   expect(gitResult(candidate, "rev-parse", "--verify", "MERGE_HEAD").exitCode).toBe(0);
-});
+}, SPAWN_BUDGET);
 
 test("--rebuild refuses an unresolved approval without changing the old candidate", async () => {
   const { repo, worktrees, commitLane } = await fixture();
@@ -286,7 +293,7 @@ test("--rebuild refuses an unresolved approval without changing the old candidat
   expect(result.stderr).toContain("unresolved approval");
   expect(existsSync(join(location.worktreePath, "old.txt"))).toBe(true);
   expect(state.runs).toHaveLength(1);
-});
+}, SPAWN_BUDGET);
 
 test("--rebuild refuses when the newest construction attempt succeeded", async () => {
   const { repo, worktrees, commitLane } = await fixture();
@@ -305,7 +312,7 @@ test("--rebuild refuses when the newest construction attempt succeeded", async (
   expect(result.exitCode).toBe(1);
   expect(result.stderr).toContain("latest construction attempt is succeeded");
   expect(state.runs).toHaveLength(1);
-});
+}, SPAWN_BUDGET);
 
 test("--rebuild after approval removes the old candidate and records a new attempt", async () => {
   const { repo, worktrees, commitLane } = await fixture();
@@ -333,4 +340,4 @@ test("--rebuild after approval removes the old candidate and records a new attem
     { attempt: 1, status: "failed" },
     { attempt: 2, status: "succeeded" },
   ]);
-});
+}, SPAWN_BUDGET);

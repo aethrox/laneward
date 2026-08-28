@@ -181,7 +181,7 @@ test("runAgent writes the log before the child exits", async () => {
   expect(log).toContain("fake codex running");
   expect(active.get(lane.lane_id)?.exitCode).toBeNull();
   await running;
-});
+}, 20_000);
 
 test("runAgent removes the lane from the active map when it exits", async () => {
   const cfg = await tempConfig();

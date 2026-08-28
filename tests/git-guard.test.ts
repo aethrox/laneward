@@ -6,6 +6,12 @@ import { delimiter, join } from "node:path";
 const GUARD = join(import.meta.dir, "..", "scripts", "git-guard.ts");
 const temporaryDirectories: string[] = [];
 
+// Same reason as tests/build-candidate.test.ts: every test here spawns git and
+// the guard under bun, and the Windows runner's spread is wide enough that the
+// 5000 ms default decides them before their assertions do. The allowlist case
+// pays 27 spawns in one test.
+const SPAWN_BUDGET = 20_000;
+
 afterEach(() => {
   for (const dir of temporaryDirectories.splice(0)) rmSync(dir, { force: true, recursive: true });
 });
@@ -65,7 +71,7 @@ for (const args of [
     expect(result.exitCode).toBe(86);
     expect(result.stderr.toString()).toContain("REFUSED:");
     expect(result.stderr.toString()).toContain("Laneward owns Git");
-  });
+  }, SPAWN_BUDGET);
 }
 
 test("permits every allowlisted read command and a branch listing", () => {
@@ -101,7 +107,7 @@ test("permits every allowlisted read command and a branch listing", () => {
   ]) {
     expect(runGuard(dir, args).exitCode).toBe(0);
   }
-});
+}, SPAWN_BUDGET);
 
 // Every other test here injects LANEWARD_REAL_GIT, which is exactly how the
 // guard's own fallback stayed broken while the suite was green: it resolved the
@@ -133,7 +139,7 @@ test("resolves the real git without LANEWARD_REAL_GIT while the shim is on PATH"
 
   const refused = Bun.spawnSync([process.execPath, GUARD, "commit", "-m", "x"], { cwd: dir, env });
   expect(refused.exitCode).toBe(86);
-});
+}, SPAWN_BUDGET);
 
 test("records a refused argv in the configured guard log", () => {
   const dir = initRepo();
@@ -147,7 +153,7 @@ test("records a refused argv in the configured guard log", () => {
     expect(entry.timestamp).toBeString();
     expect(entry.read_intent).toBe(false);
   });
-});
+}, SPAWN_BUDGET);
 
 test("records read_intent true for a refused read hidden behind -c", () => {
   const dir = initRepo();
@@ -159,7 +165,7 @@ test("records read_intent true for a refused read hidden behind -c", () => {
     const [entry] = text.trim().split("\n").map((line) => JSON.parse(line));
     expect(entry.read_intent).toBe(true);
   });
-});
+}, SPAWN_BUDGET);
 
 test("records read_intent false for a refused branch mutation", () => {
   const dir = initRepo();
@@ -171,4 +177,4 @@ test("records read_intent false for a refused branch mutation", () => {
     const [entry] = text.trim().split("\n").map((line) => JSON.parse(line));
     expect(entry.read_intent).toBe(false);
   });
-});
+}, SPAWN_BUDGET);

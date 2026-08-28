@@ -42,6 +42,10 @@ test("the empty dashboard page has an empty state", async () => {
 
 // Collects SSE frames until `want` is satisfied or the deadline passes, then
 // cancels the reader, which is also what a closed browser tab does.
+//
+// Its 3000ms is the diagnostic, so a caller has to outlast it: on the 5000ms
+// default a regression here reports a bare test timeout instead of the events
+// that did arrive.
 async function collect(
   response: Response,
   want: (events: { event: string; data: string }[]) => boolean,
@@ -94,7 +98,7 @@ test("the stream opens with lane and plan snapshots", async () => {
   expect(lanes[0].lane_id).toBe("alpha");
   expect(lanes[0].status).toBe("running");
   expect(plans).toEqual([expect.objectContaining({ plan_id: "plan-a", title: "Plan A" })]);
-});
+}, 20_000);
 
 test("an unchanged stream does not repeat lane or plan snapshots", async () => {
   await registerRunningLane("alpha");
@@ -116,7 +120,7 @@ test("an existing log arrives as a reset payload before any appends", async () =
   expect(payload.lane_id).toBe("alpha");
   expect(payload.reset).toBe(true);
   expect(payload.chunk).toContain("already here");
-});
+}, 20_000);
 
 test("new log bytes are pushed as they are written", async () => {
   const cfg = await tempConfig();
@@ -137,7 +141,7 @@ test("new log bytes are pushed as they are written", async () => {
   expect(payloads[0].reset).toBe(true);
   expect(payloads[1].reset).toBe(false);
   expect(payloads[1].chunk).toBe("second\n");
-});
+}, 20_000);
 
 test("closing the connection stops the poll loop", async () => {
   const cfg = await tempConfig();

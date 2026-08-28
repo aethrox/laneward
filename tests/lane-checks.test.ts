@@ -345,7 +345,7 @@ test("the optional clean run seed finishes before the observed process starts", 
   const item = await cleanFixture(
     cleanDeclaration(
       [{ name: "seeded state", must_appear: "seeded-state" }],
-      { seed: "import('./seed-clean-run.ts')" },
+      { seed: "import('./seed-clean-run.ts')", seed_timeout_ms: 2000 },
     ),
     "console.log(await Bun.file('seeded.txt').text()); setInterval(() => {}, 1000);",
   );
