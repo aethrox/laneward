@@ -20,6 +20,11 @@ afterAll(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
+// Four Postgres round trips: create, connect to the new database, drop, then
+// check it is gone. On a Windows runner each of those spawns a backend and the
+// create copies template1, which costs 2.5-3.7s against Linux's 0.15s. The
+// default 5s budget left no headroom and CI timed this test out on a commit that
+// touched nothing but the site.
 test("a lane gets its own database and its .env points at it", async () => {
   const hubUrl = process.env.DATABASE_URL!;
   await Bun.write(envPath, `DATABASE_URL=${hubUrl}\nPORT=8787\n`);
@@ -54,7 +59,7 @@ test("a lane gets its own database and its .env points at it", async () => {
   const gone = await admin`SELECT 1 FROM pg_database WHERE datname = ${laneDb.name}`;
   await admin.end();
   expect(gone.length).toBe(0);
-});
+}, 20_000);
 
 // The case above cannot reach this branch: it runs against whatever database
 // the suite was pointed at, and that name is short on the hub's own checkout.
@@ -135,7 +140,7 @@ test("a repository configured with separate keys gets its own database too", asy
   } finally {
     await dropLaneDatabase(splitPath, laneDb.name);
   }
-});
+}, 20_000);
 
 test("a repository that names no database is left alone", async () => {
   const nonePath = join(dir, ".env.none");
