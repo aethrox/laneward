@@ -169,6 +169,7 @@ nav:
       - Implementation roadmap: architecture/workflow-v1/09-implementation-roadmap.md
       - Platform support: architecture/workflow-v1/10-platform-support.md
   - Evidence notes:
+      - The MCP server, driven for real: notes/2026-09-03-mcp-server-driven-end-to-end.md
       - Logout, with and without linger: notes/2026-08-21-logout-and-linger.md
       - The Windows logon trigger, fired: notes/2026-08-20-windows-logon-trigger.md
       - A real agent under systemd: notes/2026-08-20-real-agent-under-systemd.md
