@@ -2,7 +2,11 @@
   "mcpServers": {
     "laneward": {
       "command": "bun",
-      "args": ["run", "--no-env-file", "mcp.ts"]
+      "args": ["run", "--no-env-file", "mcp.ts"],
+      "env": {
+        "LANE_REPO": "${LANE_REPO:-}",
+        "DATABASE_URL": "${DATABASE_URL:-}"
+      }
     }
   }
 }

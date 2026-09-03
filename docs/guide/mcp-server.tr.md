@@ -29,11 +29,23 @@ başlatılan bir oturumda araçlar zaten hazırdır:
   "mcpServers": {
     "laneward": {
       "command": "bun",
-      "args": ["run", "--no-env-file", "mcp.ts"]
+      "args": ["run", "--no-env-file", "mcp.ts"],
+      "env": {
+        "LANE_REPO": "${LANE_REPO:-}",
+        "DATABASE_URL": "${DATABASE_URL:-}"
+      }
     }
   }
 }
 ```
+
+Bu iki değer istemciyi başlatan kabuktan gelir; bu checkout'un içinden lane
+açmak istiyorsan istemciyi başlatmadan önce onları export et: `lane_create`
+`LANE_REPO` ister, `reset_stranded` `DATABASE_URL` ister ve her biri eksik
+değişkenini adıyla söyleyerek reddeder. Boş default'lar bilinçlidir. Çıplak bir
+`${LANE_REPO}`, değişken tanımsızken o literal metne genişler; bu sunucunun
+kendi kontrolünü geçer ve daha ileride, daha az anlaşılır bir şeyle başarısız
+olur.
 
 Yol görecelidir, çünkü proje kapsamlı bir sunucu çalışma dizini proje dizini
 olacak şekilde başlatılır. Başka bir projeden kaydetmek için mutlak yolu ver:

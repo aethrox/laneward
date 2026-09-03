@@ -28,11 +28,23 @@ checkout already has the tools:
   "mcpServers": {
     "laneward": {
       "command": "bun",
-      "args": ["run", "--no-env-file", "mcp.ts"]
+      "args": ["run", "--no-env-file", "mcp.ts"],
+      "env": {
+        "LANE_REPO": "${LANE_REPO:-}",
+        "DATABASE_URL": "${DATABASE_URL:-}"
+      }
     }
   }
 }
 ```
+
+Those two values come from the shell that started the client, so export them
+before starting it if you want to open lanes from inside this checkout:
+`lane_create` needs `LANE_REPO`, `reset_stranded` needs `DATABASE_URL`, and
+each refuses by name when its variable is missing. The empty defaults are
+deliberate. A bare `${LANE_REPO}` expands to that literal text when the
+variable is unset, which passes the server's own check and then fails further
+in with something less clear.
 
 The path is relative because a project-scoped server is launched with the
 project directory as its working directory. To register it from another
