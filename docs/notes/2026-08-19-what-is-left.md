@@ -28,7 +28,7 @@ re-running the `codex` preset for real. Nothing else in this project depends on
 it. Delegation of implementation work goes to subagents rather than
 `codex exec` for the same reason.
 
-## 1. Done, and it was the last unobserved seam
+## 1. Done, though one seam surfaced a defect afterward
 
 ~~**A real agent under systemd.**~~ **Done 2026-08-20**
 ([evidence](2026-08-20-real-agent-under-systemd.md)). The conductor sat idle for
@@ -43,6 +43,12 @@ in the guard log are the agent's **internal** calls, which
 `check-evidence` passed them, but an agent whose internal Git use includes a
 write would fail a lane for a reason its operator could not predict from the
 preset.
+
+A real defect surfaced in this shipped surface later: teardown was reporting a
+worktree removal that had not actually happened (`ec5b144`, 2026-08-27). The
+2026-09-03 MCP run ([evidence](2026-09-03-mcp-server-driven-end-to-end.md))
+re-checked the fix as a regression and confirmed `lane_teardown` now genuinely
+removes the worktree.
 
 ## 2. Needs one action from the operator
 
@@ -70,21 +76,58 @@ it is a machine-wide service rather than Laneward's to register. Both platforms
 therefore come up before their database does, which this run showed they
 survive.
 
-## 3. Deferred until Codex is available again
+## 3. The MCP server: driven end to end for the first time
+
+Added 2026-08-27 (`2755b3d`), exercised by a real run for the first time on
+2026-09-03
+([the MCP server driven end to end](2026-09-03-mcp-server-driven-end-to-end.md)).
+
+That run proved the protocol layer is sound under a real process, that
+registering a lane genuinely opens its worktree, branch and database, that
+the plan approval gate works, that `reset_stranded` is correct in both of its
+modes, and that `lane_teardown` genuinely deletes all three.
+
+It did not prove the agent step: the host's `claude` CLI session had expired
+partway through the run, so no lane reached a `completed` verdict over MCP.
+Taking one lane all the way to `completed` through the MCP server, end to
+end, is still undone.
+
+The run also surfaced two open findings:
+
+- The repository's own `.mcp.json` has no `env` block, so a session opened
+  inside a Laneward checkout cannot run `lane_create` or `reset_stranded`.
+  Both reject with a clear error rather than failing silently, but neither
+  works from here.
+- `docs/guide/first-lane.md`'s manual conductor invocation (`bun run
+  conductor`) does not load `.env`, because the script carries
+  `--no-env-file`. Someone following the guide has their first lane die with
+  "no agent preset is active". `install.ps1:262` does this correctly for the
+  service install (`bun --env-file=... run --no-env-file conductor.ts`) — the
+  guide and the script have drifted apart.
+
+## 4. Cannot currently be verified
 
 **Re-run the `codex` preset for real.** Codex drove a lane end to end on
 2026-08-19, before the agent-neutral change. That change did not alter the
 argument array it is spawned with, but it did start setting the child's working
 directory and it renamed the model tiers, so the codex path is currently covered
-by tests rather than by a run. The risk is low and the fix if it is wrong is
-small. It is listed so nobody mistakes test coverage for a run.
+by tests rather than by a run. This is no longer a matter of waiting: the
+Codex subscription that would exercise it was cancelled on 2026-09-03, with
+no time horizon for it coming back, so there is nothing left to defer to.
+Whether the fix is small if it is wrong can no longer be sized, only guessed
+at, until a real run happens. The documentation now says the same thing:
+`docs/guide/configure.md`, `docs/guide/install.md`, `docs/GLOSSARY.md`, and
+both installer scripts were updated on 2026-09-03 to carry the fact that
+Codex is out of rotation.
 
-## 4. Deferred, and deliberately so
+## 5. Deferred, and deliberately so
 
-**More presets.** Only `codex` and `claude` ship, because only those two were
-run against this project. Adding an agent is a preset **plus a real lane driven
-by it**, in that order, and never the preset alone. A preset written from a help
-text is a guess with an argument array around it.
+**More presets.** Only `codex` and `claude` shipped, because only those two
+were run against this project. As of 2026-09-03 only `claude` can be run at
+all — the Codex subscription behind the other preset is cancelled. Adding an
+agent is a preset **plus a real lane driven by it**, in that order, and never
+the preset alone. A preset written from a help text is a guess with an
+argument array around it.
 
 Two things learned from adding the second one, worth knowing before a third. An
 agent that reaches for Git to orient itself will have those calls refused, and
@@ -92,13 +135,15 @@ that is survivable now, but its *mutating* calls will still fail the lane. And
 an agent with no way to express a read-only mode disables the reader rather than
 running it unconfined, so check for one before writing the preset.
 
-## 5. Decisions, not work
+## 6. Decisions, not work
 
-**Visibility.** ~~The repository is private.~~ Public since 2026-08-20. The last
-distribution step, taken after a final sweep found no host details, no
-credentials and no tracked `.env` across nine commits and the whole tree. The
-scrub that made it safe is recorded in
-[the rename note](2026-08-19-clean-repository-and-rename.md).
+**Visibility.** ~~The repository is private.~~ Public since 2026-08-20, after
+a final sweep found no host details, no credentials and no tracked `.env`
+across nine commits and the whole tree. The scrub that made it safe is
+recorded in [the rename note](2026-08-19-clean-repository-and-rename.md). It
+was not the last distribution step: a bilingual MkDocs site shipped to
+GitHub Pages on 2026-08-27 (`1f5ec92`, `987c105`, `dd3d719`), adding a whole
+distribution surface on top of repository visibility.
 
 **Clean shutdown on Windows (CP-3).** Windows has no catchable `SIGTERM`, so
 stopping the conductor strands its lanes. Two ways to stand:
@@ -129,6 +174,9 @@ mistakes them for oversights.
   `reset-stranded` warns in prose; the hub does not enforce it.
 - **Single user, `127.0.0.1`, no authentication.** The reason the README says
   not to expose it.
+- **The MCP server has no authentication either.** It opens over stdio to
+  whatever agent starts it, which is the same "no auth" decision as the HTTP
+  surface above, just on a different transport.
 
 ## Host faults that decide what can be tested here
 
@@ -144,3 +192,7 @@ Not project work, but they shape every item above.
   machine's own address is the only route. Both installers now warn when the
   configured `DATABASE_URL` is unreachable, which is the one-line version of a
   diagnosis this cost once.
+- Bun is pinned to 1.3.14 (`9cf5789` in CI, documented in `0157924`). On
+  Windows, Bun 1.4.0 makes `scripts/teardown.ts` return 0 having removed
+  nothing and written nothing. That is a first-class constraint on what can
+  be tested here, not a footnote.
