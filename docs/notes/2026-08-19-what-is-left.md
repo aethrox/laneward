@@ -92,18 +92,31 @@ partway through the run, so no lane reached a `completed` verdict over MCP.
 Taking one lane all the way to `completed` through the MCP server, end to
 end, is still undone.
 
-The run also surfaced two open findings:
+The run surfaced two findings, both closed on 2026-09-04:
 
-- The repository's own `.mcp.json` has no `env` block, so a session opened
-  inside a Laneward checkout cannot run `lane_create` or `reset_stranded`.
-  Both reject with a clear error rather than failing silently, but neither
-  works from here.
-- `docs/guide/first-lane.md`'s manual conductor invocation (`bun run
+- ~~The repository's own `.mcp.json` has no `env` block, so a session opened
+  inside a Laneward checkout cannot run `lane_create` or `reset_stranded`.~~
+  It now passes `LANE_REPO` and `DATABASE_URL` through from the shell that
+  started the client, with empty defaults: a bare `${VAR}` expands to that
+  literal text when the variable is unset, which would pass the server's own
+  check and fail less clearly further in. **Not yet verified by a run** — an
+  MCP server reads its environment once at startup, so this needs a session
+  started after the change.
+- ~~`docs/guide/first-lane.md`'s manual conductor invocation (`bun run
   conductor`) does not load `.env`, because the script carries
-  `--no-env-file`. Someone following the guide has their first lane die with
-  "no agent preset is active". `install.ps1:262` does this correctly for the
-  service install (`bun --env-file=... run --no-env-file conductor.ts`) — the
-  guide and the script have drifted apart.
+  `--no-env-file`.~~ The script is now
+  `bun --env-file=.env run --no-env-file conductor.ts`, the flag order the
+  Windows task already used, which fixes every page that prints `bun run
+  conductor` without touching their text.
+
+Closing the second one exposed a third defect, in the service path rather
+than the guide: `--no-env-file` was the only thing keeping Laneward's `PORT`
+away from a worker, and both service installs load `.env` anyway
+(`EnvironmentFile` on Linux, `--env-file` on Windows), so `PORT` was reaching
+every agent they spawned. `buildWorkerEnv` stripped `DATABASE_URL` but not
+`PORT`. It strips both now, with the unit test asserting it. That is the
+collision `src/conductor.ts`'s own comment recorded once and nothing had
+prevented since.
 
 ## 4. Cannot currently be verified
 

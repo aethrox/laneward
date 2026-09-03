@@ -85,6 +85,11 @@ for Codex and Cursor configs but the repository's own `.mcp.json` omits it.
 The refusal messages are clear enough that this isn't a trap, but the file as
 shipped does not let the server drive itself.
 
+Fixed 2026-09-04: the file now forwards both variables from the shell that
+started the client, with empty defaults so an unset variable still produces the
+refusals above rather than a literal `${VAR}`. Unverified by a run — a server
+reads its environment once, at startup.
+
 ## Finding: the guide's manual conductor command drops the environment
 
 `docs/guide/first-lane.md:126-127` tells the reader to run `bun run
@@ -106,6 +111,26 @@ right for the service path: `bun --env-file="$EnvFile" run --no-env-file
 conductor.ts --loop`. Repeating the manual command with `--env-file` let the
 run continue (`greet-fix: started` three times, then `greet-fix: failed`).
 So the installed service is fine; the guide's hand-run command is not.
+
+Fixed 2026-09-04, in the script rather than the pages: `conductor` is now
+`bun --env-file=.env run --no-env-file conductor.ts`. The same lane, re-run
+after the change, no longer errors on the preset and reaches the agent.
+
+Chasing it further found that the installed service was not fine after all —
+`--no-env-file` was the only thing holding Laneward's `PORT` back from a
+worker, and both service installs load `.env` regardless (`EnvironmentFile` on
+Linux, `--env-file` on Windows), so `PORT` had been reaching every agent they
+spawned. `buildWorkerEnv` strips it now alongside `DATABASE_URL`. A lane driven
+by a probe agent that prints its own environment reports what a worker sees
+after the fix:
+
+```
+PORT=undefined DATABASE_URL=postgres://.../laneward_driven_lane_port_check
+```
+
+The hub's port is gone, and the connection string is the lane's own database
+from its worktree `.env` rather than the hub's — which is what the boundary was
+always meant to produce.
 
 ## What this does not establish
 
