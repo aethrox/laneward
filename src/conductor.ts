@@ -70,6 +70,12 @@ function isCredentialVariable(name: string): boolean {
 // A worker needs the agent's own HOME and USERPROFILE, but not the host's Git,
 // GitHub, SSH, or database credentials. Local repository config remains
 // readable, including its remote URL.
+//
+// PORT is stripped for a different reason than the credentials are: it is not a
+// secret, it is a collision. Laneward's own PORT reaching a worker points the
+// lane's dev server at the hub's port, which happened once. The conductor still
+// needs PORT for itself, to derive its hub address, so it is dropped here at the
+// worker boundary rather than kept out of the conductor's own environment.
 export function buildWorkerEnv(
   baseEnv: Record<string, string | undefined>,
   options: WorkerEnvOptions,
@@ -81,6 +87,7 @@ export function buildWorkerEnv(
       value === undefined ||
       upper === "PATH" ||
       upper === "GH_CONFIG_DIR" ||
+      upper === "PORT" ||
       isCredentialVariable(key) ||
       upper === "GIT_DIR" ||
       upper === "GIT_WORK_TREE" ||
@@ -137,9 +144,16 @@ function guardLogPath(cfg: ConductorConfig, lane: DispatchableLane): string {
 // The child inherits this process's environment, and Bun auto-loads `.env` from
 // the working directory, so running the conductor from the laneward checkout
 // pushed laneward's own `PORT` and `DATABASE_URL` into every lane. A lane then
-// served the driven repository on 8787 and collided with HUB. The `conductor`
-// script therefore runs with `--no-env-file`; the conductor needs no
-// settings from a file. Invoking `bun run conductor.ts` directly bypasses that.
+// served the driven repository on 8787 and collided with HUB.
+//
+// Suppressing the file was the first answer, but the conductor does need
+// settings from it -- `LANEWARD_AGENT` lives there, and without it every lane
+// fails with "no agent preset is active". So the `conductor` script now loads
+// `.env` explicitly and still suppresses the auto-load
+// (`bun --env-file=.env run --no-env-file conductor.ts`, the flag order the
+// Windows task uses), and buildWorkerEnv above is what actually keeps `PORT`
+// and the credentials away from the worker. The env file is the conductor's;
+// the worker boundary is buildWorkerEnv's.
 export async function runAgent(
   cfg: ConductorConfig,
   lane: DispatchableLane,

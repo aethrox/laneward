@@ -87,11 +87,18 @@ biriminin çalıştırdığı şey odur.
 
 !!! warning "Conductor'ı paket betiği üzerinden çalıştır"
 
-    `bun run conductor`, `bun run --no-env-file conductor.ts` demektir. Bu
-    bayrak taşıyıcıdır: aksi hâlde Bun, bulunduğun dizindeki `.env`'i otomatik
-    yükler ve Laneward'ın kendi `PORT` ile `DATABASE_URL` değerlerini başlattığı
-    her ajana geçirir; ajan da lane'inin veritabanı yerine hub'ın veritabanına
-    bakar. `bun run conductor.ts` demek bu korumayı atlar.
+    `bun run conductor`, `bun --env-file=.env run --no-env-file conductor.ts`
+    demektir. İki bayrak da taşıyıcıdır, bu sırayla: birincisi checkout'un
+    yanındaki `.env`'i yükler — `LANEWARD_AGENT` orada durur; ikincisi Bun'un
+    içinde bulunduğun dizinden ikinci bir `.env`'i otomatik yüklemesini
+    engeller. `bun run conductor.ts` demek ikisini de atlar ve ilk lane
+    `no agent preset is active` ile başarısız olur.
+
+    Laneward'ın kendi `PORT` ve `DATABASE_URL` değerlerini başlatılan ajandan
+    uzak tutan şey bayrak değil, worker sınırıdır: conductor ikisini de,
+    host'un Git, GitHub ve SSH kimlik bilgileriyle birlikte, her ajana verdiği
+    ortamdan siler. `PORT` siliniyor çünkü onu devralan bir lane kendi
+    reposunu hub'ın portunda servis eder.
 
 İkisini de bir araç oturumunun arka plan işi olarak değil, detached başlat. Lane
 ortasında öldürülen bir conductor, kimsenin puanlamadığı bir worktree'ye yazan

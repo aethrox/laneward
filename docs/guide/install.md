@@ -87,11 +87,18 @@ what a service unit runs.
 
 !!! warning "Run the conductor through the package script"
 
-    `bun run conductor` is `bun run --no-env-file conductor.ts`. That flag is
-    load-bearing: Bun otherwise auto-loads the `.env` in the current directory
-    and pushes Laneward's own `PORT` and `DATABASE_URL` into every agent it
-    spawns, so the agent ends up pointed at the hub's database instead of its
-    lane's. Calling `bun run conductor.ts` directly bypasses that protection.
+    `bun run conductor` is `bun --env-file=.env run --no-env-file conductor.ts`.
+    Both flags carry weight, in that order: the first loads the `.env` beside
+    the checkout, which is where `LANEWARD_AGENT` lives, and the second stops
+    Bun auto-loading a second `.env` from whatever directory you happen to be
+    in. Calling `bun run conductor.ts` directly loads neither, and the first
+    lane fails with `no agent preset is active`.
+
+    What keeps Laneward's own `PORT` and `DATABASE_URL` out of a spawned agent
+    is not the flag but the worker boundary: the conductor strips both, along
+    with the host's Git, GitHub and SSH credentials, from the environment it
+    hands each agent. `PORT` is stripped because a lane that inherits it serves
+    its own repository on the hub's port.
 
 Start both detached rather than as background jobs of a tool session. A
 conductor killed mid-lane leaves an orphaned agent writing into a worktree that

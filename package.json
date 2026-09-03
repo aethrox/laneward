@@ -9,7 +9,7 @@
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "db:migrate": "bun run db/migrate.ts",
-    "conductor": "bun run --no-env-file conductor.ts",
+    "conductor": "bun --env-file=.env run --no-env-file conductor.ts",
     "mcp": "bun run --no-env-file mcp.ts",
     "build-candidate": "bun run scripts/build-candidate.ts",
     "reset-stranded": "bun run scripts/reset-stranded.ts",

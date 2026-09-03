@@ -52,7 +52,7 @@ test("buildPrompt appends the approval decision for a resumed lane", async () =>
   expect(prompt).toContain("use option B");
 });
 
-test("buildWorkerEnv puts the shim first and removes host credentials", () => {
+test("buildWorkerEnv puts the shim first and removes host credentials and PORT", () => {
   const shimDir = join(tmpdir(), "laneward-git-shim");
   const env = buildWorkerEnv(
     {
@@ -67,6 +67,10 @@ test("buildWorkerEnv puts the shim first and removes host credentials", () => {
       SSH_ASKPASS: "ssh-askpass",
       SSH_AUTH_SOCK: "socket",
       ANOTHER_SECRET: "secret",
+      DATABASE_URL: "postgres://hub/laneward",
+      // Not a secret, a collision: the hub's port reaching a worker points the
+      // lane's own server at the hub. The conductor keeps PORT for itself.
+      PORT: "8787",
     },
     {
       shimDir,
@@ -96,6 +100,8 @@ test("buildWorkerEnv puts the shim first and removes host credentials", () => {
     "SSH_ASKPASS",
     "SSH_AUTH_SOCK",
     "ANOTHER_SECRET",
+    "DATABASE_URL",
+    "PORT",
   ]) expect(env[name]).toBeUndefined();
 });
 
