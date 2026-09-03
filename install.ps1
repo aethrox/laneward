@@ -162,6 +162,7 @@ if ($declaredAgent -eq 'codex') {
     }
   } else {
     Write-Warning 'codex not on PATH, but LANEWARD_AGENT=codex is set. No lane can be dispatched until it is.'
+    Write-Warning 'the codex path is currently covered by tests rather than by a run; its last real run was on 2026-08-19, before the subscription behind it lapsed.'
   }
 }
 

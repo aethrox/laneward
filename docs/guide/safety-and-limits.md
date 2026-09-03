@@ -97,9 +97,14 @@ bare metal or a virtual machine.
 a real agent with nobody attached. Stopping the task strands the lane, and
 `reset-stranded` recovers it, verified as a round trip.
 
-**Neither platform** has survived a reboot or a logout. The Windows logon trigger
-has never fired from a real cycle. A real agent has run under the Windows task
-but never under systemd. Docker, macOS and other service setups are untried.
+**Neither platform** has survived a reboot. Logout is settled in both
+directions: on Linux the units stop without linger and stay up with it
+(2026-08-21, measured in a privileged container rather than on bare metal), and
+on Windows the logon trigger has fired from a real logoff and logon
+(2026-08-20). A real agent has run unattended under both the Windows task and
+systemd. The `codex` preset itself has not run under systemd, and stayed
+deferred once its subscription lapsed. Docker, macOS and other service setups
+are untried.
 
 The [evidence notes](../notes/2026-08-19-what-is-left.md) record what was run,
 what it found, and, in each case, what it did not establish.

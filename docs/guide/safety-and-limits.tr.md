@@ -108,10 +108,14 @@ değilken gerçek bir ajan tarafından sürülen bir lane'i tamamladı. Görevi
 durdurmak lane'i mahsur bırakır, ve `reset-stranded` onu kurtarır; bu bir
 round trip olarak doğrulanmıştır.
 
-**Hiçbir platform** bir reboot'tan veya bir logout'tan sağ çıkmadı. Windows
-logon trigger'ı gerçek bir döngüden hiç tetiklenmedi. Gerçek bir ajan
-Windows görevi altında çalıştı ama systemd altında hiç çalışmadı. Docker,
-macOS ve diğer servis kurulumları denenmedi.
+**Hiçbir platform** bir reboot'tan sağ çıkmadı. Logout iki yönde de yerine
+oturdu: Linux'ta birimler linger olmadan duruyor, linger ile ayakta kalıyor
+(2026-08-21, bare metal yerine ayrıcalıklı bir konteynerde ölçüldü);
+Windows'ta logon trigger'ı gerçek bir logoff ve logon'dan tetiklendi
+(2026-08-20). Gerçek bir ajan hem Windows görevi hem systemd altında, başında
+kimse olmadan çalıştı. `codex` presetinin kendisi systemd altında çalışmadı ve
+arkasındaki abonelik sona erdiğinde ertelenmiş olarak kaldı. Docker, macOS ve
+diğer servis kurulumları denenmedi.
 
 [Kanıt notları](../notes/2026-08-19-what-is-left.md), neyin
 çalıştırıldığını, ne bulduğunu, ve her durumda neyi kanıtlamadığını

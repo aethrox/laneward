@@ -87,7 +87,7 @@ Both installers stage the app atomically, validate the `.env` they will actually
 ```
 
 > [!WARNING]
-> Neither platform has survived a reboot or a logout yet. On Linux the units stop at logout unless `loginctl enable-linger` is enabled, a persistent host change the installer deliberately does not make for you. On Windows the logon trigger is registered but has never fired from a real logoff and logon.
+> Neither platform has survived a reboot yet. Logout is settled: on Linux the units stop at logout unless `loginctl enable-linger` is enabled, a persistent host change the installer deliberately does not make for you, and with it they all stay up (2026-08-21). On Windows the logon trigger has fired from a real logoff and logon (2026-08-20).
 
 The post-install commands, the `--env-file` every Windows invocation needs, and what to do when a stopped task strands a lane are in [Running as a service](https://aethrox.github.io/laneward/guide/running-as-a-service/).
 
@@ -95,9 +95,9 @@ The post-install commands, the `--env-file` every Windows invocation needs, and 
 
 **Linux.** Installs, runs as two systemd user services, completes a lane unattended, enforces path ownership with nobody watching, and stops cleanly with its lanes handed back. The shipped database container starts from its Quadlet, takes the migration, and its volume survives a restart of the unit. That evidence comes from a privileged container sharing the host kernel, not from bare metal or a VM.
 
-**Windows.** Installs, runs as a Scheduled Task, and completed a lane driven by a real Codex worker with nobody attached. Stopping the task mid-lane strands the lane and `reset-stranded` recovers it, verified as a round trip.
+**Windows.** Installs, runs as a Scheduled Task, and completed a lane driven by a real agent with nobody attached. Stopping the task mid-lane strands the lane and `reset-stranded` recovers it, verified as a round trip.
 
-**Neither platform** has survived a reboot or a logout. The Windows logon trigger has never fired from a real cycle. A real Codex worker has run under the Windows task but never under systemd. Docker, macOS, and other service setups are untried.
+**Neither platform** has survived a reboot. Logout is settled in both directions: on Linux the units stop without linger and stay up with it (2026-08-21, measured in a privileged container rather than on bare metal), and on Windows the logon trigger has fired from a real logoff and logon (2026-08-20). A real agent has run unattended under both the Windows task and systemd. The `codex` preset itself has not run under systemd, and stayed deferred once its subscription lapsed. Docker, macOS, and other service setups are untried.
 
 The `.env` copied into each lane worktree is the largest remaining gap: only `DATABASE_URL` is rewritten. Beyond that there is no authentication, multi-conductor operation is unsafe and nothing enforces a single conductor, the repository-local git config including the remote URL is readable from inside a lane worktree, and there is no `SECURITY.md` or vulnerability reporting channel. [Safety and limits](https://aethrox.github.io/laneward/guide/safety-and-limits/) is the full account.
 

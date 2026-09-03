@@ -92,6 +92,7 @@ if [ "${LANEWARD_AGENT:-}" = codex ]; then
     fi
   else
     echo "WARNING: codex not on PATH, but LANEWARD_AGENT=codex is set. No lane can be dispatched until it is." >&2
+    echo "WARNING: the codex path is currently covered by tests rather than by a run; its last real run was on 2026-08-19, before the subscription behind it lapsed." >&2
   fi
 fi
 

@@ -11,7 +11,7 @@ hiçbir şey servis olarak kurulmuyor; o
 | [Bun](https://bun.sh) 1.3.14 | İki kurulum betiği de bunun altında uyarır ve her şey bu sürüme karşı doğrulandı. Daha yenisi güvenli değil: Windows'ta Bun 1.4.0 ile `scripts/teardown.ts` hiçbir şey kaldırmadan ve hiçbir şey yazmadan 0 dönüyor. CI bu yüzden 1.3.14'e sabitli. |
 | git | 2.54.0 üzerinde doğrulandı. |
 | PostgreSQL 16 | Erişebildiğin herhangi bir örnek. Linux'ta rootless Podman ile `install.sh` kendi veritabanını getirebilir. |
-| Bir ajan CLI'ı | `codex` preseti için Codex 0.147.0 veya üstü, `claude` preseti için Claude Code, ya da kendi komutun. Bkz. [Yapılandırma](configure.md). |
+| Bir ajan CLI'ı | `codex` preseti için Codex 0.147.0 veya üstü — son olarak 2026-08-19'daki gerçek koşuya karşı doğrulandı ve o abonelik sona erdiğinden beri artık bir koşuyla değil testlerle kaplı — `claude` preseti için Claude Code, ya da kendi komutun. Bkz. [Yapılandırma](configure.md). |
 
 Masaüstü bildirimleri Linux'ta (`notify-send`) ve Windows'ta (PowerShell toast)
 çalışır. macOS'ta bildirim yoktur; geri kalan her şey yine çalışır.

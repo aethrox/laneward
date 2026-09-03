@@ -84,8 +84,10 @@ approval, dependencies, path conflicts, and the active lane limit.
 **Preset**: a named agent configuration, selected with `LANEWARD_AGENT`. It
 holds the command Laneward runs to start that agent, the command for its
 read-only mode, and which model each tier resolves to. `codex` and `claude`
-ship. There is no default: an install with no preset and no raw command
-declared refuses to start.
+ship, though `codex` is now covered by tests rather than by a run, since its
+subscription lapsed after the 2026-08-19 run that last exercised it. There is
+no default: an install with no preset and no raw command declared refuses to
+start.
 
 **Model tier**: `fast`, `balanced` or `deep`. A lane names a tier rather than a
 model, and the preset decides which model that tier means, so the same lane can

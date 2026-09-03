@@ -56,6 +56,9 @@ An unknown preset name is refused just as loudly:
 ### The two presets
 
 Only these two ship, because only these two were run against this project.
+The `codex` path was last driven by a real run on 2026-08-19; the Codex
+subscription behind it lapsed shortly after, and the path is now covered by
+tests rather than by a run.
 
 === "codex"
 

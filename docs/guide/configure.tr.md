@@ -55,6 +55,9 @@ Bilinmeyen bir preset adı da aynı netlikte reddedilir:
 ### İki preset
 
 Yalnızca bu ikisi geliyor, çünkü bu projeye karşı yalnızca bu ikisi çalıştırıldı.
+`codex` yolu son olarak 2026-08-19'da gerçek bir koşuyla çalıştırıldı; bu yolun
+arkasındaki Codex aboneliği kısa süre sonra sona erdi ve yol artık bir koşuyla
+değil testlerle kaplı.
 
 === "codex"
 
