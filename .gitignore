@@ -5,3 +5,4 @@ node_modules/
 site/
 .venv-docs/
 __pycache__/
+.claude/worktrees/
